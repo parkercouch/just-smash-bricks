@@ -97,6 +97,15 @@ const startGameLoop = function () {
       if (this.collidesWith(paddle)) {
         this.dy *= -1;
       }
+      if (outOfBounds(this.x, this.y)) {
+        // reflect back
+        // Bouncing off bottom for debugging 
+        if ( this.y < 1 || this.y > kontra.canvas.height) {
+          this.dy *= -1;
+        } else {
+          this.dx *= -1;
+        }
+      }
     },
   });
 
@@ -199,8 +208,14 @@ function resizeCanvasToDisplaySize(canvas) {
   return false;
 }
 
-function outOfBounds () {
-  return;
+// Checks if out of bounds. Uses global Kontra
+// outOfBounds :: Num, Num -> Bool
+function outOfBounds (x, y) {
+  if (x <= 0 || x >= kontra.canvas.width
+    || y <= 0 || y >= kontra.canvas.height) {
+      return true;
+    }
+  return false;
 }
 
 
