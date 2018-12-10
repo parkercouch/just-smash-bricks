@@ -1,0 +1,29 @@
+{
+  "name": "brick-smashing-game",
+  "version": "1.0.0-alpha",
+  "description": "Breakout/Arkanoid type game",
+  "main": "app.js",
+  "devDependencies": {
+    "jest": "^23.6.0",
+    "browser-sync": "^2.26.3"
+  },
+  "scripts": {
+    "test": "jest",
+    "testWithCoverage": "jest --coverage",
+    "start": "browser-sync start --server . --files ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parkercouch/brick-smashing-game.git"
+  },
+  "keywords": [
+    "arcade",
+    "game"
+  ],
+  "author": "Parker Couch",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/parkercouch/brick-smashing-game/issues"
+  },
+  "homepage": "https://github.com/parkercouch/brick-smashing-game#readme"
+}
