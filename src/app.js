@@ -86,13 +86,17 @@ const startGameLoop = function () {
       x: 0.5,
       y: 0.5,
     },
-    x: 200,        // starting x,y position of the sprite
+    x: 20,        // starting x,y position of the sprite
     y: 300,
     dx: 2,
     dy: 2,
     image: kontra.assets.images.ball,
     update: function () { 
       ball.advance();
+      // Collides with Paddle
+      if (this.collidesWith(paddle)) {
+        this.dy *= -1;
+      }
     },
   });
 
@@ -193,6 +197,10 @@ function resizeCanvasToDisplaySize(canvas) {
   }
 
   return false;
+}
+
+function outOfBounds () {
+  return;
 }
 
 
