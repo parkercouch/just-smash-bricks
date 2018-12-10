@@ -1,3 +1,10 @@
 body {
   text-align: center;
 }
+
+#game {
+  width: 400px;
+  height: 600px;
+  margin: 20px auto;
+  border: 1px solid black;
+}
