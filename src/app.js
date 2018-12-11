@@ -5,7 +5,11 @@
 // ------------------------------------------------------- //
 /* #region */
 const GAME = {};
-const FPS = 60;
+const FPS = 120;
+const brickHeight = 15;
+const brickWidth = 50;
+const paddleWidth = 60;
+const paddleHeight = 10;
 
 
 /* #endregion */
@@ -66,7 +70,17 @@ const startGameLoop = function () {
     x: 200,        // starting x,y position of the sprite
     y: 550,
     dx: 0,
-    image: kontra.assets.images.paddle,
+    dy: 0,
+    width: paddleWidth,
+    height: paddleHeight, 
+    color: 'green',
+    // image: kontra.assets.images.paddle,
+    update: function() {
+      this.top = this.y;
+      this.bottom = this.y + this.height;
+      this.left = this.x;
+      this.right = this.x + this.width;
+    },
     move: function (canMoveLeft, canMoveRight) { 
       paddle.advance();
       switch (true) {
@@ -91,8 +105,9 @@ const startGameLoop = function () {
     y: 300,
     dx: 5,
     dy: 5,
-    radius: 16,
-    image: kontra.assets.images.ball,
+    radius: 8,
+    color: 'blue',
+    // image: kontra.assets.images.ball,
     update: function (dt) { 
   ////---- BALL LOGIC ---///
   ///NEEDS UPDATED FOR ALL CASES AND PUT INTO FUNCTION///
@@ -183,25 +198,35 @@ const startGameLoop = function () {
 
   /// ---- END BALL LOGIC ---- ///
     },
+    render: function() {
+      this.context.fillStyle = this.color;
+  
+      this.context.beginPath();
+      this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+      this.context.fill();
+    },
   });
+
 
   const brick = kontra.sprite({
     x: 200,        // starting x,y position of the sprite
     y: 100,
     dx: 0,
     dy: 0,
-    image: kontra.assets.images.brick,
+    width: brickWidth,
+    height: brickHeight,
+    top: 100,
+    bottom: 100 + brickHeight,
+    left: 200,
+    right: 200 + brickWidth,
+    color: 'red',
+    // image: kontra.assets.images.brick,
     update: function () {
     },
   });
-  // Give Brick edges for collision detection
-  brick.top = brick.y;
-  brick.bottom = brick.y + brick.height;
-  brick.left = brick.x;
-  brick.right = brick.x + brick.width;
 
   let loop = kontra.gameLoop({  // create the main game loop
-    fps: 60,
+    fps: FPS,
     // clearCanvas: false,  // not clearing helps with debug
     update: function (dt) {        // update the game state
 
@@ -216,6 +241,7 @@ const startGameLoop = function () {
         paddle.move(false, true);
       }
 
+      paddle.update();
       ball.update(dt);
 
     },
