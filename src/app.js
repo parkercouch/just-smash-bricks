@@ -10,6 +10,8 @@ const BRICKHEIGHT = 15;
 const BRICKWIDTH = 50;
 const PADDLEWIDTH = 60;
 const PADDLEHEIGHT = 10;
+const CANVASHEIGHT = 600;
+const CANVASWIDTH = 400;
 
 
 /* #endregion */
@@ -60,6 +62,88 @@ const sfxAssets = [
 
 // MAIN GAME LOGIC
 const startGameLoop = function () {
+
+  // QUADTREE FOR COLLISION DETECTION //
+  const collidableObjects = kontra.quadtree();
+
+  // WALLS //
+  const leftWall = kontra.sprite({
+    anchor: {
+      x: 1,
+      y: 0,
+    },
+    x: 0.5,        // starting x,y position of the sprite
+    y: 0,
+    dx: 0,
+    dy: 0,
+    width: 1,
+    height: kontra.canvas.height,
+    top: 0,
+    bottom: kontra.canvas.height,
+    left: -0.5,
+    right: 0,
+    // color: 'red',
+  });
+
+  const rightWall = kontra.sprite({
+    anchor: {
+      x: 0,
+      y: 0,
+    },
+    x: kontra.canvas.width - 0.5,        // starting x,y position of the sprite
+    y: 0,
+    dx: 0,
+    dy: 0,
+    width: 1,
+    height: kontra.canvas.height,
+    top: 0,
+    bottom: kontra.canvas.height,
+    left: kontra.canvas.width - 0.5,
+    right: kontra.canvas.width + 0.5,
+    // color: 'red',
+  });
+
+  const topWall = kontra.sprite({
+    anchor: {
+      x: 0,
+      y: 1,
+    },
+    x: 0,        // starting x,y position of the sprite
+    y: 0.5,
+    dx: 0,
+    dy: 0,
+    width: kontra.canvas.width,
+    height: 1,
+    top: -0.5,
+    bottom: 0.5,
+    left: 0,
+    right: kontra.canvas.width,
+    // color: 'red',
+  });
+
+  // BOTTOM WALL FOR TESTING AND MAYBE POWERUP??
+  const bottomWall = kontra.sprite({
+    anchor: {
+      x: 0,
+      y: 0,
+    },
+    x: 0,        // starting x,y position of the sprite
+    y: kontra.canvas.height - 0.5,
+    dx: 0,
+    dy: 0,
+    width: kontra.canvas.width,
+    height: 1,
+    top: kontra.canvas.height - 0.5,
+    bottom: kontra.canvas.height + 0.5,
+    left: 0,
+    right: kontra.canvas.width,
+    // color: 'red',
+  });
+
+  leftWall.render();
+  rightWall.render();
+  topWall.render();
+  bottomWall.render();
 
   // PADDLE //
   const paddle = kontra.sprite({
@@ -116,15 +200,15 @@ const startGameLoop = function () {
       if (this.collidesWith(paddle)) {
         this.dy *= -1;
       }
-      if (outOfBounds(this.x, this.y)) {
-        // reflect back
-        // Bouncing off bottom for debugging 
-        if ( this.y < 1 || this.y > kontra.canvas.height) {
-          this.dy *= -1;
-        } else {
-          this.dx *= -1;
-        }
-      }
+      // if (outOfBounds(this.x, this.y)) {
+      //   // reflect back
+      //   // Bouncing off bottom for debugging 
+      //   if ( this.y < 1 || this.y > kontra.canvas.height) {
+      //     this.dy *= -1;
+      //   } else {
+      //     this.dx *= -1;
+      //   }
+      // }
 
       // testing collision algorithm
       const p2 = move(ball, dt);
@@ -139,7 +223,10 @@ const startGameLoop = function () {
 
       // for (let n = 0; n < this.hitTargets.length; n++) {
       //   item = this.hitTargets[n];
-      brickPool.getAliveObjects().forEach((brick) => {
+      // brickPool.getAliveObjects().forEach((brick) => {
+
+      //// CHECK ALL OBJECTS IN CURRENT NODE OF QUADTREE ////
+      collidableObjects.get(this).forEach((brick) => {
         
 
       item = brick;
@@ -147,7 +234,7 @@ const startGameLoop = function () {
       point = ballIntercept(ball, item, p2.nx, p2.ny);
       // console.log(point);
       if (point) {
-        //
+        //TEMP to remove bricks as hit
         brick.ttl = 0;
         brickPool.update();
 
@@ -187,9 +274,9 @@ const startGameLoop = function () {
         }
 
         var udt = dt * (mClosest / magnitude(p2.nx, p2.ny)); // how far along did we get before intercept ?
-        console.log(udt);
-        console.log(dt);
-        return this.update(dt - udt);                                  // so we can update for time remaining
+        console.log('udt:', udt);
+        console.log('dt:', dt);
+        return this.update(dt - udt);               // so we can update for time remaining
       }
 
       // if ((p2.x < 0) || (p2.y < 0) || (p2.x > this.game.width) || (p2.y > this.game.height)) {
@@ -224,14 +311,12 @@ const startGameLoop = function () {
     fill: true,
   });
   
-  // MAGIC NUMBERS FOR TESTING
+  // MAGIC NUMBERS FOR TESTING BRICK LAYOUT
   // MAKE FORMULA LATER
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
-      // let x = 30 + (i * 5) + (i - 1) * 50;
       let startX = 30 + (j * 5) + (j - 1) * 50;
       let startY = 30 + (i * 5) + (i - 1) * 15;
-      console.log(startX,startY);
       brickPool.get({
         x: startX,        // starting x,y position of the sprite
         y: startY,
@@ -245,39 +330,23 @@ const startGameLoop = function () {
         right: startX + BRICKWIDTH,
         color: 'red',
         fix: true,
-        // ttl: Infinity,
-        // update: function () {
-        // },
-        // render: function () {
-        // },
       });
       brickPool.update();
       brickPool.render();
     }
   }
-  console.log(brickPool.size);
-
-  // const brick = kontra.sprite({
-  //   x: 35,        // starting x,y position of the sprite
-  //   y: 35,
-  //   dx: 0,
-  //   dy: 0,
-  //   width: BRICKWIDTH,
-  //   height: BRICKHEIGHT,
-  //   top: 100,
-  //   bottom: 100 + BRICKHEIGHT,
-  //   left: 200,
-  //   right: 200 + BRICKWIDTH,
-  //   color: 'red',
-  //   // image: kontra.assets.images.brick,
-  //   update: function () {
-  //   },
-  // });
 
   let loop = kontra.gameLoop({  // create the main game loop
     fps: FPS,
     // clearCanvas: false,  // not clearing helps with debug
     update: function (dt) {        // update the game state
+
+      brickPool.update();
+      collidableObjects.clear();
+      collidableObjects.add(brickPool.getAliveObjects());
+      // console.log(leftWall, rightWall, topWall);
+      collidableObjects.add(leftWall, topWall, rightWall, bottomWall);
+      // console.log(collidableObjects.get(ball));
 
       // Keep paddle contained in canvas
       // POSSIBLE REFACTOR AND PUT INTO PADDLE OBJECT
@@ -298,7 +367,6 @@ const startGameLoop = function () {
     render: function () {        // render the game state
       paddle.render();
       ball.render();
-      // brick.render();
       brickPool.render();
 
     }

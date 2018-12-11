@@ -996,7 +996,7 @@ kontra = {
           else {
             for (let x = 0; x < this.size && this.objects.length < this.maxSize; x++) {
               this.objects.unshift(this._c());
-              console.log(this.objects);
+              // console.log(this.objects);
             }
 
             this.size = this.objects.length;
