@@ -5,6 +5,7 @@
 // ------------------------------------------------------- //
 /* #region */
 const GAME = {};
+const FPS = 60;
 
 
 /* #endregion */
@@ -53,7 +54,7 @@ const sfxAssets = [
 // ------------------------------------------------------- //
 /* #region */
 
-// EXAMPLE BOILERPLATE
+// MAIN GAME LOGIC
 const startGameLoop = function () {
 
   // PADDLE //
@@ -94,6 +95,7 @@ const startGameLoop = function () {
     image: kontra.assets.images.ball,
     update: function (dt) { 
   ////---- BALL LOGIC ---///
+  ///NEEDS UPDATED FOR ALL CASES AND PUT INTO FUNCTION///
       // ball.advance();
       // Collides with Paddle
       if (this.collidesWith(paddle)) {
@@ -110,9 +112,9 @@ const startGameLoop = function () {
       }
 
       // testing collision algorithm
-      const p2 = move(ball);
-      console.log(ball);
-      console.log(p2);
+      const p2 = move(ball, dt);
+      // console.log(ball);
+      // console.log(p2);
 
       let mCurrent;
       let mClosest = Infinity;
@@ -123,10 +125,9 @@ const startGameLoop = function () {
       // for (let n = 0; n < this.hitTargets.length; n++) {
       //   item = this.hitTargets[n];
       item = brick;
-      console.log(brick);
       // if (!item.hit) {
       point = ballIntercept(ball, item, p2.nx, p2.ny);
-      console.log(point);
+      // console.log(point);
       if (point) {
         mCurrent = magnitude(point.x - this.x, point.y - this.y);
         if (mCurrent < mClosest) {
@@ -162,6 +163,8 @@ const startGameLoop = function () {
         }
 
         var udt = dt * (mClosest / magnitude(p2.nx, p2.ny)); // how far along did we get before intercept ?
+        console.log(udt);
+        console.log(dt);
         return this.update(dt - udt);                                  // so we can update for time remaining
       }
 
@@ -173,11 +176,10 @@ const startGameLoop = function () {
       // this.setdir(p2.dx, p2.dy);
       // }
 
-      // this.x = p2.x;
-      // this.y = p2.y;
-      // this.dx = p2.dx;
-      // this.dy = p2.dy;
-      ball.advance();
+      this.x = p2.x;
+      this.y = p2.y;
+      this.dx = p2.dx;
+      this.dy = p2.dy;
 
   /// ---- END BALL LOGIC ---- ///
     },
@@ -192,12 +194,15 @@ const startGameLoop = function () {
     update: function () {
     },
   });
+  // Give Brick edges for collision detection
   brick.top = brick.y;
   brick.bottom = brick.y + brick.height;
   brick.left = brick.x;
   brick.right = brick.x + brick.width;
 
   let loop = kontra.gameLoop({  // create the main game loop
+    fps: 60,
+    // clearCanvas: false,  // not clearing helps with debug
     update: function (dt) {        // update the game state
 
       // Keep paddle contained in canvas
@@ -282,7 +287,7 @@ var gameStates = new StateMachine({
 // Keeps canvas size 1x1 pixels so it draws correctly
 // resizeCanvasToDisplaySize :: Element -> Void
 function resizeCanvasToDisplaySize(canvas) {
-  // look up the size the canvas is being displayed
+  // Look up the size the canvas is being displayed
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
 
@@ -306,6 +311,8 @@ function outOfBounds (x, y) {
   return false;
 }
 
+// Line intercept
+// intercept :: (Num, Num), (Num, Num), (Num, Num), (Num, Num), String -> {Num, Num, String}
 function intercept (x1, y1, x2, y2, x3, y3, x4, y4, d) {
   var denom = ((y4-y3) * (x2-x1)) - ((x4-x3) * (y2-y1));
   if (denom != 0) {
@@ -323,6 +330,7 @@ function intercept (x1, y1, x2, y2, x3, y3, x4, y4, d) {
 }
 
 // USED TO OVERRIDE collidesWith function for kontra.sprites
+// ballIntercept Object -> Object -> Num -> Num -> {x,y,d}
 function ballIntercept (ball, rect, nx, ny) {
   let pt;
   if (nx < 0) {
@@ -362,9 +370,25 @@ function ballIntercept (ball, rect, nx, ny) {
   return pt;
 }
 
-// magnitute
+// magnitute :: Num -> Num -> Num
 function magnitude (x, y) {
   return Math.sqrt(x * x + y * y);
+}
+
+// Calculated position after move
+// move :: {x,y,dx,dy}, dt -> {x,y,dx,dy,nx,ny}
+function move(object, dt) {
+  // KONTRA USES FIXED GAME LOOP dt is just change in pixel/frame
+  var nx = object.dx * dt * FPS;
+  var ny = object.dy * dt * FPS;
+  return { 
+    x: object.x + nx,
+    y: object.y + ny,
+    dx: object.dx,
+    dy: object.dy,
+    nx: nx,
+    ny: ny,
+  };
 }
 
 /* #endregion */
@@ -441,17 +465,5 @@ this.dy = p2.dy;
 
 }
 
-function move(object) {
-  // KONTRA USES FIXED GAME LOOP dt is just change in pixel/frame
-  // var nx = object.dx * dt;
-  // var ny = object.dy * dt;
-  return { 
-    x: object.x + object.dx,
-    y: object.y + object.dy,
-    dx: object.dx,
-    dy: object.dy,
-    nx: object.dx,
-    ny: object.dy };
-}
 
 
