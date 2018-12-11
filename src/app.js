@@ -224,11 +224,6 @@ const startGameLoop = function () {
       point = ballIntercept(this, item, p2.nx, p2.ny);
       // console.log(point);
       if (point) {
-        //TEMP to remove bricks as hit
-        item.ttl = 0;
-        brickPool.update();
-
-
         mCurrent = magnitude(point.x - this.x, point.y - this.y);
         if (mCurrent < mClosest) {
           mClosest = mCurrent;
@@ -236,69 +231,78 @@ const startGameLoop = function () {
         }
       }
     });
-      // }
-      // }
 
       if (closest) {
-
-        // if ((closest.item == this.game.paddle) && (closest.point.d == 'top')) {
-        //   p2.dx = this.speed * (closest.point.x - (this.game.paddle.left + this.game.paddle.w / 2)) / (this.game.paddle.w / 2);
-        //   this.game.playSound('paddle');
-        // }
-
         this.x = closest.point.x;
         this.y = closest.point.y;
 
-        // IF THE PADDLE IS HIT //
-        if (closest.item.type === 'paddle') {
-          switch (closest.point.d) {
-            case 'left':
-            case 'right':
-              this.dy = p2.dy;
-              this.dx = -p2.dx;
-              break;
+        switch (closest.item.type) {
+          case 'paddle':
+            // IF THE PADDLE IS HIT //
+            // Reset combo when paddle is hit
+            this.combo = 0;
 
-            // MAGIC NUMBERS
-            // Edges of paddle bounce ball back instead of reflecting exact angles
-            case 'top':
-            case 'bottom':
-              if (closest.point.x > (closest.item.x + closest.item.width / 4 * 3)) {
-                this.dx = Math.abs(p2.dx);
-                this.dy = -p2.dy;
-              } else if (closest.point.x >= (closest.item.x + closest.item.width / 4)) {
-                this.dx = p2.dx;
-                this.dy = -p2.dy;
-              } else {
-                this.dx = -1 * Math.abs(p2.dx);
-                this.dy = -p2.dy;
+            switch (closest.point.d) {
+              case 'left':
+              case 'right':
+                this.dy = p2.dy;
+                this.dx = -p2.dx;
+                break;
+
+              // MAGIC NUMBERS
+              // Edges of paddle bounce ball back instead of reflecting exact angles
+              case 'top':
+              case 'bottom':
+                if (closest.point.x > (closest.item.x + closest.item.width / 4 * 3)) {
+                  this.dx = Math.abs(p2.dx);
+                  this.dy = -p2.dy;
+                } else if (closest.point.x >= (closest.item.x + closest.item.width / 4)) {
+                  this.dx = p2.dx;
+                  this.dy = -p2.dy;
+                } else {
+                  this.dx = -1 * Math.abs(p2.dx);
+                  this.dy = -p2.dy;
+                }
+                break;
               }
-              break;
-          }
+            break;
 
-        } else {
-          // IF A BRICK OR WALL IS HIT
-          switch (closest.point.d) {
-            case 'left':
-            case 'right':
-              this.dy = p2.dy;
-              this.dx = -p2.dx;
-              break;
+          case 'brick':
+            // IF A BRICK IS HIT //
+            // Reduce its hitcount and add to combo
+            closest.item.hits -= 1;
+            this.combo += 1;
 
-            case 'top':
-            case 'bottom':
-              this.dy = -p2.dy;
-              this.dx = p2.dx;
-              break;
-          }
+            // If the brick has no hits left then destroy it
+            if (closest.item.hits <= 0) {
+              closest.item.ttl = 0;
+            }
 
+            // FALLTHROUGH! Both brick and wall update dx/dy the same way
+          case 'wall':
+            // IF A WALL IS HIT //
+            switch (closest.point.d) {
+              case 'left':
+              case 'right':
+                this.dy = p2.dy;
+                this.dx = -p2.dx;
+                break;
+
+              case 'top':
+              case 'bottom':
+                this.dy = -p2.dy;
+                this.dx = p2.dx;
+                break;
+            }
+            break;
         }
 
         // ------------ //
-
-        var udt = dt * (mClosest / magnitude(p2.nx, p2.ny)); // how far along did we get before intercept ?
-        console.log('udt:', udt);
-        console.log('dt:', dt);
-        return this.update(dt - udt);               // so we can update for time remaining
+        
+        // How much time did it take to get to first collision?
+        var udt = dt * (mClosest / magnitude(p2.nx, p2.ny)); 
+        // Run collision recursively if there is time left
+        return this.update(dt - udt);
       }
 
       // if ((p2.x < 0) || (p2.y < 0) || (p2.x > this.game.width) || (p2.y > this.game.height)) {
@@ -341,7 +345,7 @@ const startGameLoop = function () {
       let startY = 30 + (i * 5) + (i - 1) * 15;
       brickPool.get({
         type: 'brick',
-        hits: 1,
+        hits: 2,
         x: startX,        // starting x,y position of the sprite
         y: startY,
         dx: 0,
@@ -352,8 +356,13 @@ const startGameLoop = function () {
         bottom: startY + BRICKHEIGHT,
         left: startX,
         right: startX + BRICKWIDTH,
-        color: 'red',
+        color: 'black',
         fix: true,
+        update: function () {
+          if (this.hits <= 1) {
+            this.color = 'red';
+          }
+        },
       });
       brickPool.update();
       brickPool.render();
