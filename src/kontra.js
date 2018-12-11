@@ -1,3 +1,4 @@
+/* eslint-disable */
 /*
  * Kontra.js v5.0.4 (Custom Build on 2018-12-09) | MIT
  * Build: https://straker.github.io/kontra/download?files=gameLoop+keyboard+sprite+assets+pool+pointer+quadtree+spriteSheet+tileEngine+store
@@ -523,6 +524,11 @@ kontra = {
     isAlive() {
       return this.ttl > 0;
     }
+    
+    ///// EXPERIMENTING UPDATE ////////
+    isFixed() {
+      return this.fix;
+    }
 
     /**
      * Simple bounding box collision test.
@@ -972,10 +978,15 @@ kontra = {
        * @param {object} properties - Properties to pass to object.init().
        */
       get(properties) {
+        ///// ADDING DEBUG CODE TO SEE WHY OBJECT POOL GROWS SO QUICKLY /////
+        console.log(properties);
         properties = properties || {};
+        console.log(properties);
 
         // the pool is out of objects if the first object is in use and it can't grow
-        if (this.objects[0].isAlive()) {
+        console.log("objects[0]", this.objects[0]);
+        // if (this.objects[0].isAlive()) {
+        if (this.objects[0].isFixed()) {
           if (this.size === this.maxSize) {
             return;
           }
@@ -983,6 +994,7 @@ kontra = {
           else {
             for (let x = 0; x < this.size && this.objects.length < this.maxSize; x++) {
               this.objects.unshift(this._c());
+              console.log(this.objects);
             }
 
             this.size = this.objects.length;

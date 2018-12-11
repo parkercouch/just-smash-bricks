@@ -139,17 +139,26 @@ const startGameLoop = function () {
 
       // for (let n = 0; n < this.hitTargets.length; n++) {
       //   item = this.hitTargets[n];
+      brickPool.getAliveObjects().forEach((brick) => {
+        
+
       item = brick;
       // if (!item.hit) {
       point = ballIntercept(ball, item, p2.nx, p2.ny);
       // console.log(point);
       if (point) {
+        //
+        brick.ttl = 0;
+        brickPool.update();
+
+
         mCurrent = magnitude(point.x - this.x, point.y - this.y);
         if (mCurrent < mClosest) {
           mClosest = mCurrent;
           closest = { item: item, point: point };
         }
       }
+    });
       // }
       // }
 
@@ -211,53 +220,59 @@ const startGameLoop = function () {
   const brickPool = kontra.pool({
     // create a new sprite every time the pool needs new objects
     create: kontra.sprite,  
-    maxSize: 50,
+    maxSize: 100,
+    fill: true,
   });
   
   // MAGIC NUMBERS FOR TESTING
   // MAKE FORMULA LATER
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
-      let x = 30 + (j * 5) + (j - 1) * 50;
-      let y = 30 + (i * 5) + (i - 1) * 15;
-      console.log(x,y);
+      // let x = 30 + (i * 5) + (i - 1) * 50;
+      let startX = 30 + (j * 5) + (j - 1) * 50;
+      let startY = 30 + (i * 5) + (i - 1) * 15;
+      console.log(startX,startY);
       brickPool.get({
-        x: x,        // starting x,y position of the sprite
-        y: y,
+        x: startX,        // starting x,y position of the sprite
+        y: startY,
         dx: 0,
         dy: 0,
         width: BRICKWIDTH,
         height: BRICKHEIGHT,
-        top: y, 
-        bottom: y + BRICKHEIGHT,
-        left: x,
-        right: x + BRICKWIDTH,
+        top: startY, 
+        bottom: startY + BRICKHEIGHT,
+        left: startX,
+        right: startX + BRICKWIDTH,
         color: 'red',
-        ttl: Infinity,
-        update: function () {
-        },
-        render: function () {
-        },
+        fix: true,
+        // ttl: Infinity,
+        // update: function () {
+        // },
+        // render: function () {
+        // },
       });
+      brickPool.update();
+      brickPool.render();
     }
   }
+  console.log(brickPool.size);
 
-  const brick = kontra.sprite({
-    x: 35,        // starting x,y position of the sprite
-    y: 35,
-    dx: 0,
-    dy: 0,
-    width: BRICKWIDTH,
-    height: BRICKHEIGHT,
-    top: 100,
-    bottom: 100 + BRICKHEIGHT,
-    left: 200,
-    right: 200 + BRICKWIDTH,
-    color: 'red',
-    // image: kontra.assets.images.brick,
-    update: function () {
-    },
-  });
+  // const brick = kontra.sprite({
+  //   x: 35,        // starting x,y position of the sprite
+  //   y: 35,
+  //   dx: 0,
+  //   dy: 0,
+  //   width: BRICKWIDTH,
+  //   height: BRICKHEIGHT,
+  //   top: 100,
+  //   bottom: 100 + BRICKHEIGHT,
+  //   left: 200,
+  //   right: 200 + BRICKWIDTH,
+  //   color: 'red',
+  //   // image: kontra.assets.images.brick,
+  //   update: function () {
+  //   },
+  // });
 
   let loop = kontra.gameLoop({  // create the main game loop
     fps: FPS,
@@ -283,7 +298,7 @@ const startGameLoop = function () {
     render: function () {        // render the game state
       paddle.render();
       ball.render();
-      brick.render();
+      // brick.render();
       brickPool.render();
 
     }
@@ -441,7 +456,7 @@ function magnitude (x, y) {
 // Calculated position after move
 // move :: {x,y,dx,dy}, dt -> {x,y,dx,dy,nx,ny}
 function move(object, dt) {
-  // KONTRA USES FIXED GAME LOOP dt is just change in pixel/frame
+  // KONTRA USES FIXED GAME LOOP dx is just change in pixel/frame
   var nx = object.dx * dt * FPS;
   var ny = object.dy * dt * FPS;
   return { 
@@ -495,6 +510,7 @@ if (closest) {
   this.x = closest.point.x;
   this.y = closest.point.y;
 
+  // Deflect depending on which side is hit
   switch (closest.point.d) {
     case 'left':
     case 'right':
