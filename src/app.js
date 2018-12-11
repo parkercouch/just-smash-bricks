@@ -176,18 +176,20 @@ const startGameLoop = function () {
   const ball = kontra.sprite({
     type: 'ball',
     combo: 0,
+    attached: paddle, // keep track if it is stuck to something
     anchor: {
       x: 0.5,
       y: 0.5,
     },
-    x: 20,
-    y: 300,
-    dx: 5,
-    dy: 5,
+    // Testing start ball location
+    x: paddle.x + paddle.width / 2,
+    y: paddle.y - 8,
+    dx: 0,
+    dy: 0,
     radius: 8,
     color: 'blue',
     // image: kontra.assets.images.ball,
-    update: ballLogic,
+    update: movingBall,
     render: renderBall,
   });
 
@@ -469,9 +471,27 @@ function movePaddle(canMoveLeft, canMoveRight) {
 
 
 // Update logic for ball objects
-// ballLogic :: Num -> Void
-function ballLogic(dt, collidableObjects) {
-  
+// movingBall :: Num -> Void
+function movingBall(dt, collidableObjects) {
+
+  // If attached to something then wait for keypress
+  if (this.attached) {
+    this.x = this.attached.x + this.attached.width / 2;
+    this.y = this.attached.y - this.radius;
+
+    // Always launches the same way.
+    // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
+    if (kontra.keys.pressed('space')) {
+      this.attached = null;
+      this.dx = 5;
+      this.dy = -5;
+    }
+    this.advance();
+    return;
+  }  
+
+
+
   // Calculate future position of ball
   const p2 = move(this, dt);
 
@@ -573,6 +593,13 @@ function ballLogic(dt, collidableObjects) {
   this.dy = p2.dy;
 }
 
+
+// PROBABLY ISN'T NEEDED
+// Ball logic for starting from stop
+// staticBall :: Object -> Void
+function staticBall(attachedTo) {
+
+}
 
 /* #endregion */
 
