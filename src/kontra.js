@@ -979,13 +979,15 @@ kontra = {
        */
       get(properties) {
         ///// ADDING DEBUG CODE TO SEE WHY OBJECT POOL GROWS SO QUICKLY /////
-        console.log(properties);
+        // console.log(properties);
         properties = properties || {};
-        console.log(properties);
+        // console.log(properties);
 
         // the pool is out of objects if the first object is in use and it can't grow
-        console.log("objects[0]", this.objects[0]);
+        // console.log("objects[0]", this.objects[0]);
         // if (this.objects[0].isAlive()) {
+      ///---- BUG FOUND HERE ---- ///
+      // isAlive always returns true. Made a new property for a temp fix
         if (this.objects[0].isFixed()) {
           if (this.size === this.maxSize) {
             return;
