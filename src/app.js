@@ -6,10 +6,10 @@
 /* #region */
 const GAME = {};
 const FPS = 120;
-const brickHeight = 15;
-const brickWidth = 50;
-const paddleWidth = 60;
-const paddleHeight = 10;
+const BRICKHEIGHT = 15;
+const BRICKWIDTH = 50;
+const PADDLEWIDTH = 60;
+const PADDLEHEIGHT = 10;
 
 
 /* #endregion */
@@ -71,8 +71,8 @@ const startGameLoop = function () {
     y: 550,
     dx: 0,
     dy: 0,
-    width: paddleWidth,
-    height: paddleHeight, 
+    width: PADDLEWIDTH,
+    height: PADDLEHEIGHT, 
     color: 'green',
     // image: kontra.assets.images.paddle,
     update: function() {
@@ -207,18 +207,52 @@ const startGameLoop = function () {
     },
   });
 
+  // Pool to pull bricks from
+  const brickPool = kontra.pool({
+    // create a new sprite every time the pool needs new objects
+    create: kontra.sprite,  
+    maxSize: 50,
+  });
+  
+  // MAGIC NUMBERS FOR TESTING
+  // MAKE FORMULA LATER
+  for (let i = 1; i <= 5; i++) {
+    for (let j = 1; j <= 6; j++) {
+      let x = 30 + (j * 5) + (j - 1) * 50;
+      let y = 30 + (i * 5) + (i - 1) * 15;
+      console.log(x,y);
+      brickPool.get({
+        x: x,        // starting x,y position of the sprite
+        y: y,
+        dx: 0,
+        dy: 0,
+        width: BRICKWIDTH,
+        height: BRICKHEIGHT,
+        top: y, 
+        bottom: y + BRICKHEIGHT,
+        left: x,
+        right: x + BRICKWIDTH,
+        color: 'red',
+        ttl: Infinity,
+        update: function () {
+        },
+        render: function () {
+        },
+      });
+    }
+  }
 
   const brick = kontra.sprite({
-    x: 200,        // starting x,y position of the sprite
-    y: 100,
+    x: 35,        // starting x,y position of the sprite
+    y: 35,
     dx: 0,
     dy: 0,
-    width: brickWidth,
-    height: brickHeight,
+    width: BRICKWIDTH,
+    height: BRICKHEIGHT,
     top: 100,
-    bottom: 100 + brickHeight,
+    bottom: 100 + BRICKHEIGHT,
     left: 200,
-    right: 200 + brickWidth,
+    right: 200 + BRICKWIDTH,
     color: 'red',
     // image: kontra.assets.images.brick,
     update: function () {
@@ -243,12 +277,15 @@ const startGameLoop = function () {
 
       paddle.update();
       ball.update(dt);
+      brickPool.update();
 
     },
     render: function () {        // render the game state
       paddle.render();
       ball.render();
       brick.render();
+      brickPool.render();
+
     }
   });
 
