@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log(gameStates.state); //loading
 });
 
-/* endregion */
+/* #endregion */
 
 
 // ------------------------------------------------------- //
@@ -149,7 +149,7 @@ const startGameLoop = function () {
   topWall.render();
   bottomWall.render();
 
-  //MAGIC NUMBERS -> update
+  //MAGIC NUMBERS... UPDATE ME!
   // PADDLE //
   const paddle = kontra.sprite({
     type: 'paddle',
@@ -157,7 +157,7 @@ const startGameLoop = function () {
       x: 0,
       y: 0,
     },
-    x: 200,        // starting x,y position of the sprite
+    x: 200,
     y: 550,
     dx: 0,
     dy: 0,
@@ -169,25 +169,8 @@ const startGameLoop = function () {
     right: 200 + PADDLEWIDTH,
     color: 'green',
     // image: kontra.assets.images.paddle,
-    update: function() {
-      this.top = this.y;
-      this.bottom = this.y + this.height;
-      this.left = this.x;
-      this.right = this.x + this.width;
-    },
-    move: function (canMoveLeft, canMoveRight) { 
-      paddle.advance();
-      switch (true) {
-        case (kontra.keys.pressed('left') && canMoveLeft):
-          paddle.dx = -5;
-          break;
-        case (kontra.keys.pressed('right') && canMoveRight):
-          paddle.dx = 5;
-          break;
-        default:
-          paddle.dx = 0;
-      }
-    },
+    update: paddleUpdate,
+    move: movePaddle,
   });
 
   const ball = kontra.sprite({
@@ -197,136 +180,15 @@ const startGameLoop = function () {
       x: 0.5,
       y: 0.5,
     },
-    x: 20,        // starting x,y position of the sprite
+    x: 20,
     y: 300,
     dx: 5,
     dy: 5,
     radius: 8,
     color: 'blue',
     // image: kontra.assets.images.ball,
-    update: function (dt) { 
-  ////---- BALL LOGIC ---///
-  ///NEEDS UPDATED FOR ALL CASES AND PUT INTO FUNCTION///
-      // ball.advance();
-
-      // testing collision algorithm
-      const p2 = move(ball, dt);
-
-      let mCurrent;
-      let mClosest = Infinity;
-      let point;
-      let closest = null;
-
-      //// CHECK ALL OBJECTS IN CURRENT NODE OF QUADTREE ////
-      collidableObjects.get(this).forEach((item) => {
-
-      // if (!item.hit) {
-      point = ballIntercept(this, item, p2.nx, p2.ny);
-      // console.log(point);
-      if (point) {
-        mCurrent = magnitude(point.x - this.x, point.y - this.y);
-        if (mCurrent < mClosest) {
-          mClosest = mCurrent;
-          closest = { item: item, point: point };
-        }
-      }
-    });
-
-      if (closest) {
-        this.x = closest.point.x;
-        this.y = closest.point.y;
-
-        switch (closest.item.type) {
-          case 'paddle':
-            // IF THE PADDLE IS HIT //
-            // Reset combo when paddle is hit
-            this.combo = 0;
-
-            switch (closest.point.d) {
-              case 'left':
-              case 'right':
-                this.dy = p2.dy;
-                this.dx = -p2.dx;
-                break;
-
-              // MAGIC NUMBERS
-              // Edges of paddle bounce ball back instead of reflecting exact angles
-              case 'top':
-              case 'bottom':
-                if (closest.point.x > (closest.item.x + closest.item.width / 4 * 3)) {
-                  this.dx = Math.abs(p2.dx);
-                  this.dy = -p2.dy;
-                } else if (closest.point.x >= (closest.item.x + closest.item.width / 4)) {
-                  this.dx = p2.dx;
-                  this.dy = -p2.dy;
-                } else {
-                  this.dx = -1 * Math.abs(p2.dx);
-                  this.dy = -p2.dy;
-                }
-                break;
-              }
-            break;
-
-          case 'brick':
-            // IF A BRICK IS HIT //
-            // Reduce its hitcount and add to combo
-            closest.item.hits -= 1;
-            this.combo += 1;
-
-            // If the brick has no hits left then destroy it
-            if (closest.item.hits <= 0) {
-              closest.item.ttl = 0;
-            }
-
-            // FALLTHROUGH! Both brick and wall update dx/dy the same way
-          case 'wall':
-            // IF A WALL IS HIT //
-            switch (closest.point.d) {
-              case 'left':
-              case 'right':
-                this.dy = p2.dy;
-                this.dx = -p2.dx;
-                break;
-
-              case 'top':
-              case 'bottom':
-                this.dy = -p2.dy;
-                this.dx = p2.dx;
-                break;
-            }
-            break;
-        }
-
-        // ------------ //
-        
-        // How much time did it take to get to first collision?
-        var udt = dt * (mClosest / magnitude(p2.nx, p2.ny)); 
-        // Run collision recursively if there is time left
-        return this.update(dt - udt);
-      }
-
-      // if ((p2.x < 0) || (p2.y < 0) || (p2.x > this.game.width) || (p2.y > this.game.height)) {
-      //   this.game.loseBall();
-      // }
-      // else {
-      // this.setpos(p2.x, p2.y);
-      // this.setdir(p2.dx, p2.dy);
-      // }
-
-      this.x = p2.x;
-      this.y = p2.y;
-      this.dx = p2.dx;
-      this.dy = p2.dy;
-
-  /// ---- END BALL LOGIC ---- ///
-    },
-    render: function() {
-      this.context.fillStyle = this.color;
-  
-      this.context.beginPath();
-      this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-      this.context.fill();
-    },
+    update: ballLogic,
+    render: renderBall,
   });
 
   // Pool to pull bricks from
@@ -372,38 +234,25 @@ const startGameLoop = function () {
   let loop = kontra.gameLoop({  // create the main game loop
     fps: FPS,
     // clearCanvas: false,  // not clearing helps with debug
-    update: function (dt) {        // update the game state
+    // UPDATE GAME STATE //
+    update: function (dt) {
 
+      // Update paddle and bricks then add to quadtree
       brickPool.update();
       paddle.update();
       collidableObjects.clear();
       collidableObjects.add(brickPool.getAliveObjects());
-      // console.log(leftWall, rightWall, topWall);
       collidableObjects.add(leftWall, topWall, rightWall, bottomWall);
-      // console.log(collidableObjects.get(ball));
       collidableObjects.add(paddle);
 
-      // Keep paddle contained in canvas
-      // POSSIBLE REFACTOR AND PUT INTO PADDLE OBJECT
-      if (paddle.x < (kontra.canvas.width - paddle.width / 2) 
-       && paddle.x > (0 + paddle.width / 2)) {
-        paddle.move(true, true);
-      } else if (paddle.x >= (kontra.canvas.width - paddle.width / 2)) {
-        paddle.move(true, false);
-      } else if (paddle.x <= (0 + paddle.width)) {
-        paddle.move(false, true);
-      }
-
-      paddle.update();
-      ball.update(dt);
-      brickPool.update();
-
+      // Ready to check for collision!
+      ball.update(dt, collidableObjects);
     },
-    render: function () {        // render the game state
+    // RENDER GAME STATE //
+    render: function () {
       paddle.render();
       ball.render();
       brickPool.render();
-
     }
   });
 
@@ -417,29 +266,8 @@ const startGameLoop = function () {
 // ------------------------------------------------------- //
 /* #region */
 
-const loadAssets = function () {
-  kontra.assets.load(...imgAssets, ...sfxAssets)
-    .then(() => {
-      // all assets have loaded
-      console.log('All assets loaded');
-      console.log(kontra.assets);
-      gameStates.finishLoading();
-    }).catch((err) => {
-      // error loading an asset
-      console.log(err);
-    });
-};
-
-// SKIPS TO GAME. WILL MAKE MENU LATER
-const displayMenu = function () {
-  console.log('In Menu');
-  
-  // Skip straight to game 
-  setTimeout(() => {gameStates.start();}, 1000);
-
-};
-
-var gameStates = new StateMachine({
+// Create high level state machine (Play/Pause/Menu...)
+const gameStates = new StateMachine({
   init: 'pageLoad',
   transitions: [
     { name: 'startLoading',     from: 'pageLoad',  to: 'loading' },
@@ -455,6 +283,29 @@ var gameStates = new StateMachine({
     onGame: startGameLoop,
   }
 });
+
+function loadAssets() {
+  kontra.assets.load(...imgAssets, ...sfxAssets)
+    .then(() => {
+      // all assets have loaded
+      console.log('All assets loaded');
+      console.log(kontra.assets);
+      gameStates.finishLoading();
+    }).catch((err) => {
+      // error loading an asset
+      console.log(err);
+    });
+};
+
+// SKIPS TO GAME. WILL MAKE MENU LATER
+function displayMenu() {
+  console.log('In Menu');
+  
+  // Skip straight to game 
+  setTimeout(() => {gameStates.start();}, 1000);
+
+};
+
 
 /* #endregion */
 
@@ -574,78 +425,173 @@ function move(object, dt) {
 
 /* #endregion */
 
-// collision detection algorithm that I need to fix for my engine
-function ballLogic () {
 
-// if (!this.moving)
-//   return this.moveToPaddle();
+// ------------------------------------------------------- //
+// -------------------UPDATE FUNCTIONS-------------------- //
+// ------------------------------------------------------- //
+/* #region */
 
-const p2 = move(this, dt);
+// Movement for paddle
+// paddleUpdate :: () -> Void
+function paddleUpdate() {
 
-let mCurrent;
-let mClosest = Infinity;
-let point;
-let item;
-let closest = null;
+  this.top = this.y;
+  this.bottom = this.y + this.height;
+  this.left = this.x;
+  this.right = this.x + this.width;
 
-// for (let n = 0; n < this.hitTargets.length; n++) {
-//   item = this.hitTargets[n];
-  item = brick;
-  // if (!item.hit) {
-    point = ballIntercept(this, item, p2.nx, p2.ny);
+  // Keep paddle contained in canvas
+  if (this.x < (kontra.canvas.width - this.width)
+    && this.x > 0) {
+    this.move(true, true);
+  } else if (this.x >= (kontra.canvas.width - this.width)) {
+    this.move(true, false);
+  } else if (this.x <= 0) {
+    this.move(false, true);
+  }
+}
+
+// Move paddle!
+// movePaddle :: Bool -> Bool -> Void
+function movePaddle(canMoveLeft, canMoveRight) {
+  this.advance();
+  switch (true) {
+    case (kontra.keys.pressed('left') && canMoveLeft):
+      this.dx = -5;
+      break;
+    case (kontra.keys.pressed('right') && canMoveRight):
+      this.dx = 5;
+      break;
+    default:
+      this.dx = 0;
+  }
+}
+
+
+// Update logic for ball objects
+// ballLogic :: Num -> Void
+function ballLogic(dt, collidableObjects) {
+  
+  // Calculate future position of ball
+  const p2 = move(this, dt);
+
+  let closestMagnitude = Infinity;
+  let closest = null;
+
+  // Check all objects in current node of quadtree
+  collidableObjects.get(this).forEach((item) => {
+    // Check for point of collision
+    const point = ballIntercept(this, item, p2.nx, p2.ny);
+    // If it exists then check magnitudes
     if (point) {
-      mCurrent = magnitude(point.x - this.x, point.y - this.y);
-      if (mCurrent < mClosest) {
-        mClosest = mCurrent;
+      const currentMagnitude = magnitude(point.x - this.x, point.y - this.y);
+      if (currentMagnitude < closestMagnitude) {
+        closestMagnitude = currentMagnitude;
         closest = { item: item, point: point };
       }
     }
-  // }
-// }
+  });
 
-if (closest) {
+  // ----- A collision happend so deal with it ------- //
+  if (closest) {
+    this.x = closest.point.x;
+    this.y = closest.point.y;
 
-  // if ((closest.item == this.game.paddle) && (closest.point.d == 'top')) {
-  //   p2.dx = this.speed * (closest.point.x - (this.game.paddle.left + this.game.paddle.w / 2)) / (this.game.paddle.w / 2);
-  //   this.game.playSound('paddle');
-  // }
+    switch (closest.item.type) {
+      case 'paddle':
+        // IF THE PADDLE IS HIT //
+        // Reset combo when paddle is hit
+        this.combo = 0;
 
-  this.x = closest.point.x;
-  this.y = closest.point.y;
+        switch (closest.point.d) {
+          case 'left':
+          case 'right':
+            this.dy = p2.dy;
+            this.dx = -p2.dx;
+            break;
 
-  // Deflect depending on which side is hit
-  switch (closest.point.d) {
-    case 'left':
-    case 'right':
-      this.dy = p2.dy;
-      this.dx = -p2.dx;
-      break;
+          // MAGIC NUMBERS
+          // Edges of paddle bounce ball back instead of reflecting exact angles
+          case 'top':
+          case 'bottom':
+            if (closest.point.x > (closest.item.x + closest.item.width / 4 * 3)) {
+              this.dx = Math.abs(p2.dx);
+              this.dy = -p2.dy;
+            } else if (closest.point.x >= (closest.item.x + closest.item.width / 4)) {
+              this.dx = p2.dx;
+              this.dy = -p2.dy;
+            } else {
+              this.dx = -1 * Math.abs(p2.dx);
+              this.dy = -p2.dy;
+            }
+            break;
+        }
+        break;
 
-    case 'top':
-    case 'bottom':
-      this.dy = -p2.dy;
-      this.dx = p2.dx;
-      break;
+      case 'brick':
+        // IF A BRICK IS HIT //
+        // Reduce its hitcount and add to combo
+        closest.item.hits -= 1;
+        this.combo += 1;
+
+        // If the brick has no hits left then destroy it
+        if (closest.item.hits <= 0) {
+          closest.item.ttl = 0;
+        }
+
+      // FALLTHROUGH! Both brick and wall update dx/dy the same way
+      case 'wall':
+        // IF A WALL IS HIT //
+        switch (closest.point.d) {
+          case 'left':
+          case 'right':
+            this.dy = p2.dy;
+            this.dx = -p2.dx;
+            break;
+
+          case 'top':
+          case 'bottom':
+            this.dy = -p2.dy;
+            this.dx = p2.dx;
+            break;
+        }
+        break;
+    }
+    // ----------------------------------------- //
+
+
+    // How much time did it take to get to first collision?
+    var udt = dt * (closestMagnitude / magnitude(p2.nx, p2.ny));
+    // Run collision recursively if there is time left
+    return this.update(dt - udt, collidableObjects);
   }
 
-  var udt = dt * (mClosest / magnitude(p2.nx, p2.ny)); // how far along did we get before intercept ?
-  return this.update(dt - udt);                                  // so we can update for time remaining
+  // Update ball position after all collisions have been resolved
+  this.x = p2.x;
+  this.y = p2.y;
+  this.dx = p2.dx;
+  this.dy = p2.dy;
 }
 
-// if ((p2.x < 0) || (p2.y < 0) || (p2.x > this.game.width) || (p2.y > this.game.height)) {
-//   this.game.loseBall();
-// }
-// else {
-  // this.setpos(p2.x, p2.y);
-  // this.setdir(p2.dx, p2.dy);
-// }
 
-this.x = p2.x;
-this.y = p2.y;
-this.dx = p2.dx;
-this.dy = p2.dy;
+/* #endregion */
 
+// ------------------------------------------------------- //
+// -------------------RENDER FUNCTIONS-------------------- //
+// ------------------------------------------------------- //
+/* #region */
+
+// Renders ball of this.radius in this.color
+// renderBall :: () -> Void
+function renderBall() {
+  this.context.fillStyle = this.color;
+  this.context.beginPath();
+  this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+  this.context.fill();
 }
+
+
+/* #endregion */
 
 
 
