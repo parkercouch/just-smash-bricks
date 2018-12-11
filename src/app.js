@@ -68,6 +68,7 @@ const startGameLoop = function () {
 
   // WALLS //
   const leftWall = kontra.sprite({
+    type: 'wall',
     anchor: {
       x: 1,
       y: 0,
@@ -86,6 +87,7 @@ const startGameLoop = function () {
   });
 
   const rightWall = kontra.sprite({
+    type: 'wall',
     anchor: {
       x: 0,
       y: 0,
@@ -104,6 +106,7 @@ const startGameLoop = function () {
   });
 
   const topWall = kontra.sprite({
+    type: 'wall',
     anchor: {
       x: 0,
       y: 1,
@@ -123,6 +126,7 @@ const startGameLoop = function () {
 
   // BOTTOM WALL FOR TESTING AND MAYBE POWERUP??
   const bottomWall = kontra.sprite({
+    type: 'wall',
     anchor: {
       x: 0,
       y: 0,
@@ -145,11 +149,13 @@ const startGameLoop = function () {
   topWall.render();
   bottomWall.render();
 
+  //MAGIC NUMBERS -> update
   // PADDLE //
   const paddle = kontra.sprite({
+    type: 'paddle',
     anchor: {
-      x: 0.5,
-      y: 0.5,
+      x: 0,
+      y: 0,
     },
     x: 200,        // starting x,y position of the sprite
     y: 550,
@@ -157,6 +163,10 @@ const startGameLoop = function () {
     dy: 0,
     width: PADDLEWIDTH,
     height: PADDLEHEIGHT, 
+    top: 550,
+    bottom: 550 + PADDLEHEIGHT,
+    left: 200,
+    right: 200 + PADDLEWIDTH,
     color: 'green',
     // image: kontra.assets.images.paddle,
     update: function() {
@@ -181,6 +191,8 @@ const startGameLoop = function () {
   });
 
   const ball = kontra.sprite({
+    type: 'ball',
+    combo: 0,
     anchor: {
       x: 0.5,
       y: 0.5,
@@ -196,46 +208,24 @@ const startGameLoop = function () {
   ////---- BALL LOGIC ---///
   ///NEEDS UPDATED FOR ALL CASES AND PUT INTO FUNCTION///
       // ball.advance();
-      // Collides with Paddle
-      if (this.collidesWith(paddle)) {
-        this.dy *= -1;
-      }
-      // if (outOfBounds(this.x, this.y)) {
-      //   // reflect back
-      //   // Bouncing off bottom for debugging 
-      //   if ( this.y < 1 || this.y > kontra.canvas.height) {
-      //     this.dy *= -1;
-      //   } else {
-      //     this.dx *= -1;
-      //   }
-      // }
 
       // testing collision algorithm
       const p2 = move(ball, dt);
-      // console.log(ball);
-      // console.log(p2);
 
       let mCurrent;
       let mClosest = Infinity;
       let point;
-      let item;
       let closest = null;
 
-      // for (let n = 0; n < this.hitTargets.length; n++) {
-      //   item = this.hitTargets[n];
-      // brickPool.getAliveObjects().forEach((brick) => {
-
       //// CHECK ALL OBJECTS IN CURRENT NODE OF QUADTREE ////
-      collidableObjects.get(this).forEach((brick) => {
-        
+      collidableObjects.get(this).forEach((item) => {
 
-      item = brick;
       // if (!item.hit) {
-      point = ballIntercept(ball, item, p2.nx, p2.ny);
+      point = ballIntercept(this, item, p2.nx, p2.ny);
       // console.log(point);
       if (point) {
         //TEMP to remove bricks as hit
-        brick.ttl = 0;
+        item.ttl = 0;
         brickPool.update();
 
 
@@ -259,19 +249,51 @@ const startGameLoop = function () {
         this.x = closest.point.x;
         this.y = closest.point.y;
 
-        switch (closest.point.d) {
-          case 'left':
-          case 'right':
-            this.dy = p2.dy;
-            this.dx = -p2.dx;
-            break;
+        // IF THE PADDLE IS HIT //
+        if (closest.item.type === 'paddle') {
+          switch (closest.point.d) {
+            case 'left':
+            case 'right':
+              this.dy = p2.dy;
+              this.dx = -p2.dx;
+              break;
 
-          case 'top':
-          case 'bottom':
-            this.dy = -p2.dy;
-            this.dx = p2.dx;
-            break;
+            // MAGIC NUMBERS
+            // Edges of paddle bounce ball back instead of reflecting exact angles
+            case 'top':
+            case 'bottom':
+              if (closest.point.x > (closest.item.x + closest.item.width / 4 * 3)) {
+                this.dx = Math.abs(p2.dx);
+                this.dy = -p2.dy;
+              } else if (closest.point.x >= (closest.item.x + closest.item.width / 4)) {
+                this.dx = p2.dx;
+                this.dy = -p2.dy;
+              } else {
+                this.dx = -1 * Math.abs(p2.dx);
+                this.dy = -p2.dy;
+              }
+              break;
+          }
+
+        } else {
+          // IF A BRICK OR WALL IS HIT
+          switch (closest.point.d) {
+            case 'left':
+            case 'right':
+              this.dy = p2.dy;
+              this.dx = -p2.dx;
+              break;
+
+            case 'top':
+            case 'bottom':
+              this.dy = -p2.dy;
+              this.dx = p2.dx;
+              break;
+          }
+
         }
+
+        // ------------ //
 
         var udt = dt * (mClosest / magnitude(p2.nx, p2.ny)); // how far along did we get before intercept ?
         console.log('udt:', udt);
@@ -318,6 +340,8 @@ const startGameLoop = function () {
       let startX = 30 + (j * 5) + (j - 1) * 50;
       let startY = 30 + (i * 5) + (i - 1) * 15;
       brickPool.get({
+        type: 'brick',
+        hits: 1,
         x: startX,        // starting x,y position of the sprite
         y: startY,
         dx: 0,
@@ -342,11 +366,13 @@ const startGameLoop = function () {
     update: function (dt) {        // update the game state
 
       brickPool.update();
+      paddle.update();
       collidableObjects.clear();
       collidableObjects.add(brickPool.getAliveObjects());
       // console.log(leftWall, rightWall, topWall);
       collidableObjects.add(leftWall, topWall, rightWall, bottomWall);
       // console.log(collidableObjects.get(ball));
+      collidableObjects.add(paddle);
 
       // Keep paddle contained in canvas
       // POSSIBLE REFACTOR AND PUT INTO PADDLE OBJECT
