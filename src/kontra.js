@@ -1036,7 +1036,8 @@ kontra = {
        *
        * @param {number} dt - Time since last update.
        */
-      update(dt) {
+      // ADDED UPDATE PARAMETER OPTIONS!!!
+      update(dt, ...options) {
         let i = this.size - 1;
         let obj;
 
@@ -1054,7 +1055,13 @@ kontra = {
         while (i >= index) {
           obj = this.objects[i];
 
-          obj.update(dt);
+          // BETTER WAY TO DO THIS?
+          if (options.length > 0) {
+            obj.update(dt, ...options);
+          } else {
+            obj.update(dt);
+          }
+
 
           // if the object is dead, move it to the front of the pool
           if (!obj.isAlive()) {

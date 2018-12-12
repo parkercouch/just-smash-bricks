@@ -12,6 +12,7 @@ const PADDLEWIDTH = 60;
 const PADDLEHEIGHT = 10;
 const CANVASHEIGHT = 600;
 const CANVASWIDTH = 400;
+let BALLRESERVE = 3;
 
 
 /* #endregion */
@@ -126,7 +127,7 @@ const startGameLoop = function () {
 
   // BOTTOM WALL FOR TESTING AND MAYBE POWERUP??
   const bottomWall = kontra.sprite({
-    type: 'wall',
+    type: 'blackhole',
     anchor: {
       x: 0,
       y: 0,
@@ -173,10 +174,37 @@ const startGameLoop = function () {
     move: movePaddle,
   });
 
-  const ball = kontra.sprite({
+  // const ball = kontra.sprite({
+  //   type: 'ball',
+  //   combo: 0,
+  //   attached: paddle, // keep track if it is stuck to something
+  //   anchor: {
+  //     x: 0.5,
+  //     y: 0.5,
+  //   },
+  //   // Testing start ball location
+  //   x: paddle.x + paddle.width / 2,
+  //   y: paddle.y - 8,
+  //   dx: 0,
+  //   dy: 0,
+  //   radius: 8,
+  //   color: 'blue',
+  //   // image: kontra.assets.images.ball,
+  //   update: movingBall,
+  //   render: renderBall,
+  // });
+
+  const ballPool = kontra.pool({
+    create: kontra.sprite,
+    maxSize: 10,
+    fill: true,
+  });
+
+  ballPool.get({
     type: 'ball',
     combo: 0,
     attached: paddle, // keep track if it is stuck to something
+    fix: true, // temp fix for kontra bug
     anchor: {
       x: 0.5,
       y: 0.5,
@@ -192,6 +220,7 @@ const startGameLoop = function () {
     update: movingBall,
     render: renderBall,
   });
+  ballPool.render();
 
   // Pool to pull bricks from
   const brickPool = kontra.pool({
@@ -248,12 +277,43 @@ const startGameLoop = function () {
       collidableObjects.add(paddle);
 
       // Ready to check for collision!
-      ball.update(dt, collidableObjects);
+      // ball.update(dt, collidableObjects);
+      ballPool.update(dt, collidableObjects);
+
+      if (ballPool.getAliveObjects().length <= 0) {
+        BALLRESERVE -= 1;
+        if (BALLRESERVE <= 0) {
+          // LOSE
+          console.log('LOSE');
+        }
+        ballPool.get({
+          type: 'ball',
+          combo: 0,
+          attached: paddle, // keep track if it is stuck to something
+          fix: true, // temp fix for kontra bug
+          anchor: {
+            x: 0.5,
+            y: 0.5,
+          },
+          // Testing start ball location
+          x: paddle.x + paddle.width / 2,
+          y: paddle.y - 8,
+          dx: 0,
+          dy: 0,
+          radius: 8,
+          color: 'blue',
+          // image: kontra.assets.images.ball,
+          update: movingBall,
+          render: renderBall,
+        });
+      }
+
     },
     // RENDER GAME STATE //
     render: function () {
       paddle.render();
-      ball.render();
+      // ball.render();
+      ballPool.render();
       brickPool.render();
     }
   });
@@ -561,7 +621,7 @@ function movingBall(dt, collidableObjects) {
 
       // FALLTHROUGH! Both brick and wall update dx/dy the same way
       case 'wall':
-        // IF A WALL IS HIT //
+        // IF A WALL OR BRICK IS HIT //
         switch (closest.point.d) {
           case 'left':
           case 'right':
@@ -576,6 +636,9 @@ function movingBall(dt, collidableObjects) {
             break;
         }
         break;
+      case 'blackhole':
+        this.ttl = 0;
+        return;
     }
     // ----------------------------------------- //
 
