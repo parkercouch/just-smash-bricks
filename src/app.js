@@ -69,6 +69,7 @@ const startGameLoop = function () {
 
   // QUADTREE FOR COLLISION DETECTION //
   const collidableObjects = kontra.quadtree();
+  collidableObjects.maxObjects = 10;
 
   // WALLS //
   const leftWall = kontra.sprite({
