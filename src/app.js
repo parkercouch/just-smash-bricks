@@ -13,6 +13,7 @@ const PADDLEHEIGHT = 10;
 const CANVASHEIGHT = 600;
 const CANVASWIDTH = 400;
 let BALLRESERVE = 100;
+let GAMELOOP;
 
 
 /* #endregion */
@@ -63,6 +64,8 @@ const sfxAssets = [
 
 // MAIN GAME LOGIC
 const startGameLoop = function () {
+
+  BALLRESERVE = 3;
 
   // QUADTREE FOR COLLISION DETECTION //
   const collidableObjects = kontra.quadtree();
@@ -174,26 +177,6 @@ const startGameLoop = function () {
     move: movePaddle,
   });
 
-  // const ball = kontra.sprite({
-  //   type: 'ball',
-  //   combo: 0,
-  //   attached: paddle, // keep track if it is stuck to something
-  //   anchor: {
-  //     x: 0.5,
-  //     y: 0.5,
-  //   },
-  //   // Testing start ball location
-  //   x: paddle.x + paddle.width / 2,
-  //   y: paddle.y - 8,
-  //   dx: 0,
-  //   dy: 0,
-  //   radius: 8,
-  //   color: 'blue',
-  //   // image: kontra.assets.images.ball,
-  //   update: movingBall,
-  //   render: renderBall,
-  // });
-
   const ballPool = kontra.pool({
     create: kontra.sprite,
     maxSize: 10,
@@ -262,12 +245,15 @@ const startGameLoop = function () {
     }
   }
 
-  let loop = kontra.gameLoop({  // create the main game loop
+  GAMELOOP = kontra.gameLoop({  // create the main game loop
     fps: FPS,
     // clearCanvas: false,  // not clearing helps with debug
     // UPDATE GAME STATE //
     update: function (dt) {
 
+      // if (kontra.keys.pressed('p')) {
+      //   this.stop();
+      // }
       // Update paddle and bricks then add to quadtree
       brickPool.update();
       paddle.update();
@@ -324,7 +310,7 @@ const startGameLoop = function () {
     }
   });
 
-  loop.start();    // start the game
+  GAMELOOP.start();    // start the game
 };
 /* #endregion */
 
@@ -351,7 +337,9 @@ const gameStates = new StateMachine({
   methods: {
     onLoading: loadAssets,
     onMenu: displayMenu,
+    onEnterGame: gameStart,
     onGame: startGameLoop,
+    onLeaveGame: gameEnd,
     onWinner: winMessage,
     onLoser: loseMessage,
   }
@@ -393,6 +381,17 @@ function loseMessage() {
   setTimeout(() => {gameStates.restart();}, 3000);
 }
 
+// Enter Game
+// gameEnd :: () -> Void
+function gameStart() {
+  document.addEventListener('keypress', pause);
+}
+
+// Leave Game
+// gameEnd :: () -> Void
+function gameEnd() {
+  document.removeEventListener('keypress', pause);
+}
 
 
 /* #endregion */
@@ -511,6 +510,18 @@ function move(object, dt) {
   };
 }
 
+// Pause Game
+// pause :: Event -> Void
+function pause(e) {
+  if (e.keyCode === 112) {
+    if (GAMELOOP.isStopped) {
+      GAMELOOP.start();
+    } else {
+      GAMELOOP.stop();
+    }
+  }
+}
+
 /* #endregion */
 
 
@@ -575,8 +586,6 @@ function movingBall(dt, collidableObjects) {
     this.advance();
     return;
   }  
-
-
 
   // Calculate future position of ball
   const p2 = move(this, dt);
