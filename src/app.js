@@ -336,8 +336,8 @@ const gameStates = new StateMachine({
     { name: 'pause',   from: 'game', to: 'paused'  },
     { name: 'unpause',   from: 'paused', to: 'game'  },
     { name: 'quit', from: '*', to: 'menu'    },
-    { name: 'win', from: 'game', to: 'winner'    },
-    { name: 'lose', from: 'game', to: 'loser'    },
+    { name: 'win', from: '*', to: 'winner'    },
+    { name: 'lose', from: '*', to: 'loser'    },
     { name: 'restart', from: '*', to: 'menu' }
   ],
   methods: {
@@ -371,6 +371,7 @@ function displayMenu() {
   const context = kontra.canvas.getContext('2d');
   context.clearRect(0, 0, kontra.canvas.width, kontra.canvas.height);
    hideBottomDisplay();
+   clearMessages();
   // Display Menu
   addTitle('BRICK SMASHING GAME!', 'title');
   addMessage('Press any key to start', 'menu');
@@ -386,14 +387,14 @@ function displayMenu() {
 // Show win message
 // Skips straight to menu
 function winMessage() {
-  console.log('You are a winner');
+  addMessage('You amount to something.', 'win');
   setTimeout(() => {gameStates.restart();}, 3000);
 }
 
 // Show lose message
 // Skips straight to menu
 function loseMessage() {
-  console.log('You are a loser');
+  addMessage('You are a loser.', 'lose');
   setTimeout(() => {gameStates.restart();}, 3000);
 }
 

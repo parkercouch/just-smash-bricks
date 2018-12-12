@@ -69,6 +69,18 @@ body {
   padding-top: 10px;
 }
 
+.win {
+  color: black;
+  margin: 0;
+  padding: 0;
+}
+
+.lose {
+  color: black;
+  margin: 0;
+  padding: 0;
+}
+
 .loading {
   color: black;
   margin: 0;
