@@ -26,14 +26,10 @@ const HUD = document.getElementById('hud');
 /* #region */
 
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('DOM LOADED');
   const canvasElement = document.getElementById('game');
   resizeCanvasToDisplaySize(canvasElement);
   kontra.init(canvasElement);
-  console.log(gameStates.state); //pageLoad
-  console.log(gameStates);
   gameStates.startLoading();
-  console.log(gameStates.state); //loading
 });
 
 /* #endregion */
@@ -353,9 +349,6 @@ function loadAssets() {
 
   kontra.assets.load(...imgAssets, ...sfxAssets)
     .then(() => {
-      // all assets have loaded
-      // console.log('All assets loaded');
-      // console.log(kontra.assets);
       clearMessages();
       gameStates.finishLoading();
     }).catch((err) => {
@@ -365,8 +358,12 @@ function loadAssets() {
 };
 
 // Basic press any key to start 'menu'
+// displayMenu :: () -> Void
 function displayMenu() {
-  // console.log('In Menu');
+  // Clear Canvas
+  const context = kontra.canvas.getContext('2d');
+  context.clearRect(0, 0, kontra.canvas.width, kontra.canvas.height);
+  // Display Menu
   addTitle('BRICK SMASHING GAME!', 'title');
   addMessage('Press any key to start', 'menu');
   document.addEventListener('keypress', function handler(e) {
@@ -562,8 +559,10 @@ function move(object, dt) {
 function pause(e) {
   if (e.keyCode === 112) {
     if (GAMELOOP.isStopped) {
+      clearMessages();
       GAMELOOP.start();
     } else {
+      addMessage('PAUSED', 'pause')
       GAMELOOP.stop();
     }
   }

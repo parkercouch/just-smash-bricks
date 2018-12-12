@@ -47,6 +47,8 @@ body {
   padding: 0 20px;
 }
 
+
+/* Will condense these once formatting is complete */
 .container {
   padding-top: 10px;
 }
@@ -55,16 +57,27 @@ body {
   color: black;
   margin: 0;
   padding: 0;
+  animation: blinker 2s ease-in-out infinite alternate;  
 }
 
 .menu {
   color: black;
   margin: 0;
   padding: 0;
+  animation: blinker 2s ease-in-out infinite alternate;  
 }
+
+.pause {
+  color: black;
+  margin: 0;
+  padding: 0;
+  animation: blinker 2s ease-in-out infinite alternate;  
+}
+@keyframes blinker { to { opacity: 0; } }
 
 .title {
   color: black;
   margin: 0;
   padding: 0;
 }
+
