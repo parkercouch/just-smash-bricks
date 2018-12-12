@@ -14,6 +14,8 @@ const CANVASHEIGHT = 600;
 const CANVASWIDTH = 400;
 let BALLRESERVE = 100;
 let GAMELOOP;
+const MESSAGE = document.getElementById('message');
+const HUD = document.getElementById('hud');
 
 
 /* #endregion */
@@ -347,11 +349,14 @@ const gameStates = new StateMachine({
 });
 
 function loadAssets() {
+  addMessage('Loading...', 'loading');
+
   kontra.assets.load(...imgAssets, ...sfxAssets)
     .then(() => {
       // all assets have loaded
-      console.log('All assets loaded');
-      console.log(kontra.assets);
+      // console.log('All assets loaded');
+      // console.log(kontra.assets);
+      clearMessages();
       gameStates.finishLoading();
     }).catch((err) => {
       // error loading an asset
@@ -359,13 +364,18 @@ function loadAssets() {
     });
 };
 
-// SKIPS TO GAME. WILL MAKE MENU LATER
+// Basic press any key to start 'menu'
 function displayMenu() {
-  console.log('In Menu');
-  
-  // Skip straight to game 
-  setTimeout(() => {gameStates.start();}, 1000);
-
+  // console.log('In Menu');
+  addTitle('BRICK SMASHING GAME!', 'title');
+  addMessage('Press any key to start', 'menu');
+  document.addEventListener('keypress', function handler(e) {
+    e.currentTarget.removeEventListener(e.type, handler);
+    clearMessages();
+    clearHUD();
+    // Delay start so pressing space doesn't launch ball immediately
+    setTimeout(() => {gameStates.start();}, 100);
+  });
 };
 
 // Show win message
@@ -420,6 +430,42 @@ function resizeCanvasToDisplaySize(canvas) {
 
   return false;
 }
+
+// Clear Messages from MESSAGES
+// clearMessage :: () -> Void
+function clearMessages () {
+  while (MESSAGE.firstChild) {
+    MESSAGE.removeChild(MESSAGE.firstChild);
+  }
+}
+
+// Add Message to MESSAGES
+// addMessage :: String -> String -> Void
+function addMessage (message, type) {
+  const newMessage = document.createElement('h2');
+  newMessage.textContent = message;
+  newMessage.classList.add(type);
+  MESSAGE.appendChild(newMessage);
+}
+
+// Add title to HUD
+// addMessage :: String -> String -> Void
+function addTitle (message, type) {
+  const newMessage = document.createElement('h1');
+  newMessage.textContent = message;
+  newMessage.classList.add(type);
+  HUD.appendChild(newMessage);
+}
+
+// Clear all elements from HUD
+// clearMessage :: () -> Void
+function clearHUD () {
+  while (HUD.firstChild) {
+    HUD.removeChild(HUD.firstChild);
+  }
+}
+
+
 
 // Checks if out of bounds. Uses global Kontra
 // outOfBounds :: Num, Num -> Bool
