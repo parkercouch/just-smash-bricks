@@ -282,7 +282,9 @@ const startGameLoop = function () {
           // LOSE
           this.stop();
           gameStates.lose();
+          return;
         }
+        updateLives();
         ballPool.get({
           type: 'ball',
           combo: 0,
@@ -368,6 +370,7 @@ function displayMenu() {
   // Clear Canvas
   const context = kontra.canvas.getContext('2d');
   context.clearRect(0, 0, kontra.canvas.width, kontra.canvas.height);
+   hideBottomDisplay();
   // Display Menu
   addTitle('BRICK SMASHING GAME!', 'title');
   addMessage('Press any key to start', 'menu');
@@ -471,7 +474,7 @@ function clearHUD () {
 // addMessage :: () -> Void
 function showBottomDisplay () {
   const livesTitle = document.createElement('h5');
-  livesTitle.textContent = 'Lives: ';
+  livesTitle.textContent = 'Lives left: ';
   livesTitle.classList.add('lives-title');
   const scoreTitle = document.createElement('h5');
   scoreTitle.textContent = 'Score: ';
@@ -482,7 +485,7 @@ function showBottomDisplay () {
   score.classList.add('score');
   scoreTitle.appendChild(score);
   const lives = document.createElement('span');
-  lives.textContent = BALLRESERVE;
+  lives.textContent = BALLRESERVE - 1;
   lives.classList.add('lives');
   livesTitle.appendChild(lives);
 
@@ -491,11 +494,26 @@ function showBottomDisplay () {
   BOTTOM_DISPLAY.appendChild(scoreTitle);
 }
 
+// Clear bottom display 
+// hideBottomDisplay :: () -> Void
+function hideBottomDisplay () {
+  while (BOTTOM_DISPLAY.firstChild) {
+    BOTTOM_DISPLAY.removeChild(BOTTOM_DISPLAY.firstChild);
+  }
+}
+
 // Update score
-// updateScore :: -> Void
-function updateScore (addedPoints) {
+// updateScore :: () -> Void
+function updateScore () {
+  const score = document.querySelector('.score');
+  score.textContent = SCORE;
+}
 
-
+// Update lives 
+// updateLives :: () -> Void
+function updateLives () {
+  const lives = document.querySelector('.lives');
+  lives.textContent = BALLRESERVE - 1;
 }
 
 
@@ -730,6 +748,9 @@ function movingBall(dt, collidableObjects) {
         // Reduce its hitcount and add to combo
         closest.item.hits -= 1;
         this.combo += 1;
+        //// RANDOM SCORE UNTIL FORMULA IS MADE
+        SCORE += this.combo * 50;
+        updateScore();
 
         // If the brick has no hits left then destroy it
         if (closest.item.hits <= 0) {
