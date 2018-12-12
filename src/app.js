@@ -12,7 +12,7 @@ const PADDLEWIDTH = 60;
 const PADDLEHEIGHT = 10;
 const CANVASHEIGHT = 600;
 const CANVASWIDTH = 400;
-let BALLRESERVE = 3;
+let BALLRESERVE = 100;
 
 
 /* #endregion */
@@ -277,14 +277,21 @@ const startGameLoop = function () {
       collidableObjects.add(paddle);
 
       // Ready to check for collision!
-      // ball.update(dt, collidableObjects);
       ballPool.update(dt, collidableObjects);
 
+      // If all bricks are gone then go to win state
+      if (brickPool.getAliveObjects().length <= 0) {
+        this.stop();
+        gameStates.win();
+      }
+
+      // If all balls die then check for lose or start another ball
       if (ballPool.getAliveObjects().length <= 0) {
         BALLRESERVE -= 1;
         if (BALLRESERVE <= 0) {
           // LOSE
-          console.log('LOSE');
+          this.stop();
+          gameStates.lose();
         }
         ballPool.get({
           type: 'ball',
@@ -312,7 +319,6 @@ const startGameLoop = function () {
     // RENDER GAME STATE //
     render: function () {
       paddle.render();
-      // ball.render();
       ballPool.render();
       brickPool.render();
     }
@@ -338,11 +344,16 @@ const gameStates = new StateMachine({
     { name: 'pause',   from: 'game', to: 'paused'  },
     { name: 'unpause',   from: 'paused', to: 'game'  },
     { name: 'quit', from: '*', to: 'menu'    },
+    { name: 'win', from: 'game', to: 'winner'    },
+    { name: 'lose', from: 'game', to: 'loser'    },
+    { name: 'restart', from: '*', to: 'menu' }
   ],
   methods: {
     onLoading: loadAssets,
     onMenu: displayMenu,
     onGame: startGameLoop,
+    onWinner: winMessage,
+    onLoser: loseMessage,
   }
 });
 
@@ -367,6 +378,21 @@ function displayMenu() {
   setTimeout(() => {gameStates.start();}, 1000);
 
 };
+
+// Show win message
+// Skips straight to menu
+function winMessage() {
+  console.log('You are a winner');
+  setTimeout(() => {gameStates.restart();}, 3000);
+}
+
+// Show lose message
+// Skips straight to menu
+function loseMessage() {
+  console.log('You are a loser');
+  setTimeout(() => {gameStates.restart();}, 3000);
+}
+
 
 
 /* #endregion */
