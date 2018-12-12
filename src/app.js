@@ -12,10 +12,12 @@ const PADDLEWIDTH = 60;
 const PADDLEHEIGHT = 10;
 const CANVASHEIGHT = 600;
 const CANVASWIDTH = 400;
-let BALLRESERVE = 100;
+let BALLRESERVE;
+let SCORE;
 let GAMELOOP;
 const MESSAGE = document.getElementById('message');
 const HUD = document.getElementById('hud');
+const BOTTOM_DISPLAY = document.getElementById('bottom-display');
 
 
 /* #endregion */
@@ -64,6 +66,7 @@ const sfxAssets = [
 const startGameLoop = function () {
 
   BALLRESERVE = 3;
+  SCORE = 0;
 
   // QUADTREE FOR COLLISION DETECTION //
   const collidableObjects = kontra.quadtree();
@@ -203,6 +206,8 @@ const startGameLoop = function () {
     render: renderBall,
   });
   ballPool.render();
+
+  showBottomDisplay();
 
   // Pool to pull bricks from
   const brickPool = kontra.pool({
@@ -460,6 +465,37 @@ function clearHUD () {
   while (HUD.firstChild) {
     HUD.removeChild(HUD.firstChild);
   }
+}
+
+// Display Lives/Score
+// addMessage :: () -> Void
+function showBottomDisplay () {
+  const livesTitle = document.createElement('h5');
+  livesTitle.textContent = 'Lives: ';
+  livesTitle.classList.add('lives-title');
+  const scoreTitle = document.createElement('h5');
+  scoreTitle.textContent = 'Score: ';
+  scoreTitle.classList.add('score-title');
+
+  const score = document.createElement('span');
+  score.textContent = SCORE;
+  score.classList.add('score');
+  scoreTitle.appendChild(score);
+  const lives = document.createElement('span');
+  lives.textContent = BALLRESERVE;
+  lives.classList.add('lives');
+  livesTitle.appendChild(lives);
+
+
+  BOTTOM_DISPLAY.appendChild(livesTitle);
+  BOTTOM_DISPLAY.appendChild(scoreTitle);
+}
+
+// Update score
+// updateScore :: -> Void
+function updateScore (addedPoints) {
+
+
 }
 
 
