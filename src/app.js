@@ -4,7 +4,6 @@
 // ------------------------GLOBALS------------------------ //
 // ------------------------------------------------------- //
 /* #region */
-const GAME = {};
 const FPS = 120;
 const BRICKHEIGHT = 15;
 const BRICKWIDTH = 50;
@@ -226,16 +225,20 @@ const startGameLoop = function () {
       brickPool.get({
         type: 'brick',
         hits: 2,
-        x: startX,        // starting x,y position of the sprite
-        y: startY,
+        anchor: {
+          x: 0.5,
+          y: 0.5,
+        },
+        x: startX + BRICKWIDTH / 2,        // starting x,y position of the sprite
+        y: startY + BRICKHEIGHT / 2,
         dx: 0,
         dy: 0,
         width: BRICKWIDTH,
         height: BRICKHEIGHT,
-        top: startY, 
-        bottom: startY + BRICKHEIGHT,
-        left: startX,
-        right: startX + BRICKWIDTH,
+        top: startY - BRICKHEIGHT - 1, 
+        bottom: startY + BRICKHEIGHT + 1,
+        left: startX - BRICKWIDTH - 1,
+        right: startX + BRICKWIDTH + 1,
         color: 'black',
         fix: true,
         update: function () {
@@ -331,8 +334,6 @@ const gameStates = new StateMachine({
     { name: 'startLoading',     from: 'pageLoad',  to: 'loading' },
     { name: 'finishLoading',     from: 'loading',  to: 'menu' },
     { name: 'start',     from: 'menu',  to: 'game' },
-    // { name: 'pause',   from: 'game', to: 'paused'  },
-    // { name: 'unpause',   from: 'paused', to: 'game'  },
     { name: 'quit', from: '*', to: 'menu'    },
     { name: 'win', from: '*', to: 'winner'    },
     { name: 'lose', from: '*', to: 'loser'    },
@@ -378,7 +379,7 @@ function displayMenu() {
     clearMessages();
     clearHUD();
     // Delay start so pressing space doesn't launch ball immediately
-    setTimeout(() => {gameStates.start();}, 100);
+    setTimeout(() => {gameStates.start();}, 500);
   });
 };
 
@@ -680,7 +681,7 @@ function movingBall(dt, collidableObjects) {
     if (kontra.keys.pressed('space')) {
       this.attached = null;
       this.dx = 5;
-      this.dy = -5;
+      this.dy = -6;
     }
     this.advance();
     return;
@@ -722,6 +723,9 @@ function movingBall(dt, collidableObjects) {
         // Reset combo when paddle is hit
         this.combo = 0;
 
+        // Paddle bounce
+        bounceDown([closest.item], 6, 2);
+
         switch (closest.point.d) {
           case 'left':
           case 'right':
@@ -755,6 +759,20 @@ function movingBall(dt, collidableObjects) {
         // Reduce its hitcount and add to combo
         closest.item.hits -= 1;
         this.combo += 1;
+
+        if (collidableObjects.objects.length === 0) {
+          collidableObjects.subnodes.forEach((subnode) => {
+            const bricks = subnode.objects.filter(n => n.type === 'brick')
+            jiggle(bricks);
+            bounceDown(bricks, 1);
+          })
+        } else {
+          const bricks = collidableObjects.objects.filter(n => n.type === 'brick')
+          jiggle(bricks);
+          bounceDown(bricks, 0.5, 0.5);
+        }
+
+
         //// RANDOM SCORE UNTIL FORMULA IS MADE
         SCORE += this.combo * 50;
         updateScore();
@@ -830,4 +848,70 @@ function renderBall() {
 /* #endregion */
 
 
+// ------------------------------------------------------- //
+// ----------------------ANIMATIONS----------------------- //
+// ------------------------------------------------------- //
+/* #region */
+
+
+function bounceDown(objects, speed = 5, distance = 1) {
+  objects.forEach((object) => {
+
+  object.y += 1;
+  for (let i = 1; i <= 10; i++) {
+    setTimeout(() => {
+      object.y += distance;
+    }, i*speed)
+    setTimeout(() => {
+      object.y -= distance;
+    }, i*speed + 50)
+  }
+  setTimeout(() => {
+    object.y -= distance;
+  }, 1000)
+  });
+}
+
+function jiggle(objects, speed = 2.5) {
+  const angleIncrement = degToRad(1);
+  objects.forEach((object) => {
+    object.rotation += angleIncrement;
+    for (let i = 1; i <= 10; i++) {
+      setTimeout(() => {
+        object.rotation += angleIncrement;
+      }, i * 2.5)
+      setTimeout(() => {
+        object.rotation -= angleIncrement;
+      }, i * 2.5 + 25)
+    }
+    setTimeout(() => {
+      object.rotation -= angleIncrement;
+    }, 50)
+
+    setTimeout(() => {
+      object.rotation -= angleIncrement;
+    }, 50);
+
+    for (let i = 1; i <= 10; i++) {
+      setTimeout(() => {
+        object.rotation -= angleIncrement;
+      }, i * 2.5 + 50)
+      setTimeout(() => {
+        object.rotation += angleIncrement;
+      }, i * 2.5 + 52.5)
+    }
+    setTimeout(() => {
+      object.rotation += angleIncrement;
+    }, 100)
+
+  })
+}
+
+function degToRad (deg) {
+  return deg * Math.PI / 180;
+}
+
+
+
+/* #endregion */
 

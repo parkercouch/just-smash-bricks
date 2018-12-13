@@ -1,4 +1,4 @@
-
+/* eslint-disable */
 
 /* file: license.txt */
 
