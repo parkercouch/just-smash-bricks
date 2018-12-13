@@ -8,7 +8,7 @@ const GAME = {};
 const FPS = 120;
 const BRICKHEIGHT = 15;
 const BRICKWIDTH = 50;
-const PADDLEWIDTH = 60;
+const PADDLEWIDTH = 80;
 const PADDLEHEIGHT = 10;
 const CANVASHEIGHT = 600;
 const CANVASWIDTH = 400;
@@ -70,7 +70,7 @@ const startGameLoop = function () {
 
   // QUADTREE FOR COLLISION DETECTION //
   const collidableObjects = kontra.quadtree();
-  collidableObjects.maxObjects = 10;
+  // collidableObjects.maxObjects = 10;
 
   // WALLS //
   const leftWall = kontra.sprite({
@@ -255,9 +255,6 @@ const startGameLoop = function () {
     // UPDATE GAME STATE //
     update: function (dt) {
 
-      // if (kontra.keys.pressed('p')) {
-      //   this.stop();
-      // }
       // Update paddle and bricks then add to quadtree
       brickPool.update();
       paddle.update();
@@ -268,6 +265,7 @@ const startGameLoop = function () {
 
       // Ready to check for collision!
       ballPool.update(dt, collidableObjects);
+
 
       // If all bricks are gone then go to win state
       if (brickPool.getAliveObjects().length <= 0) {
@@ -333,8 +331,8 @@ const gameStates = new StateMachine({
     { name: 'startLoading',     from: 'pageLoad',  to: 'loading' },
     { name: 'finishLoading',     from: 'loading',  to: 'menu' },
     { name: 'start',     from: 'menu',  to: 'game' },
-    { name: 'pause',   from: 'game', to: 'paused'  },
-    { name: 'unpause',   from: 'paused', to: 'game'  },
+    // { name: 'pause',   from: 'game', to: 'paused'  },
+    // { name: 'unpause',   from: 'paused', to: 'game'  },
     { name: 'quit', from: '*', to: 'menu'    },
     { name: 'win', from: '*', to: 'winner'    },
     { name: 'lose', from: '*', to: 'loser'    },
@@ -697,6 +695,7 @@ function movingBall(dt, collidableObjects) {
   // Check all objects in current node of quadtree
   collidableObjects.get(this).forEach((item) => {
     // Check for point of collision
+
     const point = ballIntercept(this, item, p2.nx, p2.ny);
     // If it exists then check magnitudes
     if (point) {
@@ -710,8 +709,12 @@ function movingBall(dt, collidableObjects) {
 
   // ----- A collision happend so deal with it ------- //
   if (closest) {
-    this.x = closest.point.x;
-    this.y = closest.point.y;
+
+    const udt = dt * (closestMagnitude / magnitude(p2.nx, p2.ny));
+    this.advance(udt);
+
+    // this.x = closest.point.x;
+    // this.y = closest.point.y;
 
     switch (closest.item.type) {
       case 'paddle':
@@ -727,18 +730,21 @@ function movingBall(dt, collidableObjects) {
             break;
 
           // MAGIC NUMBERS
+          // NEED TO ADD DIFFERENT ANGLES DEPENDING ON PADDLE MOVEMENT
           // Edges of paddle bounce ball back instead of reflecting exact angles
           case 'top':
           case 'bottom':
             if (closest.point.x > (closest.item.x + closest.item.width / 4 * 3)) {
-              this.dx = Math.abs(p2.dx);
-              this.dy = -p2.dy;
+              this.dx = Math.abs(p2.dx); // + 1
+              this.dy = -p2.dy; // + 2
+              // this.ddx +=  0.5;
             } else if (closest.point.x >= (closest.item.x + closest.item.width / 4)) {
               this.dx = p2.dx;
               this.dy = -p2.dy;
             } else {
-              this.dx = -1 * Math.abs(p2.dx);
-              this.dy = -p2.dy;
+              this.dx = -1 * Math.abs(p2.dx); // -1
+              this.dy = -p2.dy; // + 2
+              // this.ddx -= 0.5;
             }
             break;
         }
@@ -783,16 +789,17 @@ function movingBall(dt, collidableObjects) {
 
 
     // How much time did it take to get to first collision?
-    var udt = dt * (closestMagnitude / magnitude(p2.nx, p2.ny));
+    // var udt = dt * (closestMagnitude / magnitude(p2.nx, p2.ny));
     // Run collision recursively if there is time left
     return this.update(dt - udt, collidableObjects);
   }
 
   // Update ball position after all collisions have been resolved
-  this.x = p2.x;
-  this.y = p2.y;
-  this.dx = p2.dx;
-  this.dy = p2.dy;
+  // this.x = p2.x;
+  // this.y = p2.y;
+  this.advance(dt * FPS);
+  // this.dx = p2.dx;
+  // this.dy = p2.dy;
 }
 
 
