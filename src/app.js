@@ -322,57 +322,13 @@ const startGameLoop = function () {
   }
 
 
-  // const paddleTest = kontra.sprite({
-  //   type: 'paddle',
-  //   anchor: {
-  //     x: 0,
-  //     y: 0,
-  //   },
-  //   x: 200,
-  //   y: 350,
-  //   dx: 0,
-  //   dy: 0,
-  //   ttl: Infinity,
-  //   width: PADDLEWIDTH,
-  //   height: PADDLEHEIGHT, 
-  //   top: 350,
-  //   bottom: 350 + PADDLEHEIGHT,
-  //   left: 200,
-  //   right: 200 + PADDLEWIDTH,
-  //   color: 'black',
-  //   update: paddleUpdate,
-  //   move: movePaddle,
-  //   onHit: function() {
-  //     const thisObject = this;
-  //     let coords = {y: this.y};
-  //     new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-  //       .to( { y: 100 }, 500)
-  //       .easing(TWEEN.Easing.Quadratic.Out)
-  //       .onUpdate(function () {
-  //         thisObject.y = coords.y;
-  //         thisObject.render();
-  //       })
-  //       .start();
-  //   },
-  // });
-  // // paddleTest.render();
-
-  // let animTest = 1;
-
   GAMELOOP = kontra.gameLoop({  // create the main game loop
     fps: FPS,
     // clearCanvas: false,  // not clearing helps with debug
     // UPDATE GAME STATE //
     update: function (dt) {
 
-
       TWEEN.update();
-      // EXPERIMENT
-      // if (SCORE === 50 && animTest === 1) {
-      //   // tween.start();
-      //   animTest = 0;
-      //   paddleTest.onHit();
-      // }
 
       // Update paddle and bricks then add to quadtree
       brickPool.update();
@@ -394,7 +350,6 @@ const startGameLoop = function () {
 
       // If all balls die then check for lose or start another ball
       if (ballPool.getAliveObjects().length <= 0) {
-        console.log(ballPool);
         BALLRESERVE -= 1;
         if (BALLRESERVE <= 0) {
           // LOSE
@@ -431,7 +386,6 @@ const startGameLoop = function () {
       paddle.render();
       ballPool.render();
       brickPool.render();
-      // paddleTest.render();
     }
   });
 
