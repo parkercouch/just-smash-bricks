@@ -9,8 +9,8 @@ const BRICK_HEIGHT = 15;
 const BRICK_WIDTH = 50;
 const PADDLE_WIDTH = 80;
 const PADDLE_HEIGHT = 20;
-const CANVAS_HEIGHT = 600;
 const CANVAS_WIDTH = 400;
+const CANVAS_HEIGHT = 600;
 let LIVES;
 let SCORE;
 let GAMELOOP;
@@ -69,7 +69,6 @@ const startGameLoop = function () {
 
   // QUADTREE FOR COLLISION DETECTION //
   const collidableObjects = kontra.quadtree();
-  // collidableObjects.maxObjects = 10;
 
   // WALLS //
   const leftWall = kontra.sprite({
@@ -78,7 +77,7 @@ const startGameLoop = function () {
       x: 1,
       y: 0,
     },
-    x: 0.5,        // starting x,y position of the sprite
+    x: 0.5,
     y: 0,
     dx: 0,
     dy: 0,
@@ -89,7 +88,6 @@ const startGameLoop = function () {
     bottom: kontra.canvas.height,
     left: -0.5,
     right: 0,
-    // color: 'red',
   });
 
   const rightWall = kontra.sprite({
@@ -98,7 +96,7 @@ const startGameLoop = function () {
       x: 0,
       y: 0,
     },
-    x: kontra.canvas.width - 0.5,        // starting x,y position of the sprite
+    x: kontra.canvas.width - 0.5,
     y: 0,
     dx: 0,
     dy: 0,
@@ -109,7 +107,6 @@ const startGameLoop = function () {
     bottom: kontra.canvas.height,
     left: kontra.canvas.width - 0.5,
     right: kontra.canvas.width + 0.5,
-    // color: 'red',
   });
 
   const topWall = kontra.sprite({
@@ -118,7 +115,7 @@ const startGameLoop = function () {
       x: 0,
       y: 1,
     },
-    x: 0,        // starting x,y position of the sprite
+    x: 0,
     y: 0.5,
     dx: 0,
     dy: 0,
@@ -129,17 +126,15 @@ const startGameLoop = function () {
     bottom: 0.5,
     left: 0,
     right: kontra.canvas.width,
-    // color: 'red',
   });
 
-  // BOTTOM WALL FOR TESTING AND MAYBE POWERUP??
   const bottomWall = kontra.sprite({
     type: 'blackhole',
     anchor: {
       x: 0,
       y: 0,
     },
-    x: 0,        // starting x,y position of the sprite
+    x: 0,
     y: kontra.canvas.height - 0.5,
     dx: 0,
     dy: 0,
@@ -150,7 +145,6 @@ const startGameLoop = function () {
     bottom: kontra.canvas.height + 0.5,
     left: 0,
     right: kontra.canvas.width,
-    // color: 'red',
   });
 
   leftWall.render();
@@ -158,49 +152,30 @@ const startGameLoop = function () {
   topWall.render();
   bottomWall.render();
 
-  //MAGIC NUMBERS... UPDATE ME!
   // PADDLE //
   const paddle = kontra.sprite({
     type: 'paddle',
     anchor: {
-      x: 0,
-      y: 0,
+      x: 0.5,
+      y: 0.5,
     },
-    x: 200,
-    y: 550,
+    // Place paddle in midde and above the bottom display
+    x: CANVAS_WIDTH / 2, // - PADDLE_WIDTH / 2,
+    y: CANVAS_HEIGHT - 50,
     dx: 0,
     dy: 0,
     ttl: Infinity,
     width: PADDLE_WIDTH,
     height: PADDLE_HEIGHT, 
-    top: 550,
-    bottom: 550 + PADDLE_HEIGHT,
-    left: 200,
-    right: 200 + PADDLE_WIDTH,
-    color: 'green',
+    top: CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2 + 1,
+    bottom: CANVAS_HEIGHT - 50 + PADDLE_HEIGHT / 2 - 1,
+    left: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
+    right: CANVAS_WIDTH / 2 + PADDLE_WIDTH / 2,
+    color: 'black',
     // image: kontra.assets.images.paddle,
     update: paddleUpdate,
     move: movePaddle,
-    onHit: function () {
-      const thisObject = this;
-      const coords = {y: this.y};
-      const up = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-        .to( { y: "-20"}, 50)
-        .easing(TWEEN.Easing.Linear.None)
-        .onUpdate(function () {
-          thisObject.y = coords.y;
-          thisObject.render();
-        });
-      new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-        .to( { y: "+20"}, 50)
-        .easing(TWEEN.Easing.Quadratic.In)
-        .onUpdate(function () {
-          thisObject.y = coords.y;
-          thisObject.render();
-        })
-        .chain(up)
-        .start();
-    },
+    onHit: paddleBounce,
   });
 
   const ballPool = kontra.pool({
@@ -228,6 +203,7 @@ const startGameLoop = function () {
     // image: kontra.assets.images.ball,
     update: movingBall,
     render: renderBall,
+    collidesWith: ballIntercept,
   });
   ballPool.render();
 
@@ -241,20 +217,20 @@ const startGameLoop = function () {
     fill: true,
   });
   
-  // MAGIC NUMBERS FOR TESTING BRICK LAYOUT
-  // MAKE FORMULA LATER
+  // LEVEL ONE BRICK GENERATOR //
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       let startX = 30 + (j * 5) + (j - 1) * 50;
       let startY = 30 + (i * 5) + (i - 1) * 15;
+
       brickPool.get({
         type: 'brick',
-        hits: 2,
+        hits: 6,
         anchor: {
           x: 0.5,
           y: 0.5,
         },
-        x: startX + BRICK_WIDTH / 2,        // starting x,y position of the sprite
+        x: startX + BRICK_WIDTH / 2,
         y: startY + BRICK_HEIGHT / 2,
         originalX: startX + BRICK_WIDTH / 2,
         originalY: startY + BRICK_HEIGHT / 2,
@@ -268,54 +244,10 @@ const startGameLoop = function () {
         left: startX - BRICK_WIDTH - 1,
         right: startX + BRICK_WIDTH + 1,
         color: 'black',
-        update: function () {
-          if (this.hits <= 1) {
-            this.color = 'red';
-          }
-        },
-        onHit: function (hitLocation) {
-          const thisObject = this;
-          const xOffset = 5 * Math.random() + 5;
-          const yOffset = 5 * Math.random() + 5;
-          const xDirection = hitLocation.dx >= 0 ? 1 : -1;
-          const yDirection = hitLocation.dy >= 0 ? 1 : -1;
-          const startX = this.originalX; 
-          const startY = this.originalY;
-          const endx = startX + (xDirection * xOffset);
-          const endy = startY + (yDirection * yOffset);
-
-
-          const coords = {
-            x: startX,
-            y: startY,
-          };
-          const back = new TWEEN.Tween(coords)
-            .to( {
-              x: startX,
-              y: startY,
-            }, 100 )
-            .easing(TWEEN.Easing.Quadratic.In)
-            .onUpdate(function () {
-              thisObject.x = coords.x;
-              thisObject.y = coords.y;
-              thisObject.render();
-            });
-
-          new TWEEN.Tween(coords)
-            .to( {
-              x: endx,
-              y: endy,
-            }, 50 )
-            .easing(TWEEN.Easing.Quadratic.Out)
-            .onUpdate(function () {
-              thisObject.x = coords.x;
-              thisObject.y = coords.y;
-              thisObject.render();
-            })
-            .chain(back)
-            .start();
-        },
+        update: colorChange,
+        onHit: brickBounce,
       });
+
       brickPool.update();
       brickPool.render();
     }
@@ -495,13 +427,13 @@ function gameEnd() {
 // resizeCanvasToDisplaySize :: Element -> Void
 function resizeCanvasToDisplaySize(canvas) {
   // Look up the size the canvas is being displayed
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
+  canvas.clientWidth = CANVAS_WIDTH;
+  canvas.clientHeight = CANVAS_HEIGHT;
 
   // If it's resolution does not match change it
-  if (canvas.width !== width || canvas.height !== height) {
-    canvas.width = width;
-    canvas.height = height;
+  if (canvas.width !== CANVAS_WIDTH || canvas.height !== CANVAS_HEIGHT) {
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
     return true;
   }
 
@@ -621,7 +553,7 @@ function intercept (x1, y1, x2, y2, x3, y3, x4, y4, d) {
 // USED TO OVERRIDE collidesWith function for kontra.sprites
 // ballIntercept Object -> Object -> Num -> Num -> {x,y,d}
 function ballIntercept (ball, rect, nx, ny) {
-  let pt;
+  let pt = false;
   if (nx < 0) {
     pt = intercept(ball.x, ball.y, ball.x + nx, ball.y + ny, 
                              rect.right  + ball.radius, 
@@ -708,22 +640,21 @@ function pause(e) {
 // ------------------------------------------------------- //
 /* #region */
 
-// Movement for paddle
+// Update paddle and keep in bounds
 // paddleUpdate :: () -> Void
 function paddleUpdate() {
-
-  this.top = this.y;
-  this.bottom = this.y + this.height;
-  this.left = this.x;
-  this.right = this.x + this.width;
+  this.top = this.y - this.height / 2;
+  this.bottom = this.y + this.height / 2;
+  this.left = this.x - this.width / 2;
+  this.right = this.x + this.width / 2;
 
   // Keep paddle contained in canvas
-  if (this.x < (kontra.canvas.width - this.width)
-    && this.x > 0) {
+  if (this.x < (CANVAS_WIDTH - this.width / 2)
+    && this.x > this.width / 2) {
     this.move(true, true);
-  } else if (this.x >= (kontra.canvas.width - this.width)) {
+  } else if (this.x >= CANVAS_WIDTH - this.width / 2) {
     this.move(true, false);
-  } else if (this.x <= 0) {
+  } else if (this.x <= this.width / 2) {
     this.move(false, true);
   }
 }
@@ -744,22 +675,26 @@ function movePaddle(canMoveLeft, canMoveRight) {
   }
 }
 
-
 // Update logic for ball objects
 // movingBall :: Num -> Void
 function movingBall(dt, collidableObjects) {
 
   // If attached to something then wait for keypress
   if (this.attached) {
-    this.x = this.attached.x + this.attached.width / 2;
-    this.y = this.attached.y - this.radius;
+    this.x = this.attached.x;
+    this.y = this.attached.y - this.radius - this.attached.height / 2;
 
-    // Always launches the same way.
     // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
     if (kontra.keys.pressed('space')) {
-      this.attached = null;
-      this.dx = 5;
-      this.dy = -6;
+      if(kontra.keys.pressed('right')) {
+        this.attached = null;
+        this.dx = 5;
+        this.dy = -6;
+      } else if (kontra.keys.pressed('left')) {
+        this.attached = null;
+        this.dx = -5;
+        this.dy = -6;
+      }
     }
     this.advance();
     return;
@@ -774,13 +709,14 @@ function movingBall(dt, collidableObjects) {
   // Check all objects in current node of quadtree
   collidableObjects.get(this).forEach((item) => {
     // Check for point of collision
-
+    // const point = this.collidesWith(item, p2.nx, p2.ny)
     const point = ballIntercept(this, item, p2.nx, p2.ny);
     // If it exists then check magnitudes
     if (point) {
       const currentMagnitude = magnitude(point.x - this.x, point.y - this.y);
       if (currentMagnitude < closestMagnitude) {
         closestMagnitude = currentMagnitude;
+        // set the closest point of collision/item hit
         closest = { item: item, point: point };
       }
     }
@@ -789,22 +725,22 @@ function movingBall(dt, collidableObjects) {
   // ----- A collision happend so deal with it ------- //
   if (closest) {
 
+    // How much time did it take to get to first collision?
     const udt = dt * (closestMagnitude / magnitude(p2.nx, p2.ny));
+    // Update the ball to point of collision
     this.advance(udt);
 
-    // this.x = closest.point.x;
-    // this.y = closest.point.y;
-
+    // Check what object was hit
     switch (closest.item.type) {
       case 'paddle':
         // IF THE PADDLE IS HIT //
         // Reset combo when paddle is hit
         this.combo = 0;
 
-        // Paddle bounce // UPDATE WITH Tween.js
+        // Animate/sounds
         closest.item.onHit();
-        // bounceDown([closest.item], 6, 2);
 
+        // Reflect ball
         switch (closest.point.d) {
           case 'left':
           case 'right':
@@ -812,22 +748,22 @@ function movingBall(dt, collidableObjects) {
             this.dx = -p2.dx;
             break;
 
-          // MAGIC NUMBERS
-          // NEED TO ADD DIFFERENT ANGLES DEPENDING ON PADDLE MOVEMENT
+          // ** ROOM FOR IMPROVEMENT **
           // Edges of paddle bounce ball back instead of reflecting exact angles
           case 'top':
           case 'bottom':
-            if (closest.point.x > (closest.item.x + closest.item.width / 4 * 3)) {
-              this.dx = Math.abs(p2.dx); // + 1
-              this.dy = -p2.dy; // + 2
-              // this.ddx +=  0.5;
-            } else if (closest.point.x >= (closest.item.x + closest.item.width / 4)) {
+            // If right 1/4 then bounce back right
+            if (closest.point.x > (closest.item.x + closest.item.width / 4)) {
+              this.dx = Math.abs(p2.dx);
+              this.dy = -p2.dy;
+            // If in the middle 1/2 then reflect
+            } else if (closest.point.x >= (closest.item.x - closest.item.width / 4)) {
               this.dx = p2.dx;
               this.dy = -p2.dy;
+            // If left 1/4 then bounce back left
             } else {
-              this.dx = -1 * Math.abs(p2.dx); // -1
-              this.dy = -p2.dy; // + 2
-              // this.ddx -= 0.5;
+              this.dx = -1 * Math.abs(p2.dx);
+              this.dy = -p2.dy;
             }
             break;
         }
@@ -839,9 +775,7 @@ function movingBall(dt, collidableObjects) {
         closest.item.hits -= 1;
         this.combo += 1;
 
-        TWEEN.removeAll();
-
-        // THIS IS GROSS... COMMENTING UNTIL TWEENING IS IMPLEMENTED
+        // THIS IS GROSS... But will iterate through all bricks and animate
         if (collidableObjects.objects.length === 0) {
           collidableObjects.subnodes.forEach((subnode) => {
             const bricks = subnode.objects.filter(n => n.type === 'brick')
@@ -856,8 +790,7 @@ function movingBall(dt, collidableObjects) {
           });
         }
 
-
-        //// RANDOM SCORE UNTIL FORMULA IS MADE
+        // ** ROOM FOR IMPROVEMENT **
         SCORE += this.combo * 50;
         updateScore();
 
@@ -870,12 +803,14 @@ function movingBall(dt, collidableObjects) {
       case 'wall':
         // IF A WALL OR BRICK IS HIT //
         switch (closest.point.d) {
+          // Reflect x if right/left hit
           case 'left':
           case 'right':
             this.dy = p2.dy;
             this.dx = -p2.dx;
             break;
 
+          // Reflect y if top/bottom hit
           case 'top':
           case 'bottom':
             this.dy = -p2.dy;
@@ -883,34 +818,48 @@ function movingBall(dt, collidableObjects) {
             break;
         }
         break;
+
       case 'blackhole':
+        // IF THE BOTTOM IS HIT //
+        // Lose a ball
         this.ttl = 0;
         return;
     }
     // ----------------------------------------- //
 
-
-    // How much time did it take to get to first collision?
-    // var udt = dt * (closestMagnitude / magnitude(p2.nx, p2.ny));
     // Run collision recursively if there is time left
     return this.update(dt - udt, collidableObjects);
   }
 
   // Update ball position after all collisions have been resolved
-  // this.x = p2.x;
-  // this.y = p2.y;
   this.advance(dt * FPS);
-  // this.dx = p2.dx;
-  // this.dy = p2.dy;
 }
 
-
-// PROBABLY ISN'T NEEDED
-// Ball logic for starting from stop
-// staticBall :: Object -> Void
-function staticBall(attachedTo) {
-
+// Brick color chaning logic
+// colorChange :: Num -> Void
+function colorChange() {
+  switch (true) {
+    case (this.hits > 5):
+      this.color = 'black';
+      break;
+    case (this.hits > 4):
+      this.color = 'blue';
+      break;
+    case (this.hits > 3):
+      this.color = 'green';
+      break;
+    case (this.hits > 2):
+      this.color = 'yellow';
+      break;
+    case (this.hits > 1):
+      this.color = 'orange';
+      break;
+    default:
+      this.color = 'red';
+      break;
+  }
 }
+
 
 /* #endregion */
 
@@ -928,18 +877,18 @@ function renderBall() {
   this.context.fill();
 }
 
-// Possible use with ball animation... needs tweaked
-function ellipse(cx, cy, rx, ry){
-  this.context.save(); // save state
-  this.context.beginPath();
+// // Possible use with ball animation... needs tweaked
+// function ellipse(cx, cy, rx, ry){
+//   this.context.save(); // save state
+//   this.context.beginPath();
 
-  this.context.translate(cx-rx, cy-ry);
-  this.context.scale(rx, ry);
-  this.context.arc(1, 1, 1, 0, 2 * Math.PI, false);
+//   this.context.translate(cx-rx, cy-ry);
+//   this.context.scale(rx, ry);
+//   this.context.arc(1, 1, 1, 0, 2 * Math.PI, false);
 
-  this.context.restore(); // restore to original state
-  this.context.stroke();
-}
+//   this.context.restore(); // restore to original state
+//   this.context.stroke();
+// }
 
 /* #endregion */
 
@@ -950,22 +899,74 @@ function ellipse(cx, cy, rx, ry){
 /* #region */
 
 
-function bounceDown(objects, speed = 5, distance = 1) {
-  objects.forEach((object) => {
+// paddle onHit animation/sounds
+// paddleBounce :: () -> Void
+function paddleBounce() {
+  const thisObject = this;
+  const coords = { y: this.y };
+  // Chain up to the end of down
+  const up = new TWEEN.Tween(coords)
+    .to({ y: "-15" }, 50)
+    .easing(TWEEN.Easing.Linear.None)
+    .onUpdate(function () {
+      thisObject.y = coords.y;
+      thisObject.render();
+    });
+  new TWEEN.Tween(coords)
+    .to({ y: "+15" }, 50)
+    .easing(TWEEN.Easing.Quadratic.In)
+    .onUpdate(function () {
+      thisObject.y = coords.y;
+      thisObject.render();
+    })
+    .chain(up)
+    .start();
+}
 
-  object.y += 1;
-  for (let i = 1; i <= 10; i++) {
-    setTimeout(() => {
-      object.y += distance;
-    }, i*speed)
-    setTimeout(() => {
-      object.y -= distance;
-    }, i*speed + 50)
-  }
-  setTimeout(() => {
-    object.y -= distance;
-  }, 1000)
-  });
+// Brick onHit animation/sound
+// brickBounce :: (Object) -> Void
+function brickBounce (hitLocation) {
+  const thisObject = this;
+  const xOffset = 5 * Math.random() + 5;
+  const yOffset = 5 * Math.random() + 5;
+  const xDirection = hitLocation.dx >= 0 ? 1 : -1;
+  const yDirection = hitLocation.dy >= 0 ? 1 : -1;
+  const startX = this.originalX;
+  const startY = this.originalY;
+  const endx = startX + (xDirection * xOffset);
+  const endy = startY + (yDirection * yOffset);
+
+
+  const coords = {
+    x: startX,
+    y: startY,
+  };
+  const back = new TWEEN.Tween(coords)
+    .to({
+      x: startX,
+      y: startY,
+    }, 100)
+    .easing(TWEEN.Easing.Quadratic.In)
+    .onUpdate(function () {
+      thisObject.x = coords.x;
+      thisObject.y = coords.y;
+      thisObject.render();
+    });
+
+  new TWEEN.Tween(coords)
+    .to({
+      x: endx,
+      y: endy,
+    }, 50)
+    .easing(TWEEN.Easing.Quadratic.Out)
+    .onUpdate(function () {
+      thisObject.x = coords.x;
+      thisObject.y = coords.y;
+      thisObject.render();
+    })
+    .chain(back)
+    .start();
+
 }
 
 
