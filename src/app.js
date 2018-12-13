@@ -82,6 +82,7 @@ const startGameLoop = function () {
     y: 0,
     dx: 0,
     dy: 0,
+    ttl: Infinity,
     width: 1,
     height: kontra.canvas.height,
     top: 0,
@@ -101,6 +102,7 @@ const startGameLoop = function () {
     y: 0,
     dx: 0,
     dy: 0,
+    ttl: Infinity,
     width: 1,
     height: kontra.canvas.height,
     top: 0,
@@ -120,6 +122,7 @@ const startGameLoop = function () {
     y: 0.5,
     dx: 0,
     dy: 0,
+    ttl: Infinity,
     width: kontra.canvas.width,
     height: 1,
     top: -0.5,
@@ -140,6 +143,7 @@ const startGameLoop = function () {
     y: kontra.canvas.height - 0.5,
     dx: 0,
     dy: 0,
+    ttl: Infinity,
     width: kontra.canvas.width,
     height: 1,
     top: kontra.canvas.height - 0.5,
@@ -166,6 +170,7 @@ const startGameLoop = function () {
     y: 550,
     dx: 0,
     dy: 0,
+    ttl: Infinity,
     width: PADDLEWIDTH,
     height: PADDLEHEIGHT, 
     top: 550,
@@ -188,7 +193,6 @@ const startGameLoop = function () {
     type: 'ball',
     combo: 0,
     attached: paddle, // keep track if it is stuck to something
-    fix: true, // temp fix for kontra bug
     anchor: {
       x: 0.5,
       y: 0.5,
@@ -198,6 +202,7 @@ const startGameLoop = function () {
     y: paddle.y - 8,
     dx: 0,
     dy: 0,
+    ttl: Infinity,
     radius: 8,
     color: 'blue',
     // image: kontra.assets.images.ball,
@@ -233,6 +238,7 @@ const startGameLoop = function () {
         y: startY + BRICKHEIGHT / 2,
         dx: 0,
         dy: 0,
+        ttl: Infinity,
         width: BRICKWIDTH,
         height: BRICKHEIGHT,
         top: startY - BRICKHEIGHT - 1, 
@@ -240,7 +246,6 @@ const startGameLoop = function () {
         left: startX - BRICKWIDTH - 1,
         right: startX + BRICKWIDTH + 1,
         color: 'black',
-        fix: true,
         update: function () {
           if (this.hits <= 1) {
             this.color = 'red';
@@ -263,6 +268,7 @@ const startGameLoop = function () {
     y: 350,
     dx: 0,
     dy: 0,
+    ttl: Infinity,
     width: PADDLEWIDTH,
     height: PADDLEHEIGHT, 
     top: 350,
@@ -322,6 +328,7 @@ const startGameLoop = function () {
 
       // If all balls die then check for lose or start another ball
       if (ballPool.getAliveObjects().length <= 0) {
+        console.log(ballPool);
         BALLRESERVE -= 1;
         if (BALLRESERVE <= 0) {
           // LOSE
@@ -334,7 +341,6 @@ const startGameLoop = function () {
           type: 'ball',
           combo: 0,
           attached: paddle, // keep track if it is stuck to something
-          fix: true, // temp fix for kontra bug
           anchor: {
             x: 0.5,
             y: 0.5,
@@ -344,6 +350,7 @@ const startGameLoop = function () {
           y: paddle.y - 8,
           dx: 0,
           dy: 0,
+          ttl: Infinity,
           radius: 8,
           color: 'blue',
           // image: kontra.assets.images.ball,
@@ -637,6 +644,12 @@ function magnitude (x, y) {
   return Math.sqrt(x * x + y * y);
 }
 
+// Converts degrees to radians
+// degToRad :: Num -> Num
+function degToRad (deg) {
+  return deg * Math.PI / 180;
+}
+
 // Calculated position after move
 // move :: {x,y,dx,dy}, dt -> {x,y,dx,dy,nx,ny}
 function move(object, dt) {
@@ -768,7 +781,7 @@ function movingBall(dt, collidableObjects) {
         // Reset combo when paddle is hit
         this.combo = 0;
 
-        // Paddle bounce
+        // Paddle bounce // UPDATE WITH Tween.js
         bounceDown([closest.item], 6, 2);
 
         switch (closest.point.d) {
@@ -805,17 +818,18 @@ function movingBall(dt, collidableObjects) {
         closest.item.hits -= 1;
         this.combo += 1;
 
-        if (collidableObjects.objects.length === 0) {
-          collidableObjects.subnodes.forEach((subnode) => {
-            const bricks = subnode.objects.filter(n => n.type === 'brick')
-            jiggle(bricks);
-            bounceDown(bricks, 1);
-          })
-        } else {
-          const bricks = collidableObjects.objects.filter(n => n.type === 'brick')
-          jiggle(bricks);
-          bounceDown(bricks, 0.5, 0.5);
-        }
+        // THIS IS GROSS... COMMENTING UNTIL TWEENING IS IMPLEMENTED
+        // if (collidableObjects.objects.length === 0) {
+        //   collidableObjects.subnodes.forEach((subnode) => {
+        //     const bricks = subnode.objects.filter(n => n.type === 'brick')
+        //     jiggle(bricks);
+        //     bounceDown(bricks, 1);
+        //   })
+        // } else {
+        //   const bricks = collidableObjects.objects.filter(n => n.type === 'brick')
+        //   jiggle(bricks);
+        //   bounceDown(bricks, 0.5, 0.5);
+        // }
 
 
         //// RANDOM SCORE UNTIL FORMULA IS MADE
@@ -917,44 +931,41 @@ function bounceDown(objects, speed = 5, distance = 1) {
   });
 }
 
-function jiggle(objects, speed = 2.5) {
-  const angleIncrement = degToRad(1);
-  objects.forEach((object) => {
-    object.rotation += angleIncrement;
-    for (let i = 1; i <= 10; i++) {
-      setTimeout(() => {
-        object.rotation += angleIncrement;
-      }, i * 2.5)
-      setTimeout(() => {
-        object.rotation -= angleIncrement;
-      }, i * 2.5 + 25)
-    }
-    setTimeout(() => {
-      object.rotation -= angleIncrement;
-    }, 50)
+// function jiggle(objects, speed = 2.5) {
+//   const angleIncrement = degToRad(1);
+//   objects.forEach((object) => {
+//     object.rotation += angleIncrement;
+//     for (let i = 1; i <= 10; i++) {
+//       setTimeout(() => {
+//         object.rotation += angleIncrement;
+//       }, i * 2.5)
+//       setTimeout(() => {
+//         object.rotation -= angleIncrement;
+//       }, i * 2.5 + 25)
+//     }
+//     setTimeout(() => {
+//       object.rotation -= angleIncrement;
+//     }, 50)
 
-    setTimeout(() => {
-      object.rotation -= angleIncrement;
-    }, 50);
+//     setTimeout(() => {
+//       object.rotation -= angleIncrement;
+//     }, 50);
 
-    for (let i = 1; i <= 10; i++) {
-      setTimeout(() => {
-        object.rotation -= angleIncrement;
-      }, i * 2.5 + 50)
-      setTimeout(() => {
-        object.rotation += angleIncrement;
-      }, i * 2.5 + 52.5)
-    }
-    setTimeout(() => {
-      object.rotation += angleIncrement;
-    }, 100)
+//     for (let i = 1; i <= 10; i++) {
+//       setTimeout(() => {
+//         object.rotation -= angleIncrement;
+//       }, i * 2.5 + 50)
+//       setTimeout(() => {
+//         object.rotation += angleIncrement;
+//       }, i * 2.5 + 52.5)
+//     }
+//     setTimeout(() => {
+//       object.rotation += angleIncrement;
+//     }, 100)
 
-  })
-}
+//   })
+// }
 
-function degToRad (deg) {
-  return deg * Math.PI / 180;
-}
 
 
 

@@ -369,7 +369,7 @@ kontra = {
      * @param {number} [properties.ddx] - Change in X velocity.
      * @param {number} [properties.ddy] - Change in Y velocity.
      *
-     * @param {number} [properties.ttl=Infinity] - How may frames the sprite should be alive.
+     * @param {number} [properties.ttl=0] - How may frames the sprite should be alive.
      * @param {number} [properties.rotation=0] - Rotation in radians of the sprite.
      * @param {number} [properties.anchor={x:0,y:0}] - The x and y origin of the sprite. {0,0} is the top left corner of the sprite, {1,1} is the bottom right corner.
      * @param {Context} [properties.context=kontra.context] - Provide a context for the sprite to draw on.
@@ -399,7 +399,7 @@ kontra = {
 
       // defaults
       this.width = this.height = this.rotation = 0;
-      this.ttl = Infinity;
+      this.ttl = 0;
       this.anchor = {x: 0, y: 0};
       this.context = kontra.context;
 
@@ -978,17 +978,10 @@ kontra = {
        * @param {object} properties - Properties to pass to object.init().
        */
       get(properties) {
-        ///// ADDING DEBUG CODE TO SEE WHY OBJECT POOL GROWS SO QUICKLY /////
-        // console.log(properties);
         properties = properties || {};
-        // console.log(properties);
 
         // the pool is out of objects if the first object is in use and it can't grow
-        // console.log("objects[0]", this.objects[0]);
-        // if (this.objects[0].isAlive()) {
-      ///---- BUG FOUND HERE ---- ///
-      // isAlive always returns true. Made a new property for a temp fix
-        if (this.objects[0].isFixed()) {
+        if (this.objects[0].isAlive()) {
           if (this.size === this.maxSize) {
             return;
           }
@@ -996,7 +989,6 @@ kontra = {
           else {
             for (let x = 0; x < this.size && this.objects.length < this.maxSize; x++) {
               this.objects.unshift(this._c());
-              // console.log(this.objects);
             }
 
             this.size = this.objects.length;
