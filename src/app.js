@@ -293,6 +293,7 @@ const startGameLoop = function () {
   });
   paddleTest.render();
 
+  let animTest = 1;
 
   GAMELOOP = kontra.gameLoop({  // create the main game loop
     fps: FPS,
@@ -303,8 +304,9 @@ const startGameLoop = function () {
 
       TWEEN.update();
       // EXPERIMENT
-      if (SCORE === 50) {
+      if (SCORE === 50 && animTest === 1) {
         // tween.start();
+        animTest = 0;
         paddleTest.onHit();
       }
 
@@ -931,42 +933,7 @@ function bounceDown(objects, speed = 5, distance = 1) {
   });
 }
 
-// function jiggle(objects, speed = 2.5) {
-//   const angleIncrement = degToRad(1);
-//   objects.forEach((object) => {
-//     object.rotation += angleIncrement;
-//     for (let i = 1; i <= 10; i++) {
-//       setTimeout(() => {
-//         object.rotation += angleIncrement;
-//       }, i * 2.5)
-//       setTimeout(() => {
-//         object.rotation -= angleIncrement;
-//       }, i * 2.5 + 25)
-//     }
-//     setTimeout(() => {
-//       object.rotation -= angleIncrement;
-//     }, 50)
-
-//     setTimeout(() => {
-//       object.rotation -= angleIncrement;
-//     }, 50);
-
-//     for (let i = 1; i <= 10; i++) {
-//       setTimeout(() => {
-//         object.rotation -= angleIncrement;
-//       }, i * 2.5 + 50)
-//       setTimeout(() => {
-//         object.rotation += angleIncrement;
-//       }, i * 2.5 + 52.5)
-//     }
-//     setTimeout(() => {
-//       object.rotation += angleIncrement;
-//     }, 100)
-
-//   })
-// }
-
-
 
 
 /* #endregion */
+
