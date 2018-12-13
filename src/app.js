@@ -5,13 +5,13 @@
 // ------------------------------------------------------- //
 /* #region */
 const FPS = 120;
-const BRICKHEIGHT = 15;
-const BRICKWIDTH = 50;
-const PADDLEWIDTH = 80;
-const PADDLEHEIGHT = 20;
-const CANVASHEIGHT = 600;
-const CANVASWIDTH = 400;
-let BALLRESERVE;
+const BRICK_HEIGHT = 15;
+const BRICK_WIDTH = 50;
+const PADDLE_WIDTH = 80;
+const PADDLE_HEIGHT = 20;
+const CANVAS_HEIGHT = 600;
+const CANVAS_WIDTH = 400;
+let LIVES;
 let SCORE;
 let GAMELOOP;
 const MESSAGE = document.getElementById('message');
@@ -64,7 +64,7 @@ const sfxAssets = [
 // MAIN GAME LOGIC
 const startGameLoop = function () {
 
-  BALLRESERVE = 3;
+  LIVES = 3;
   SCORE = 0;
 
   // QUADTREE FOR COLLISION DETECTION //
@@ -171,12 +171,12 @@ const startGameLoop = function () {
     dx: 0,
     dy: 0,
     ttl: Infinity,
-    width: PADDLEWIDTH,
-    height: PADDLEHEIGHT, 
+    width: PADDLE_WIDTH,
+    height: PADDLE_HEIGHT, 
     top: 550,
-    bottom: 550 + PADDLEHEIGHT,
+    bottom: 550 + PADDLE_HEIGHT,
     left: 200,
-    right: 200 + PADDLEWIDTH,
+    right: 200 + PADDLE_WIDTH,
     color: 'green',
     // image: kontra.assets.images.paddle,
     update: paddleUpdate,
@@ -254,19 +254,19 @@ const startGameLoop = function () {
           x: 0.5,
           y: 0.5,
         },
-        x: startX + BRICKWIDTH / 2,        // starting x,y position of the sprite
-        y: startY + BRICKHEIGHT / 2,
-        originalX: startX + BRICKWIDTH / 2,
-        originalY: startY + BRICKHEIGHT / 2,
+        x: startX + BRICK_WIDTH / 2,        // starting x,y position of the sprite
+        y: startY + BRICK_HEIGHT / 2,
+        originalX: startX + BRICK_WIDTH / 2,
+        originalY: startY + BRICK_HEIGHT / 2,
         dx: 0,
         dy: 0,
         ttl: Infinity,
-        width: BRICKWIDTH,
-        height: BRICKHEIGHT,
-        top: startY - BRICKHEIGHT - 1, 
-        bottom: startY + BRICKHEIGHT + 1,
-        left: startX - BRICKWIDTH - 1,
-        right: startX + BRICKWIDTH + 1,
+        width: BRICK_WIDTH,
+        height: BRICK_HEIGHT,
+        top: startY - BRICK_HEIGHT - 1, 
+        bottom: startY + BRICK_HEIGHT + 1,
+        left: startX - BRICK_WIDTH - 1,
+        right: startX + BRICK_WIDTH + 1,
         color: 'black',
         update: function () {
           if (this.hits <= 1) {
@@ -350,8 +350,8 @@ const startGameLoop = function () {
 
       // If all balls die then check for lose or start another ball
       if (ballPool.getAliveObjects().length <= 0) {
-        BALLRESERVE -= 1;
-        if (BALLRESERVE <= 0) {
+        LIVES -= 1;
+        if (LIVES <= 0) {
           // LOSE
           this.stop();
           gameStates.lose();
@@ -557,7 +557,7 @@ function showBottomDisplay () {
   score.classList.add('score');
   scoreTitle.appendChild(score);
   const lives = document.createElement('span');
-  lives.textContent = BALLRESERVE - 1;
+  lives.textContent = LIVES - 1;
   lives.classList.add('lives');
   livesTitle.appendChild(lives);
 
@@ -585,7 +585,7 @@ function updateScore () {
 // updateLives :: () -> Void
 function updateLives () {
   const lives = document.querySelector('.lives');
-  lives.textContent = BALLRESERVE - 1;
+  lives.textContent = LIVES - 1;
 }
 
 
