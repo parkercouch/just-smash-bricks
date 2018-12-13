@@ -525,11 +525,6 @@ kontra = {
       return this.ttl > 0;
     }
     
-    ///// EXPERIMENTING UPDATE ////////
-    isFixed() {
-      return this.fix;
-    }
-
     /**
      * Simple bounding box collision test.
      * NOTE: Does not take into account sprite rotation. If you need collision
