@@ -8,7 +8,7 @@ const FPS = 120;
 const BRICKHEIGHT = 15;
 const BRICKWIDTH = 50;
 const PADDLEWIDTH = 80;
-const PADDLEHEIGHT = 10;
+const PADDLEHEIGHT = 20;
 const CANVASHEIGHT = 600;
 const CANVASWIDTH = 400;
 let BALLRESERVE;
@@ -181,6 +181,26 @@ const startGameLoop = function () {
     // image: kontra.assets.images.paddle,
     update: paddleUpdate,
     move: movePaddle,
+    onHit: function () {
+      const thisObject = this;
+      const coords = {y: this.y};
+      const up = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+        .to( { y: "-20"}, 50)
+        .easing(TWEEN.Easing.Linear.None)
+        .onUpdate(function () {
+          thisObject.y = coords.y;
+          thisObject.render();
+        });
+      new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+        .to( { y: "+20"}, 50)
+        .easing(TWEEN.Easing.Quadratic.In)
+        .onUpdate(function () {
+          thisObject.y = coords.y;
+          thisObject.render();
+        })
+        .chain(up)
+        .start();
+    },
   });
 
   const ballPool = kontra.pool({
@@ -236,6 +256,8 @@ const startGameLoop = function () {
         },
         x: startX + BRICKWIDTH / 2,        // starting x,y position of the sprite
         y: startY + BRICKHEIGHT / 2,
+        originalX: startX + BRICKWIDTH / 2,
+        originalY: startY + BRICKHEIGHT / 2,
         dx: 0,
         dy: 0,
         ttl: Infinity,
@@ -251,6 +273,48 @@ const startGameLoop = function () {
             this.color = 'red';
           }
         },
+        onHit: function (hitLocation) {
+          const thisObject = this;
+          const xOffset = 5 * Math.random() + 5;
+          const yOffset = 5 * Math.random() + 5;
+          const xDirection = hitLocation.dx >= 0 ? 1 : -1;
+          const yDirection = hitLocation.dy >= 0 ? 1 : -1;
+          const startX = this.originalX; 
+          const startY = this.originalY;
+          const endx = startX + (xDirection * xOffset);
+          const endy = startY + (yDirection * yOffset);
+
+
+          const coords = {
+            x: startX,
+            y: startY,
+          };
+          const back = new TWEEN.Tween(coords)
+            .to( {
+              x: startX,
+              y: startY,
+            }, 100 )
+            .easing(TWEEN.Easing.Quadratic.In)
+            .onUpdate(function () {
+              thisObject.x = coords.x;
+              thisObject.y = coords.y;
+              thisObject.render();
+            });
+
+          new TWEEN.Tween(coords)
+            .to( {
+              x: endx,
+              y: endy,
+            }, 50 )
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .onUpdate(function () {
+              thisObject.x = coords.x;
+              thisObject.y = coords.y;
+              thisObject.render();
+            })
+            .chain(back)
+            .start();
+        },
       });
       brickPool.update();
       brickPool.render();
@@ -258,42 +322,42 @@ const startGameLoop = function () {
   }
 
 
-  const paddleTest = kontra.sprite({
-    type: 'paddle',
-    anchor: {
-      x: 0,
-      y: 0,
-    },
-    x: 200,
-    y: 350,
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    width: PADDLEWIDTH,
-    height: PADDLEHEIGHT, 
-    top: 350,
-    bottom: 350 + PADDLEHEIGHT,
-    left: 200,
-    right: 200 + PADDLEWIDTH,
-    color: 'black',
-    update: paddleUpdate,
-    move: movePaddle,
-    onHit: function() {
-      const thisObject = this;
-      let coords = {y: this.y};
-      new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-        .to( { y: 100 }, 500)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .onUpdate(function () {
-          thisObject.y = coords.y;
-          thisObject.render();
-        })
-        .start();
-    },
-  });
-  paddleTest.render();
+  // const paddleTest = kontra.sprite({
+  //   type: 'paddle',
+  //   anchor: {
+  //     x: 0,
+  //     y: 0,
+  //   },
+  //   x: 200,
+  //   y: 350,
+  //   dx: 0,
+  //   dy: 0,
+  //   ttl: Infinity,
+  //   width: PADDLEWIDTH,
+  //   height: PADDLEHEIGHT, 
+  //   top: 350,
+  //   bottom: 350 + PADDLEHEIGHT,
+  //   left: 200,
+  //   right: 200 + PADDLEWIDTH,
+  //   color: 'black',
+  //   update: paddleUpdate,
+  //   move: movePaddle,
+  //   onHit: function() {
+  //     const thisObject = this;
+  //     let coords = {y: this.y};
+  //     new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+  //       .to( { y: 100 }, 500)
+  //       .easing(TWEEN.Easing.Quadratic.Out)
+  //       .onUpdate(function () {
+  //         thisObject.y = coords.y;
+  //         thisObject.render();
+  //       })
+  //       .start();
+  //   },
+  // });
+  // // paddleTest.render();
 
-  let animTest = 1;
+  // let animTest = 1;
 
   GAMELOOP = kontra.gameLoop({  // create the main game loop
     fps: FPS,
@@ -304,11 +368,11 @@ const startGameLoop = function () {
 
       TWEEN.update();
       // EXPERIMENT
-      if (SCORE === 50 && animTest === 1) {
-        // tween.start();
-        animTest = 0;
-        paddleTest.onHit();
-      }
+      // if (SCORE === 50 && animTest === 1) {
+      //   // tween.start();
+      //   animTest = 0;
+      //   paddleTest.onHit();
+      // }
 
       // Update paddle and bricks then add to quadtree
       brickPool.update();
@@ -367,7 +431,7 @@ const startGameLoop = function () {
       paddle.render();
       ballPool.render();
       brickPool.render();
-      paddleTest.render();
+      // paddleTest.render();
     }
   });
 
@@ -784,7 +848,8 @@ function movingBall(dt, collidableObjects) {
         this.combo = 0;
 
         // Paddle bounce // UPDATE WITH Tween.js
-        bounceDown([closest.item], 6, 2);
+        closest.item.onHit();
+        // bounceDown([closest.item], 6, 2);
 
         switch (closest.point.d) {
           case 'left':
@@ -820,18 +885,22 @@ function movingBall(dt, collidableObjects) {
         closest.item.hits -= 1;
         this.combo += 1;
 
+        TWEEN.removeAll();
+
         // THIS IS GROSS... COMMENTING UNTIL TWEENING IS IMPLEMENTED
-        // if (collidableObjects.objects.length === 0) {
-        //   collidableObjects.subnodes.forEach((subnode) => {
-        //     const bricks = subnode.objects.filter(n => n.type === 'brick')
-        //     jiggle(bricks);
-        //     bounceDown(bricks, 1);
-        //   })
-        // } else {
-        //   const bricks = collidableObjects.objects.filter(n => n.type === 'brick')
-        //   jiggle(bricks);
-        //   bounceDown(bricks, 0.5, 0.5);
-        // }
+        if (collidableObjects.objects.length === 0) {
+          collidableObjects.subnodes.forEach((subnode) => {
+            const bricks = subnode.objects.filter(n => n.type === 'brick')
+            bricks.forEach((brick) => {
+              brick.onHit(p2);
+            });
+          })
+        } else {
+          const bricks = collidableObjects.objects.filter(n => n.type === 'brick')
+          bricks.forEach((brick) => {
+            brick.onHit(p2);
+          });
+        }
 
 
         //// RANDOM SCORE UNTIL FORMULA IS MADE
@@ -905,6 +974,18 @@ function renderBall() {
   this.context.fill();
 }
 
+// Possible use with ball animation... needs tweaked
+function ellipse(cx, cy, rx, ry){
+  this.context.save(); // save state
+  this.context.beginPath();
+
+  this.context.translate(cx-rx, cy-ry);
+  this.context.scale(rx, ry);
+  this.context.arc(1, 1, 1, 0, 2 * Math.PI, false);
+
+  this.context.restore(); // restore to original state
+  this.context.stroke();
+}
 
 /* #endregion */
 
