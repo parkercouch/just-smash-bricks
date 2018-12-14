@@ -28,8 +28,11 @@ const BOTTOM_DISPLAY = document.getElementById('bottom-display');
 
 document.addEventListener('DOMContentLoaded', function () {
   const canvasElement = document.getElementById('game');
+  // Make sure the canvas is the right size/resolution
   resizeCanvasToDisplaySize(canvasElement);
+  // Attach canvas to Kontra
   kontra.init(canvasElement);
+  // Start everything!
   gameStates.startLoading();
 });
 
@@ -62,88 +65,18 @@ const sfxAssets = [
 /* #region */
 
 // MAIN GAME LOGIC
+// startGameLoop :: () -> Void
 const startGameLoop = function () {
 
+  // Reset lives and score
   LIVES = 3;
   SCORE = 0;
 
   // QUADTREE FOR COLLISION DETECTION //
   const collidableObjects = kontra.quadtree();
 
-  // WALLS //
-  const leftWall = kontra.sprite({
-    type: 'wall',
-    anchor: {
-      x: 1,
-      y: 0,
-    },
-    x: 0.5,
-    y: 0,
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    width: 1,
-    height: CANVAS_HEIGHT,
-    top: 0,
-    bottom: CANVAS_HEIGHT,
-    left: -0.5,
-    right: 0,
-  });
-  const rightWall = kontra.sprite({
-    type: 'wall',
-    anchor: {
-      x: 0,
-      y: 0,
-    },
-    x: CANVAS_WIDTH - 0.5,
-    y: 0,
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    width: 1,
-    height: CANVAS_HEIGHT,
-    top: 0,
-    bottom: CANVAS_HEIGHT,
-    left: CANVAS_WIDTH - 0.5,
-    right: CANVAS_WIDTH + 0.5,
-  });
-  const topWall = kontra.sprite({
-    type: 'wall',
-    anchor: {
-      x: 0,
-      y: 1,
-    },
-    x: 0,
-    y: 0.5,
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    width: CANVAS_WIDTH,
-    height: 1,
-    top: -0.5,
-    bottom: 0.5,
-    left: 0,
-    right: CANVAS_WIDTH,
-  });
-  const bottomWall = kontra.sprite({
-    type: 'blackhole',
-    anchor: {
-      x: 0,
-      y: 0,
-    },
-    x: 0,
-    y: CANVAS_HEIGHT - 0.5,
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    width: CANVAS_WIDTH,
-    height: 1,
-    top: CANVAS_HEIGHT - 0.5,
-    bottom: CANVAS_HEIGHT + 0.5,
-    left: 0,
-    right: CANVAS_WIDTH,
-  });
-
+  // BOUNDARY WALLS //
+  const walls = createWalls();
 
   // PADDLE //
   const paddle = createPaddle();
@@ -163,8 +96,10 @@ const startGameLoop = function () {
   paddle.render();
   showBottomDisplay();
 
-  GAMELOOP = kontra.gameLoop({  // create the main game loop
+  // MAIN GAME LOOP
+  GAMELOOP = kontra.gameLoop({
     fps: FPS,
+
     // UPDATE GAME STATE //
     update: function (dt) {
 
@@ -176,7 +111,7 @@ const startGameLoop = function () {
       paddle.update();
       collidableObjects.clear();
       collidableObjects.add(brickPool.getAliveObjects());
-      collidableObjects.add(leftWall, topWall, rightWall, bottomWall);
+      collidableObjects.add(walls);
       collidableObjects.add(paddle);
 
       // Ready to check for collision!
@@ -203,6 +138,7 @@ const startGameLoop = function () {
       }
 
     },
+
     // RENDER GAME STATE //
     render: function () {
       paddle.render();
@@ -211,8 +147,11 @@ const startGameLoop = function () {
     }
   });
 
-  GAMELOOP.start();    // start the game
+  // Start the game!
+  GAMELOOP.start();
 };
+
+
 /* #endregion */
 
 
@@ -730,6 +669,16 @@ function colorChange() {
   }
 }
 
+
+/* #endregion */
+
+
+// ------------------------------------------------------- //
+// -------------------CREATE FUNCTIONS-------------------- //
+// ------------------------------------------------------- //
+/* #region */
+
+
 // Create the main paddle
 // createPaddle :: () -> Sprite
 function createPaddle () {
@@ -808,9 +757,96 @@ function newBallPool () {
   });
 }
 
+// Creates the boundary walls
+// createWalls :: () -> [Sprite]
+function createWalls () {
+  // WALLS //
+  return [
+    // Left Wall
+    kontra.sprite({
+      type: 'wall',
+      anchor: {
+        x: 1,
+        y: 0,
+      },
+      x: 0.5,
+      y: 0,
+      dx: 0,
+      dy: 0,
+      ttl: Infinity,
+      width: 1,
+      height: CANVAS_HEIGHT,
+      top: 0,
+      bottom: CANVAS_HEIGHT,
+      left: -0.5,
+      right: 0,
+    }),
+
+    // Right Wall
+    kontra.sprite({
+      type: 'wall',
+      anchor: {
+        x: 0,
+        y: 0,
+      },
+      x: CANVAS_WIDTH - 0.5,
+      y: 0,
+      dx: 0,
+      dy: 0,
+      ttl: Infinity,
+      width: 1,
+      height: CANVAS_HEIGHT,
+      top: 0,
+      bottom: CANVAS_HEIGHT,
+      left: CANVAS_WIDTH - 0.5,
+      right: CANVAS_WIDTH + 0.5,
+    }),
+
+    // Top Wall
+    kontra.sprite({
+      type: 'wall',
+      anchor: {
+        x: 0,
+        y: 1,
+      },
+      x: 0,
+      y: 0.5,
+      dx: 0,
+      dy: 0,
+      ttl: Infinity,
+      width: CANVAS_WIDTH,
+      height: 1,
+      top: -0.5,
+      bottom: 0.5,
+      left: 0,
+      right: CANVAS_WIDTH,
+    }),
+
+    // Bottom Wall
+    kontra.sprite({
+      type: 'blackhole',
+      anchor: {
+        x: 0,
+        y: 0,
+      },
+      x: 0,
+      y: CANVAS_HEIGHT - 0.5,
+      dx: 0,
+      dy: 0,
+      ttl: Infinity,
+      width: CANVAS_WIDTH,
+      height: 1,
+      top: CANVAS_HEIGHT - 0.5,
+      bottom: CANVAS_HEIGHT + 0.5,
+      left: 0,
+      right: CANVAS_WIDTH,
+    }),
+  ];
+}
 
 
 /* #endregion */
+
 
 // ------------------------------------------------------- //
 // -------------------RENDER FUNCTIONS-------------------- //
@@ -1003,13 +1039,4 @@ function levelTwo (pool) {
 
 
 /* #endregion */
-
-
-
-// Creates the boundary walls
-// createWalls :: () -> [Sprite]
-function createWalls () {
-
-}
-
 
