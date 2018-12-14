@@ -82,11 +82,11 @@ const bass = [
 ];
 
 const beep = [
-  'C#2  e',
+  'C#2  0.0125', 'C#1 0.0125'
 ];
 
 const highBeep = [
-  'C#5  s',
+  'C#5  0.0125', 'C#2 0.0125'
 ];
 
 // create 3 new sequences (one for lead, one for harmony, one for bass)
