@@ -346,17 +346,23 @@ function displayMenu() {
    clearMessages();
   // Display Menu
   addTitle('BRICK SMASHING GAME!', 'title');
-  addMessage('Press any key to start', 'menu');
-  document.addEventListener('keypress', function handler(e) {
-    e.currentTarget.removeEventListener(e.type, handler);
-    // Resume AudioContext and start playing music after interaction
-    ac.resume().then(() => {playMusic();});
-    clearMessages();
-    clearHUD();
-    // Delay start so pressing space doesn't launch ball immediately
-    setTimeout(() => {gameStates.start();}, 500);
-  });
+  addMessage('Touch or press a key to start', 'menu');
+  document.addEventListener('click', waitForButton);
+  document.addEventListener('keypress', waitForButton);
 };
+
+
+function waitForButton (e) {
+  // e.currentTarget.removeEventListener(e.type, handler);
+  document.removeEventListener('click', waitForButton);
+  document.removeEventListener('keypress', waitForButton);
+  // Resume AudioContext and start playing music after interaction
+  ac.resume().then(() => { playMusic(); });
+  clearMessages();
+  clearHUD();
+  // Delay start so pressing space doesn't launch ball immediately
+  setTimeout(() => { gameStates.start(); }, 500);
+}
 
 // Show win message
 // Skips straight to menu
@@ -672,7 +678,7 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
   // If attached to something then wait for keypress
   if (this.attached) {
     this.x = this.attached.x;
-    this.y = this.attached.y - this.radius - 3 - this.attached.height / 2;
+    this.y = this.attached.y - this.radius + 3 - this.attached.height / 2;
 
     // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
     if (kontra.keys.pressed('space')) {
