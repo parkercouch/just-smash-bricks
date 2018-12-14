@@ -410,18 +410,6 @@ function updateLives () {
   lives.textContent = LIVES - 1;
 }
 
-
-
-// Checks if out of bounds. Uses global Kontra
-// outOfBounds :: Num, Num -> Bool
-function outOfBounds (x, y) {
-  if (x <= 0 || x >= kontra.canvas.width
-    || y <= 0 || y >= kontra.canvas.height) {
-      return true;
-    }
-  return false;
-}
-
 // Line intercept
 // intercept :: (Num, Num), (Num, Num), (Num, Num), (Num, Num), String -> {Num, Num, String}
 function intercept (x1, y1, x2, y2, x3, y3, x4, y4, d) {
@@ -440,41 +428,43 @@ function intercept (x1, y1, x2, y2, x3, y3, x4, y4, d) {
   return null;
 }
 
-// USED TO OVERRIDE collidesWith function for kontra.sprites
-// ballIntercept Object -> Object -> Num -> Num -> {x,y,d}
-function ballIntercept (ball, rect, nx, ny) {
-  let pt = false;
+// USED TO OVERRIDE collidesWith function for ball sprites
+// ballIntercept {top, bottom, left, right} -> {nx, ny} -> {x,y,d}
+function ballIntercept (rect, futurePosition) {
+  const nx = futurePosition.nx;
+  const ny = futurePosition.ny;
+  let pt;
   if (nx < 0) {
-    pt = intercept(ball.x, ball.y, ball.x + nx, ball.y + ny, 
-                             rect.right  + ball.radius, 
-                             rect.top    - ball.radius, 
-                             rect.right  + ball.radius, 
-                             rect.bottom + ball.radius, 
+    pt = intercept(this.x, this.y, this.x + nx, this.y + ny, 
+                             rect.right  + this.radius, 
+                             rect.top    - this.radius, 
+                             rect.right  + this.radius, 
+                             rect.bottom + this.radius, 
                              "right");
   }
   else if (nx > 0) {
-    pt = intercept(ball.x, ball.y, ball.x + nx, ball.y + ny, 
-                             rect.left   - ball.radius, 
-                             rect.top    - ball.radius, 
-                             rect.left   - ball.radius, 
-                             rect.bottom + ball.radius,
+    pt = intercept(this.x, this.y, this.x + nx, this.y + ny, 
+                             rect.left   - this.radius, 
+                             rect.top    - this.radius, 
+                             rect.left   - this.radius, 
+                             rect.bottom + this.radius,
                              "left");
   }
   if (!pt) {
     if (ny < 0) {
-      pt = intercept(ball.x, ball.y, ball.x + nx, ball.y + ny, 
-                               rect.left   - ball.radius, 
-                               rect.bottom + ball.radius, 
-                               rect.right  + ball.radius, 
-                               rect.bottom + ball.radius,
+      pt = intercept(this.x, this.y, this.x + nx, this.y + ny, 
+                               rect.left   - this.radius, 
+                               rect.bottom + this.radius, 
+                               rect.right  + this.radius, 
+                               rect.bottom + this.radius,
                                "bottom");
     }
     else if (ny > 0) {
-      pt = intercept(ball.x, ball.y, ball.x + nx, ball.y + ny, 
-                               rect.left   - ball.radius, 
-                               rect.top    - ball.radius, 
-                               rect.right  + ball.radius, 
-                               rect.top    - ball.radius,
+      pt = intercept(this.x, this.y, this.x + nx, this.y + ny, 
+                               rect.left   - this.radius, 
+                               rect.top    - this.radius, 
+                               rect.right  + this.radius, 
+                               rect.top    - this.radius,
                                "top");
     }
   }
@@ -493,18 +483,12 @@ function degToRad (deg) {
 }
 
 // Calculated position after move
-// move :: {x,y,dx,dy}, dt -> {x,y,dx,dy,nx,ny}
+// move :: {dx,dy}, dt -> {nx,ny}
 function move(object, dt) {
   // KONTRA USES FIXED GAME LOOP dx is just change in pixel/frame
-  var nx = object.dx * dt * FPS;
-  var ny = object.dy * dt * FPS;
   return { 
-    x: object.x + nx,
-    y: object.y + ny,
-    dx: object.dx,
-    dy: object.dy,
-    nx: nx,
-    ny: ny,
+    nx: object.dx * dt * FPS,
+    ny: object.dy * dt * FPS,
   };
 }
 
@@ -591,7 +575,8 @@ function movingBall(dt, collidableObjects) {
   }  
 
   // Calculate future position of ball
-  const p2 = move(this, dt);
+  // const p2 = move(this, dt);
+  const nextPosition = move(this, dt);
 
   let closestMagnitude = Infinity;
   let closest = null;
@@ -599,8 +584,7 @@ function movingBall(dt, collidableObjects) {
   // Check all objects in current node of quadtree
   collidableObjects.get(this).forEach((item) => {
     // Check for point of collision
-    // const point = this.collidesWith(item, p2.nx, p2.ny)
-    const point = ballIntercept(this, item, p2.nx, p2.ny);
+    const point = this.collidesWith(item, nextPosition)
     // If it exists then check magnitudes
     if (point) {
       const currentMagnitude = magnitude(point.x - this.x, point.y - this.y);
@@ -616,7 +600,7 @@ function movingBall(dt, collidableObjects) {
   if (closest) {
 
     // How much time did it take to get to first collision?
-    const udt = dt * (closestMagnitude / magnitude(p2.nx, p2.ny));
+    const udt = dt * (closestMagnitude / magnitude(nextPosition.nx, nextPosition.ny));
     // Update the ball to point of collision
     this.advance(udt);
 
@@ -634,8 +618,7 @@ function movingBall(dt, collidableObjects) {
         switch (closest.point.d) {
           case 'left':
           case 'right':
-            this.dy = p2.dy;
-            this.dx = -p2.dx;
+            this.dx *= -1;
             break;
 
           // ** ROOM FOR IMPROVEMENT **
@@ -644,16 +627,15 @@ function movingBall(dt, collidableObjects) {
           case 'bottom':
             // If right 1/4 then bounce back right
             if (closest.point.x > (closest.item.x + closest.item.width / 4)) {
-              this.dx = Math.abs(p2.dx);
-              this.dy = -p2.dy;
+              this.dx = Math.abs(this.dx);
+              this.dy *= -1;
             // If in the middle 1/2 then reflect
             } else if (closest.point.x >= (closest.item.x - closest.item.width / 4)) {
-              this.dx = p2.dx;
-              this.dy = -p2.dy;
+              this.dy *= -1;
             // If left 1/4 then bounce back left
             } else {
-              this.dx = -1 * Math.abs(p2.dx);
-              this.dy = -p2.dy;
+              this.dx = -1 * Math.abs(this.dx);
+              this.dy *= -1;
             }
             break;
         }
@@ -670,13 +652,13 @@ function movingBall(dt, collidableObjects) {
           collidableObjects.subnodes.forEach((subnode) => {
             const bricks = subnode.objects.filter(n => n.type === 'brick')
             bricks.forEach((brick) => {
-              brick.onHit(p2);
+              brick.onHit(this);
             });
           })
         } else {
           const bricks = collidableObjects.objects.filter(n => n.type === 'brick')
           bricks.forEach((brick) => {
-            brick.onHit(p2);
+            brick.onHit(this);
           });
         }
 
@@ -696,15 +678,13 @@ function movingBall(dt, collidableObjects) {
           // Reflect x if right/left hit
           case 'left':
           case 'right':
-            this.dy = p2.dy;
-            this.dx = -p2.dx;
+            this.dx *= -1;
             break;
 
           // Reflect y if top/bottom hit
           case 'top':
           case 'bottom':
-            this.dy = -p2.dy;
-            this.dx = p2.dx;
+            this.dy *= -1;
             break;
         }
         break;
@@ -749,7 +729,6 @@ function colorChange() {
       break;
   }
 }
-
 
 // Create the main paddle
 // createPaddle :: () -> Sprite
@@ -944,7 +923,6 @@ function brickBounce (hitLocation) {
 /* #endregion */
 
 
-
 // ------------------------------------------------------- //
 // ------------------------LEVELS------------------------- //
 // ------------------------------------------------------- //
@@ -1025,3 +1003,13 @@ function levelTwo (pool) {
 
 
 /* #endregion */
+
+
+
+// Creates the boundary walls
+// createWalls :: () -> [Sprite]
+function createWalls () {
+
+}
+
+
