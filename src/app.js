@@ -8,7 +8,7 @@ const FPS = 120;
 const BRICK_HEIGHT = 15;
 const BRICK_WIDTH = 50;
 const PADDLE_WIDTH = 80;
-const PADDLE_HEIGHT = 20;
+const PADDLE_HEIGHT = 15;
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 600;
 let LIVES;
@@ -653,7 +653,8 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
     this.advance(dt * FPS);
     return;
   }
-  const allCollidableObjects = [...collidableObjects.get(this), ...alwaysCollidable];
+  const nearbyCollidableObjects = collidableObjects.get(this)
+  const allCollidableObjects = [...nearbyCollidableObjects, ...alwaysCollidable];
 
   allCollidableObjects.forEach((item) => {
     // Check for point of collision
@@ -740,8 +741,8 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
         //   .forEach((brick) => {
         //     brick.onHit(this);
         //   });
-        collidableObjects.get(this)
-          .forEach((brick) => {
+        // collidableObjects.get(this)
+        nearbyCollidableObjects.forEach((brick) => {
             brick.onHit(this);
           });
 
@@ -817,10 +818,10 @@ function colorChange(dt) {
   
 
   //Update hitbox on move
-  this.top = this.y - this.height / 2;
-  this.bottom = this.y + this.height / 2;
-  this.left = this.x - this.width / 2;
-  this.right = this.x + this.width / 2;
+  this.top = this.y - this.height / 2 - 2;
+  this.bottom = this.y + this.height / 2 + 2;
+  this.left = this.x - this.width / 2 - 2;
+  this.right = this.x + this.width / 2 + 2;
 
 
 }
@@ -888,7 +889,7 @@ function newBall (pool, paddle) {
     dx: 0,
     dy: 0,
     ttl: Infinity,
-    radius: 9,
+    radius: 11,
     color: 'blue',
     // image: kontra.assets.images.ball,
     update: movingBall,
@@ -1024,7 +1025,7 @@ function createWalls () {
 function renderBall() {
   this.context.fillStyle = this.color;
   this.context.beginPath();
-  this.context.arc(this.x, this.y, this.radius - 1, 0, 2 * Math.PI);
+  this.context.arc(this.x, this.y, this.radius - 3, 0, 2 * Math.PI);
   this.context.fill();
 }
 
@@ -1262,7 +1263,7 @@ function dropDown () {
   const thisObject = this;
   const coords = { y: this.y };
   new TWEEN.Tween(coords)
-    .to({ y: "+500" }, 1000)
+    .to({ y: "+500" }, 4000)
     .easing(TWEEN.Easing.Elastic.Out)
     .onUpdate(function () {
       thisObject.y = coords.y;
