@@ -14,6 +14,8 @@ const CANVAS_HEIGHT = 600;
 let LIVES;
 let SCORE;
 let GAMELOOP;
+// Temp fix to test levels
+let CURRENT_LEVEL = 1;
 const MESSAGE = document.getElementById('message');
 const HUD = document.getElementById('hud');
 const BOTTOM_DISPLAY = document.getElementById('bottom-display');
@@ -71,6 +73,7 @@ const startGameLoop = function () {
   // Reset lives and score
   LIVES = 3;
   SCORE = 0;
+  CURRENT_LEVEL = 1;
 
   // QUADTREE FOR COLLISION DETECTION //
   const collidableObjects = kontra.quadtree();
@@ -117,11 +120,30 @@ const startGameLoop = function () {
       // Ready to check for collision!
       ballPool.update(dt, collidableObjects);
 
-
+      brickPool.update();
       // If all bricks are gone then go to win state
       if (brickPool.getAliveObjects().length <= 0) {
-        this.stop();
-        gameStates.win();
+        console.log('None Left');
+        brickPool.clear();
+        switch (CURRENT_LEVEL) {
+          case 1:
+            CURRENT_LEVEL += 1;
+            levelTwo(brickPool);
+            brickPool.getAliveObjects().forEach((brick) => {
+              brick.onSpawn();
+            });
+            break;
+          case 2:
+            this.stop();
+            gameStates.win();
+            break;
+          default:
+            this.stop();
+            gameStates.win();
+            break;
+        }
+        // this.stop();
+        // gameStates.win();
       }
 
       // Check if any balls are left
@@ -209,6 +231,8 @@ function displayMenu() {
   addMessage('Press any key to start', 'menu');
   document.addEventListener('keypress', function handler(e) {
     e.currentTarget.removeEventListener(e.type, handler);
+    // Resume AudioContext and start playing music after interaction
+    ac.resume().then(() => {playMusic();});
     clearMessages();
     clearHUD();
     // Delay start so pressing space doesn't launch ball immediately
@@ -667,6 +691,14 @@ function colorChange() {
       this.color = 'red';
       break;
   }
+
+  //Update hitbox on move
+  this.top = this.y - this.height / 2;
+  this.bottom = this.y + this.height / 2;
+  this.left = this.x - this.width / 2;
+  this.right = this.x + this.width / 2;
+
+
 }
 
 
@@ -964,17 +996,18 @@ function brickBounce (hitLocation) {
 // ------------------------------------------------------- //
 /* #region */
 
-// LEVEL 1
+
+// LEVEL 1 EASY MODE TO DEBUG
 // levelOne :: Pool -> Void
 function levelOne (pool) {
   for (let i = 1; i <= 5; i++) {
-    for (let j = 1; j <= 6; j++) {
-      const startX = 30 + (j * 5) + (j - 1) * 50;
+    // for (let j = 1; j <= 6; j++) {
+      const startX = 30 + (i * 5) + (i - 1) * 50;
       const startY = 30 + (i * 5) + (i - 1) * 15;
 
       pool.get({
         type: 'brick',
-        hits: 2,
+        hits: 1,
         anchor: {
           x: 0.5,
           y: 0.5,
@@ -997,16 +1030,57 @@ function levelOne (pool) {
         onHit: brickBounce,
       });
     }
+  // }
+}
+
+
+// MAKE REAL LEVEL ONE AFTER DEBUG
+
+// LEVEL 1
+// levelOne :: Pool -> Void
+function levelOneREAL (pool) {
+  for (let i = 1; i <= 5; i++) {
+    for (let j = 1; j <= 6; j++) {
+      const startX = 30 + (j * 5) + (j - 1) * 50;
+      const startY = 30 + (i * 5) + (i - 1) * 15;
+
+      pool.get({
+        type: 'brick',
+        hits: 2,
+        anchor: {
+          x: 0.5,
+          y: 0.5,
+        },
+        x: startX + BRICK_WIDTH / 2,
+        y: startY + BRICK_HEIGHT / 2 - 500,
+        originalX: startX + BRICK_WIDTH / 2,
+        originalY: startY + BRICK_HEIGHT / 2,
+        dx: 0,
+        dy: 0,
+        ttl: Infinity,
+        width: BRICK_WIDTH,
+        height: BRICK_HEIGHT,
+        top: startY - BRICK_HEIGHT - 1, 
+        bottom: startY + BRICK_HEIGHT + 1,
+        left: startX - BRICK_WIDTH - 1,
+        right: startX + BRICK_WIDTH + 1,
+        color: 'black',
+        update: colorChange,
+        onHit: brickBounce,
+        onSpawn: dropDown,
+      });
+    }
   }
 }
 
 // LEVEL 2
 // levelTwo :: Pool -> Void
 function levelTwo (pool) {
+  console.log('Creating level 2');
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
-      const startY = 30 + (i * 5) + (i - 1) * 15;
+      const startY = 30 + (i * 5) + (i - 1) * 15 - 500;
 
       pool.get({
         type: 'brick',
@@ -1031,6 +1105,7 @@ function levelTwo (pool) {
         color: 'black',
         update: colorChange,
         onHit: brickBounce,
+        onSpawn: dropDown,
       });
     }
   }
@@ -1039,4 +1114,20 @@ function levelTwo (pool) {
 
 
 /* #endregion */
+
+
+// Fall from sky animation
+function dropDown () {
+  const thisObject = this;
+  const coords = { y: this.y };
+  new TWEEN.Tween(coords)
+    .to({ y: "+500" }, 1000)
+    .easing(TWEEN.Easing.Elastic.Out)
+    .onUpdate(function () {
+      thisObject.y = coords.y;
+      thisObject.originalY = coords.y;
+      thisObject.render();
+    })
+    .start();
+}
 
