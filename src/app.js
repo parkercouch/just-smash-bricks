@@ -181,7 +181,8 @@ const startGameLoop = function () {
 
   // BRICKS //
   const brickPool = newBrickPool();
-  levelOne(brickPool);
+  // levelOne(brickPool);
+  levelOneTEST(brickPool);
 
   // PRE-RENDER ALL //
   brickPool.update();
@@ -192,6 +193,11 @@ const startGameLoop = function () {
   leftButton.render();
   middleButton.render();
   showBottomDisplay();
+
+
+  brickPool.getAliveObjects().forEach((brick) => {
+    brick.onSpawn(0);
+  });
 
   // MAIN GAME LOOP
   GAMELOOP = kontra.gameLoop({
@@ -232,7 +238,7 @@ const startGameLoop = function () {
             startSequence(sequence1);
             levelTwo(brickPool);
             brickPool.getAliveObjects().forEach((brick) => {
-              brick.onSpawn();
+              brick.onSpawn(500);
             });
 
             break;
@@ -641,7 +647,11 @@ function stopPaddle (p) {
 // MAGIC NUMBERS
 function launchBall (b) {
   return () => {
-    b.dx = 5;
+    if (Math.floor((Math.random() * 100)) % 2 === 0) {
+      b.dx = -5;
+    } else {
+      b.dx = 5;
+    }
     b.dy = -6;
     b.attached = null;
   }
@@ -666,15 +676,23 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
 
     // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
     if (kontra.keys.pressed('space')) {
-      if(kontra.keys.pressed('right')) {
-        this.attached = null;
-        this.dx = 5;
-        this.dy = -6;
-      } else if (kontra.keys.pressed('left')) {
-        this.attached = null;
+      if (Math.floor((Math.random() * 100)) % 2 === 0) {
         this.dx = -5;
-        this.dy = -6;
+      } else {
+        this.dx = 5;
       }
+      this.dy = -6;
+      this.attached = null;
+
+      // if (kontra.keys.pressed('right')) {
+      //   this.attached = null;
+      //   this.dx = 5;
+      //   this.dy = -6;
+      // } else if (kontra.keys.pressed('left')) {
+      //   this.attached = null;
+      //   this.dx = -5;
+      //   this.dy = -6;
+      // }
     }
     this.advance();
     return;
@@ -1182,7 +1200,7 @@ function brickBounce (hitLocation) {
 
 // LEVEL 1 EASY MODE TO DEBUG
 // levelOne :: Pool -> Void
-function levelOne (pool) {
+function levelOneTEST (pool) {
   for (let i = 1; i <= 5; i++) {
     // for (let j = 1; j <= 6; j++) {
       const startX = 30 + (i * 5) + (i - 1) * 50;
@@ -1196,7 +1214,7 @@ function levelOne (pool) {
           y: 0.5,
         },
         x: startX + BRICK_WIDTH / 2,
-        y: startY + BRICK_HEIGHT / 2,
+        y: startY + BRICK_HEIGHT / 2 - 500,
         originalX: startX + BRICK_WIDTH / 2,
         originalY: startY + BRICK_HEIGHT / 2,
         dx: 0,
@@ -1211,6 +1229,7 @@ function levelOne (pool) {
         color: 'black',
         update: colorChange,
         onHit: brickBounce,
+        onSpawn: dropDown,
       });
     }
   // }
@@ -1221,7 +1240,7 @@ function levelOne (pool) {
 
 // LEVEL 1
 // levelOne :: Pool -> Void
-function levelOneREAL (pool) {
+function levelOne (pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1300,17 +1319,18 @@ function levelTwo (pool) {
 
 
 // Fall from sky animation
-function dropDown () {
+function dropDown (delay) {
   const thisObject = this;
   const coords = { y: this.y };
   new TWEEN.Tween(coords)
-    .to({ y: "+500" }, 4000)
-    .easing(TWEEN.Easing.Elastic.Out)
+    .to({ y: "+500" }, 750)
+    .easing(TWEEN.Easing.Elastic.InOut)
     .onUpdate(function () {
       thisObject.y = coords.y;
       thisObject.originalY = coords.y;
       thisObject.render();
     })
+    .delay(delay)
     .start();
 }
 
