@@ -117,9 +117,9 @@ highBeepSound.gain.gain.value = 1.0 / 6;
 highBeepSound.loop = false;
 
 // adjust the levels so the bass and harmony aren't too loud
-sequence1.gain.gain.value = 1.0 / 8;
+sequence1.gain.gain.value = 0.8 / 8;
 sequence2.gain.gain.value = 0.8 / 8;
-sequence3.gain.gain.value = 0.65 / 8;
+sequence3.gain.gain.value = 0.8 / 8;
 sequence4.gain.gain.value = 0.9 / 8;
 bassSequence2.gain.gain.value = 0.65 / 8;
 
