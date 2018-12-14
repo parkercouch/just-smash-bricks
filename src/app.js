@@ -83,32 +83,30 @@ const startGameLoop = function () {
     dy: 0,
     ttl: Infinity,
     width: 1,
-    height: kontra.canvas.height,
+    height: CANVAS_HEIGHT,
     top: 0,
-    bottom: kontra.canvas.height,
+    bottom: CANVAS_HEIGHT,
     left: -0.5,
     right: 0,
   });
-
   const rightWall = kontra.sprite({
     type: 'wall',
     anchor: {
       x: 0,
       y: 0,
     },
-    x: kontra.canvas.width - 0.5,
+    x: CANVAS_WIDTH - 0.5,
     y: 0,
     dx: 0,
     dy: 0,
     ttl: Infinity,
     width: 1,
-    height: kontra.canvas.height,
+    height: CANVAS_HEIGHT,
     top: 0,
-    bottom: kontra.canvas.height,
-    left: kontra.canvas.width - 0.5,
-    right: kontra.canvas.width + 0.5,
+    bottom: CANVAS_HEIGHT,
+    left: CANVAS_WIDTH - 0.5,
+    right: CANVAS_WIDTH + 0.5,
   });
-
   const topWall = kontra.sprite({
     type: 'wall',
     anchor: {
@@ -120,14 +118,13 @@ const startGameLoop = function () {
     dx: 0,
     dy: 0,
     ttl: Infinity,
-    width: kontra.canvas.width,
+    width: CANVAS_WIDTH,
     height: 1,
     top: -0.5,
     bottom: 0.5,
     left: 0,
-    right: kontra.canvas.width,
+    right: CANVAS_WIDTH,
   });
-
   const bottomWall = kontra.sprite({
     type: 'blackhole',
     anchor: {
@@ -135,131 +132,43 @@ const startGameLoop = function () {
       y: 0,
     },
     x: 0,
-    y: kontra.canvas.height - 0.5,
+    y: CANVAS_HEIGHT - 0.5,
     dx: 0,
     dy: 0,
     ttl: Infinity,
-    width: kontra.canvas.width,
+    width: CANVAS_WIDTH,
     height: 1,
-    top: kontra.canvas.height - 0.5,
-    bottom: kontra.canvas.height + 0.5,
+    top: CANVAS_HEIGHT - 0.5,
+    bottom: CANVAS_HEIGHT + 0.5,
     left: 0,
-    right: kontra.canvas.width,
+    right: CANVAS_WIDTH,
   });
 
-  leftWall.render();
-  rightWall.render();
-  topWall.render();
-  bottomWall.render();
 
   // PADDLE //
-  const paddle = kontra.sprite({
-    type: 'paddle',
-    anchor: {
-      x: 0.5,
-      y: 0.5,
-    },
-    // Place paddle in midde and above the bottom display
-    x: CANVAS_WIDTH / 2, // - PADDLE_WIDTH / 2,
-    y: CANVAS_HEIGHT - 50,
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    width: PADDLE_WIDTH,
-    height: PADDLE_HEIGHT, 
-    top: CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2 + 1,
-    bottom: CANVAS_HEIGHT - 50 + PADDLE_HEIGHT / 2 - 1,
-    left: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
-    right: CANVAS_WIDTH / 2 + PADDLE_WIDTH / 2,
-    color: 'black',
-    // image: kontra.assets.images.paddle,
-    update: paddleUpdate,
-    move: movePaddle,
-    onHit: paddleBounce,
-  });
+  const paddle = createPaddle();
 
-  const ballPool = kontra.pool({
-    create: kontra.sprite,
-    maxSize: 10,
-    fill: true,
-  });
+  // BALLS //
+  const ballPool = newBallPool();
+  newBall(ballPool, paddle);
 
-  ballPool.get({
-    type: 'ball',
-    combo: 0,
-    attached: paddle, // keep track if it is stuck to something
-    anchor: {
-      x: 0.5,
-      y: 0.5,
-    },
-    // Testing start ball location
-    x: paddle.x + paddle.width / 2,
-    y: paddle.y - 8,
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    radius: 8,
-    color: 'blue',
-    // image: kontra.assets.images.ball,
-    update: movingBall,
-    render: renderBall,
-    collidesWith: ballIntercept,
-  });
-  ballPool.render();
+  // BRICKS //
+  const brickPool = newBrickPool();
+  levelOne(brickPool);
 
+  // PRE-RENDER ALL //
+  brickPool.update();
+  brickPool.render();
+  paddle.update();
+  paddle.render();
   showBottomDisplay();
-
-  // Pool to pull bricks from
-  const brickPool = kontra.pool({
-    // create a new sprite every time the pool needs new objects
-    create: kontra.sprite,  
-    maxSize: 100,
-    fill: true,
-  });
-  
-  // LEVEL ONE BRICK GENERATOR //
-  for (let i = 1; i <= 5; i++) {
-    for (let j = 1; j <= 6; j++) {
-      let startX = 30 + (j * 5) + (j - 1) * 50;
-      let startY = 30 + (i * 5) + (i - 1) * 15;
-
-      brickPool.get({
-        type: 'brick',
-        hits: 6,
-        anchor: {
-          x: 0.5,
-          y: 0.5,
-        },
-        x: startX + BRICK_WIDTH / 2,
-        y: startY + BRICK_HEIGHT / 2,
-        originalX: startX + BRICK_WIDTH / 2,
-        originalY: startY + BRICK_HEIGHT / 2,
-        dx: 0,
-        dy: 0,
-        ttl: Infinity,
-        width: BRICK_WIDTH,
-        height: BRICK_HEIGHT,
-        top: startY - BRICK_HEIGHT - 1, 
-        bottom: startY + BRICK_HEIGHT + 1,
-        left: startX - BRICK_WIDTH - 1,
-        right: startX + BRICK_WIDTH + 1,
-        color: 'black',
-        update: colorChange,
-        onHit: brickBounce,
-      });
-
-      brickPool.update();
-      brickPool.render();
-    }
-  }
-
 
   GAMELOOP = kontra.gameLoop({  // create the main game loop
     fps: FPS,
-    // clearCanvas: false,  // not clearing helps with debug
     // UPDATE GAME STATE //
     update: function (dt) {
 
+      // Sync tween animations
       TWEEN.update();
 
       // Update paddle and bricks then add to quadtree
@@ -280,36 +189,17 @@ const startGameLoop = function () {
         gameStates.win();
       }
 
-      // If all balls die then check for lose or start another ball
+      // Check if any balls are left
       if (ballPool.getAliveObjects().length <= 0) {
         LIVES -= 1;
+        // You Lose!
         if (LIVES <= 0) {
-          // LOSE
           this.stop();
           gameStates.lose();
-          return;
+        } else {
+          updateLives();
+          newBall(ballPool, paddle);
         }
-        updateLives();
-        ballPool.get({
-          type: 'ball',
-          combo: 0,
-          attached: paddle, // keep track if it is stuck to something
-          anchor: {
-            x: 0.5,
-            y: 0.5,
-          },
-          // Testing start ball location
-          x: paddle.x + paddle.width / 2,
-          y: paddle.y - 8,
-          dx: 0,
-          dy: 0,
-          ttl: Infinity,
-          radius: 8,
-          color: 'blue',
-          // image: kontra.assets.images.ball,
-          update: movingBall,
-          render: renderBall,
-        });
       }
 
     },
@@ -973,3 +863,119 @@ function brickBounce (hitLocation) {
 
 /* #endregion */
 
+// Create the main paddle
+// createPaddle :: () -> Sprite
+function createPaddle () {
+  return kontra.sprite({
+    type: 'paddle',
+    anchor: {
+      x: 0.5,
+      y: 0.5,
+    },
+    // Place paddle in midde and above the bottom display
+    x: CANVAS_WIDTH / 2, // - PADDLE_WIDTH / 2,
+    y: CANVAS_HEIGHT - 50,
+    dx: 0,
+    dy: 0,
+    ttl: Infinity,
+    width: PADDLE_WIDTH,
+    height: PADDLE_HEIGHT, 
+    top: CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2 + 1,
+    bottom: CANVAS_HEIGHT - 50 + PADDLE_HEIGHT / 2 - 1,
+    left: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
+    right: CANVAS_WIDTH / 2 + PADDLE_WIDTH / 2,
+    color: 'black',
+    // image: kontra.assets.images.paddle,
+    update: paddleUpdate,
+    move: movePaddle,
+    onHit: paddleBounce,
+  });
+}
+
+// Creates a new ball and attaches to paddle
+// newBall :: Pool -> Sprite -> Void
+function newBall (pool, paddle) {
+  pool.get({
+    type: 'ball',
+    combo: 0,
+    attached: paddle, // keep track if it is stuck to something
+    anchor: {
+      x: 0.5,
+      y: 0.5,
+    },
+    // Testing start ball location
+    x: paddle.x + paddle.width / 2,
+    y: paddle.y - 8,
+    dx: 0,
+    dy: 0,
+    ttl: Infinity,
+    radius: 8,
+    color: 'blue',
+    // image: kontra.assets.images.ball,
+    update: movingBall,
+    render: renderBall,
+    collidesWith: ballIntercept,
+  });
+
+
+}
+
+
+// Creates new brick pool
+// newBrickPool :: () -> Void
+function newBrickPool () {
+  return kontra.pool({
+    // create a new sprite every time the pool needs new objects
+    create: kontra.sprite,  
+    maxSize: 100,
+    fill: true,
+  });
+}
+
+// Creates new ball pool
+// newBallPool :: () -> Void
+function newBallPool () {
+  return kontra.pool({
+    create: kontra.sprite,
+    maxSize: 10,
+    fill: true,
+  });
+}
+
+
+
+// LEVEL 1
+// levelOne :: Pool -> Void
+function levelOne (pool) {
+  for (let i = 1; i <= 5; i++) {
+    for (let j = 1; j <= 6; j++) {
+      const startX = 30 + (j * 5) + (j - 1) * 50;
+      const startY = 30 + (i * 5) + (i - 1) * 15;
+
+      pool.get({
+        type: 'brick',
+        hits: 2,
+        anchor: {
+          x: 0.5,
+          y: 0.5,
+        },
+        x: startX + BRICK_WIDTH / 2,
+        y: startY + BRICK_HEIGHT / 2,
+        originalX: startX + BRICK_WIDTH / 2,
+        originalY: startY + BRICK_HEIGHT / 2,
+        dx: 0,
+        dy: 0,
+        ttl: Infinity,
+        width: BRICK_WIDTH,
+        height: BRICK_HEIGHT,
+        top: startY - BRICK_HEIGHT - 1, 
+        bottom: startY + BRICK_HEIGHT + 1,
+        left: startX - BRICK_WIDTH - 1,
+        right: startX + BRICK_WIDTH + 1,
+        color: 'black',
+        update: colorChange,
+        onHit: brickBounce,
+      });
+    }
+  }
+}
