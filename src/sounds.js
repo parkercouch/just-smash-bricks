@@ -81,12 +81,22 @@ const bass = [
   'A#1 q',          '-   h',                            'C#2  q',
 ];
 
+const beep = [
+  'C#2  e',
+];
+
+const highBeep = [
+  'C#5  s',
+];
+
 // create 3 new sequences (one for lead, one for harmony, one for bass)
 const sequence1 = new TinyMusic.Sequence( ac, tempo, lead );
 const sequence2 = new TinyMusic.Sequence( ac, tempo, harmony );
 const sequence3 = new TinyMusic.Sequence( ac, tempo, bass );
 const sequence4 = new TinyMusic.Sequence( ac, tempo, harmony2);
 const bassSequence2 = new TinyMusic.Sequence( ac, tempo, bass2);
+const beepSound = new TinyMusic.Sequence( ac, tempo, beep);
+const highBeepSound = new TinyMusic.Sequence( ac, tempo, highBeep);
 
 // set staccato and smoothing values for maximum coolness
 sequence1.staccato = 0.65;
@@ -97,6 +107,14 @@ sequence4.staccato = .30;
 // sequence4.smoothing = 0.1;
 bassSequence2.staccato = 0.1;
 bassSequence2.smoothing = 0.4;
+
+beepSound.staccato = 0.65;
+beepSound.gain.gain.value = 1.0 / 6;
+beepSound.loop = false;
+
+highBeepSound.staccato = 0.65;
+highBeepSound.gain.gain.value = 1.0 / 6;
+highBeepSound.loop = false;
 
 // adjust the levels so the bass and harmony aren't too loud
 sequence1.gain.gain.value = 1.0 / 8;
@@ -158,4 +176,12 @@ function stopMusic() {
   sequence1.stop();
   sequence2.stop();
   sequence3.stop();
+}
+
+function playBeepSound() {
+  beepSound.play( ac.currentTime );
+}
+
+function playHighBeepSound() {
+  highBeepSound.play( ac.currentTime );
 }

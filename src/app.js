@@ -1126,6 +1126,8 @@ function renderButton () {
 // paddle onHit animation/sounds
 // paddleBounce :: () -> Void
 function paddleBounce() {
+  // testing beep sounds
+  playBeepSound();
   const thisObject = this;
   const coords = { y: this.y };
   // Chain up to the end of down
@@ -1150,6 +1152,7 @@ function paddleBounce() {
 // Brick onHit animation/sound
 // brickBounce :: (Object) -> Void
 function brickBounce (hitLocation) {
+  playHighBeepSound();
   const thisObject = this;
   const xOffset = 5 * Math.random() + 5;
   const yOffset = 5 * Math.random() + 5;
