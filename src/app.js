@@ -126,7 +126,9 @@ const startGameLoop = function () {
 
 
   // QUADTREE FOR COLLISION DETECTION //
-  const collidableObjects = kontra.quadtree();
+  const collidableObjects = kontra.quadtree({
+    maxObjects: 10,
+  });
 
   // BOUNDARY WALLS //
   const walls = createWalls();
@@ -134,9 +136,24 @@ const startGameLoop = function () {
   // // PADDLE //
   // const paddle = createPaddle();
 
+  const alwaysCollidableObjects = [...walls, paddle];
+
+
+// SPACIAL HASH EXPERIMENT
+
+  const hash = new SpatialHash();
+
+
+
+
+
   // BALLS //
   const ballPool = newBallPool();
   newBall(ballPool, paddle);
+  // Clamp vector in boundaries
+  ballPool.getAliveObjects().forEach((ball) => {
+    ball.contain();
+  });
 
   // BRICKS //
   const brickPool = newBrickPool();
@@ -168,13 +185,16 @@ const startGameLoop = function () {
 
       collidableObjects.clear();
       collidableObjects.add(brickPool.getAliveObjects());
-      collidableObjects.add(walls);
-      collidableObjects.add(paddle);
+      // collidableObjects.add(walls);
+      // collidableObjects.add(paddle);
 
       // Ready to check for collision!
       // ballPool.update(dt, collidableObjects.get(this));
-      ballPool.update(dt, collidableObjects);
+      // ballPool.update(dt, 1, collidableObjects);
+      // ballPool.update(dt, 1, collidableObjects, alwaysCollidableObjects);
       // ballPool.update(dt, allObjects);
+      ballPool.update(dt, collidableObjects, alwaysCollidableObjects);
+
 
       brickPool.update();
       // If all bricks are gone then go to win state
@@ -214,6 +234,10 @@ const startGameLoop = function () {
         } else {
           updateLives();
           newBall(ballPool, paddle);
+          // Clamp vector in boundaries
+          ballPool.getAliveObjects().forEach((ball) => {
+            ball.contain();
+          });
         }
       }
 
@@ -592,7 +616,7 @@ function touchTest () {
 
 // Update logic for ball objects
 // movingBall :: Num -> Void
-function movingBall(dt, collidableObjects) {
+function movingBall(dt, collidableObjects, alwaysCollidable) {
 
   // If attached to something then wait for keypress
   if (this.attached) {
@@ -623,8 +647,15 @@ function movingBall(dt, collidableObjects) {
   let closest = null;
 
   // Check all objects in current node of quadtree
-  collidableObjects.get(this).forEach((item) => {
-    // collidableObjects.forEach((item) => {
+  // collidableObjects.get(this).forEach((item) => {
+  // console.log(collidableObjects);
+  if (collidableObjects === 0) {
+    this.advance(dt * FPS);
+    return;
+  }
+  const allCollidableObjects = [...collidableObjects.get(this), ...alwaysCollidable];
+
+  allCollidableObjects.forEach((item) => {
     // Check for point of collision
     // console.log(item);
     const point = this.collidesWith(item, nextPosition)
@@ -691,24 +722,28 @@ function movingBall(dt, collidableObjects) {
         this.combo += 1;
 
         // THIS IS GROSS... But will iterate through all bricks and animate
-        if (collidableObjects.objects.length === 0) {
-          collidableObjects.subnodes.forEach((subnode) => {
-            const bricks = subnode.objects.filter(n => n.type === 'brick')
-            bricks.forEach((brick) => {
-              brick.onHit(this)
-            });
-          })
-        } else {
-          const bricks = collidableObjects.objects.filter(n => n.type === 'brick')
-          bricks.forEach((brick) => {
-            brick.onHit(this);
-          });
-        }
+        // if (collidableObjects.objects.length === 0) {
+        //   collidableObjects.subnodes.forEach((subnode) => {
+        //     const bricks = subnode.objects.filter(n => n.type === 'brick')
+        //     bricks.forEach((brick) => {
+        //       brick.onHit(this)
+        //     });
+        //   })
+        // } else {
+        //   const bricks = collidableObjects.objects.filter(n => n.type === 'brick')
+        //   bricks.forEach((brick) => {
+        //     brick.onHit(this);
+        //   });
+        // }
 
         // collidableObjects.filter(n => n.type === 'brick')
         //   .forEach((brick) => {
         //     brick.onHit(this);
         //   });
+        collidableObjects.get(this)
+          .forEach((brick) => {
+            brick.onHit(this);
+          });
 
         // ** ROOM FOR IMPROVEMENT **
         SCORE += this.combo * 50;
@@ -746,17 +781,18 @@ function movingBall(dt, collidableObjects) {
     // ----------------------------------------- //
 
     // Run collision recursively if there is time left
-    return this.update(dt - udt, collidableObjects);
+    // HACKING AWAY
+    return this.update(dt - udt, collidableObjects, alwaysCollidable);
   }
 
   // Update ball position after all collisions have been resolved
   this.advance(dt * FPS);
 }
 
-// Brick color chaning logic
+// Brick color changing logic
 // colorChange :: Num -> Void
-function colorChange() {
-  // this.advance();
+function colorChange(dt) {
+  this.advance(dt);
 
   switch (true) {
     case (this.hits > 5):
@@ -858,6 +894,9 @@ function newBall (pool, paddle) {
     update: movingBall,
     render: renderBall,
     collidesWith: ballIntercept,
+    contain: function () {
+      this.position.clamp(0 + this.radius / 2, 0 + this.radius / 2, CANVAS_WIDTH - this.radius / 2, CANVAS_HEIGHT - this.radius / 2);
+    }
   });
 
 

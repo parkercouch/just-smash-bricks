@@ -1043,8 +1043,14 @@ kontra = {
           obj = this.objects[i];
 
           // BETTER WAY TO DO THIS?
-          if (options.length > 0) {
-            obj.update(dt, ...options);
+          /// HACKING AWAY
+          // if (options[0] === 1) {
+          //   obj.update(dt, [...options[1].get(obj), ...options[2]]);
+          // } else if (options[0] === 0) {
+          //   obj.update(dt, [...options[1], ...options[2]]);
+          if (options.length > 1) {
+            obj.update(dt, options[0], options[1]);
+
           } else {
             obj.update(dt);
           }
