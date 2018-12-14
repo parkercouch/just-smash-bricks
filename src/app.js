@@ -80,6 +80,15 @@ const startGameLoop = function () {
 
   // PADDLE //
   const paddle = createPaddle();
+  
+  // BALLS //
+  const ballPool = newBallPool();
+  newBall(ballPool, paddle);
+  // Clamp vector in boundaries
+  ballPool.getAliveObjects().forEach((ball) => {
+    ball.contain();
+  });
+
   // TOUCH BUTTONS //
 
   const leftButton = kontra.sprite({
@@ -124,6 +133,28 @@ const startGameLoop = function () {
   });
   kontra.pointer.track(rightButton);
 
+  const middleButton = kontra.sprite({
+    type: 'button',
+    action: 'launch',
+    anchor: {
+      x: 0.5,
+      y: 0.5,
+    },
+    x: CANVAS_WIDTH / 2,
+    y: CANVAS_HEIGHT * (3/4),
+    dx: 0,
+    dy: 0,
+    ttl: Infinity,
+    width: CANVAS_WIDTH / 4,
+    height: CANVAS_HEIGHT / 2, 
+    fill: false,
+    onDown: launchBall(ballPool.getAliveObjects()[0]),
+    onUp: disableLaunch,
+    render: renderButton,
+    // onDown: function() {console.log('clicked!')},
+  });
+  kontra.pointer.track(middleButton);
+
 
   // QUADTREE FOR COLLISION DETECTION //
   const collidableObjects = kontra.quadtree({
@@ -141,19 +172,12 @@ const startGameLoop = function () {
 
 // SPACIAL HASH EXPERIMENT
 
-  const hash = new SpatialHash();
+  // const hash = new SpatialHash();
 
 
 
 
 
-  // BALLS //
-  const ballPool = newBallPool();
-  newBall(ballPool, paddle);
-  // Clamp vector in boundaries
-  ballPool.getAliveObjects().forEach((ball) => {
-    ball.contain();
-  });
 
   // BRICKS //
   const brickPool = newBrickPool();
@@ -166,6 +190,7 @@ const startGameLoop = function () {
   paddle.render();
   rightButton.render();
   leftButton.render();
+  middleButton.render();
   showBottomDisplay();
 
   // MAIN GAME LOOP
@@ -175,7 +200,7 @@ const startGameLoop = function () {
     // UPDATE GAME STATE //
     update: function (dt) {
 
-      rightButton.update();
+      // rightButton.update();
       // Sync tween animations
       TWEEN.update();
 
@@ -238,6 +263,8 @@ const startGameLoop = function () {
           ballPool.getAliveObjects().forEach((ball) => {
             ball.contain();
           });
+          // Reset button to launch new ball
+          middleButton.onDown = launchBall(ballPool.getAliveObjects()[0])
         }
       }
 
@@ -250,6 +277,7 @@ const startGameLoop = function () {
       brickPool.render();
       rightButton.render();
       leftButton.render();
+      middleButton.render();
     }
   });
 
@@ -610,6 +638,19 @@ function stopPaddle (p) {
   }
 }
 
+// MAGIC NUMBERS
+function launchBall (b) {
+  return () => {
+    b.dx = 5;
+    b.dy = -6;
+    b.attached = null;
+  }
+}
+
+function disableLaunch () {
+  this.onDown = () => {};
+}
+
 function touchTest () {
   console.log('CLICKED!');
 }
@@ -621,7 +662,7 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
   // If attached to something then wait for keypress
   if (this.attached) {
     this.x = this.attached.x;
-    this.y = this.attached.y - this.radius - this.attached.height / 2;
+    this.y = this.attached.y - this.radius - 3 - this.attached.height / 2;
 
     // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
     if (kontra.keys.pressed('space')) {
@@ -637,7 +678,7 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
     }
     this.advance();
     return;
-  }  
+  }
 
   // Calculate future position of ball
   // const p2 = move(this, dt);
