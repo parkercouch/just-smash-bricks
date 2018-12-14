@@ -19,6 +19,7 @@ let CURRENT_LEVEL = 1;
 const MESSAGE = document.getElementById('message');
 const HUD = document.getElementById('hud');
 const BOTTOM_DISPLAY = document.getElementById('bottom-display');
+const allObjects = [];
 
 
 /* #endregion */
@@ -71,9 +72,58 @@ const sfxAssets = [
 const startGameLoop = function () {
 
   // Reset lives and score
-  LIVES = 3;
+  LIVES = 500;
   SCORE = 0;
   CURRENT_LEVEL = 1;
+
+  // const allObjects = [];
+
+  // PADDLE //
+  const paddle = createPaddle();
+  // TOUCH BUTTONS //
+
+  const leftButton = kontra.sprite({
+    type: 'button',
+    action: 'left',
+    anchor: {
+      x: 0.5,
+      y: 0.5,
+    },
+    x: CANVAS_WIDTH / 4,
+    y: CANVAS_HEIGHT * (3/4),
+    dx: 0,
+    dy: 0,
+    ttl: Infinity,
+    width: CANVAS_WIDTH / 2,
+    height: CANVAS_HEIGHT / 2, 
+    onDown: movePaddleLeft(paddle),
+    onUp: stopPaddle(paddle),
+    render: renderButton,
+  });
+  kontra.pointer.track(leftButton);
+
+
+  const rightButton = kontra.sprite({
+    type: 'button',
+    action: 'right',
+    anchor: {
+      x: 0.5,
+      y: 0.5,
+    },
+    x: CANVAS_WIDTH * (3/4),
+    y: CANVAS_HEIGHT * (3/4),
+    dx: 0,
+    dy: 0,
+    ttl: Infinity,
+    width: CANVAS_WIDTH / 2,
+    height: CANVAS_HEIGHT / 2, 
+    fill: false,
+    onDown: movePaddleRight(paddle),
+    onUp: stopPaddle(paddle),
+    render: renderButton,
+  });
+  kontra.pointer.track(rightButton);
+
 
   // QUADTREE FOR COLLISION DETECTION //
   const collidableObjects = kontra.quadtree();
@@ -81,8 +131,8 @@ const startGameLoop = function () {
   // BOUNDARY WALLS //
   const walls = createWalls();
 
-  // PADDLE //
-  const paddle = createPaddle();
+  // // PADDLE //
+  // const paddle = createPaddle();
 
   // BALLS //
   const ballPool = newBallPool();
@@ -97,6 +147,8 @@ const startGameLoop = function () {
   brickPool.render();
   paddle.update();
   paddle.render();
+  rightButton.render();
+  leftButton.render();
   showBottomDisplay();
 
   // MAIN GAME LOOP
@@ -106,19 +158,23 @@ const startGameLoop = function () {
     // UPDATE GAME STATE //
     update: function (dt) {
 
+      rightButton.update();
       // Sync tween animations
       TWEEN.update();
 
       // Update paddle and bricks then add to quadtree
       brickPool.update();
       paddle.update();
+
       collidableObjects.clear();
       collidableObjects.add(brickPool.getAliveObjects());
       collidableObjects.add(walls);
       collidableObjects.add(paddle);
 
       // Ready to check for collision!
+      // ballPool.update(dt, collidableObjects.get(this));
       ballPool.update(dt, collidableObjects);
+      // ballPool.update(dt, allObjects);
 
       brickPool.update();
       // If all bricks are gone then go to win state
@@ -128,10 +184,12 @@ const startGameLoop = function () {
         switch (CURRENT_LEVEL) {
           case 1:
             CURRENT_LEVEL += 1;
+            startSequence(sequence1);
             levelTwo(brickPool);
             brickPool.getAliveObjects().forEach((brick) => {
               brick.onSpawn();
             });
+
             break;
           case 2:
             this.stop();
@@ -166,6 +224,8 @@ const startGameLoop = function () {
       paddle.render();
       ballPool.render();
       brickPool.render();
+      rightButton.render();
+      leftButton.render();
     }
   });
 
@@ -480,36 +540,54 @@ function pause(e) {
 // Update paddle and keep in bounds
 // paddleUpdate :: () -> Void
 function paddleUpdate() {
-  this.top = this.y - this.height / 2;
-  this.bottom = this.y + this.height / 2;
-  this.left = this.x - this.width / 2;
-  this.right = this.x + this.width / 2;
+  this.top = this.y - this.height / 2 - 1;
+  this.bottom = this.y + this.height / 2 + 1;
+  this.left = this.x - this.width / 2 + 1;
+  this.right = this.x + this.width / 2 - 1;
 
-  // Keep paddle contained in canvas
-  if (this.x < (CANVAS_WIDTH - this.width / 2)
-    && this.x > this.width / 2) {
-    this.move(true, true);
-  } else if (this.x >= CANVAS_WIDTH - this.width / 2) {
-    this.move(true, false);
-  } else if (this.x <= this.width / 2) {
-    this.move(false, true);
-  }
+  this.move();
+
 }
 
 // Move paddle!
 // movePaddle :: Bool -> Bool -> Void
-function movePaddle(canMoveLeft, canMoveRight) {
+function movePaddle() {
   this.advance();
   switch (true) {
-    case (kontra.keys.pressed('left') && canMoveLeft):
+    case (kontra.keys.pressed('left')):
       this.dx = -5;
       break;
-    case (kontra.keys.pressed('right') && canMoveRight):
+    case (kontra.keys.pressed('right')):
       this.dx = 5;
       break;
-    default:
+    case (!this.moving):
       this.dx = 0;
   }
+}
+
+function movePaddleLeft (p) {
+  return () => {
+    p.moving = true;
+    p.dx = -5;
+  }
+}
+
+function movePaddleRight (p) {
+  return () => {
+    p.moving = true;
+    p.dx = 5;
+  }
+}
+
+function stopPaddle (p) {
+  return () => {
+    p.moving = false;
+    p.dx = 0;
+  }
+}
+
+function touchTest () {
+  console.log('CLICKED!');
 }
 
 // Update logic for ball objects
@@ -546,7 +624,9 @@ function movingBall(dt, collidableObjects) {
 
   // Check all objects in current node of quadtree
   collidableObjects.get(this).forEach((item) => {
+    // collidableObjects.forEach((item) => {
     // Check for point of collision
+    // console.log(item);
     const point = this.collidesWith(item, nextPosition)
     // If it exists then check magnitudes
     if (point) {
@@ -615,7 +695,7 @@ function movingBall(dt, collidableObjects) {
           collidableObjects.subnodes.forEach((subnode) => {
             const bricks = subnode.objects.filter(n => n.type === 'brick')
             bricks.forEach((brick) => {
-              brick.onHit(this);
+              brick.onHit(this)
             });
           })
         } else {
@@ -624,6 +704,11 @@ function movingBall(dt, collidableObjects) {
             brick.onHit(this);
           });
         }
+
+        // collidableObjects.filter(n => n.type === 'brick')
+        //   .forEach((brick) => {
+        //     brick.onHit(this);
+        //   });
 
         // ** ROOM FOR IMPROVEMENT **
         SCORE += this.combo * 50;
@@ -671,6 +756,8 @@ function movingBall(dt, collidableObjects) {
 // Brick color chaning logic
 // colorChange :: Num -> Void
 function colorChange() {
+  // this.advance();
+
   switch (true) {
     case (this.hits > 5):
       this.color = 'black';
@@ -691,6 +778,7 @@ function colorChange() {
       this.color = 'red';
       break;
   }
+  
 
   //Update hitbox on move
   this.top = this.y - this.height / 2;
@@ -714,7 +802,7 @@ function colorChange() {
 // Create the main paddle
 // createPaddle :: () -> Sprite
 function createPaddle () {
-  return kontra.sprite({
+  const newPaddle = kontra.sprite({
     type: 'paddle',
     anchor: {
       x: 0.5,
@@ -725,6 +813,7 @@ function createPaddle () {
     y: CANVAS_HEIGHT - 50,
     dx: 0,
     dy: 0,
+    moving: false,
     ttl: Infinity,
     width: PADDLE_WIDTH,
     height: PADDLE_HEIGHT, 
@@ -737,7 +826,13 @@ function createPaddle () {
     update: paddleUpdate,
     move: movePaddle,
     onHit: paddleBounce,
-  });
+    moveLeft: movePaddleLeft,
+    moveRight: movePaddleRight,
+    stop: stopPaddle,
+  })
+  // Keep paddle on the screen
+  newPaddle.position.clamp(0 + newPaddle.width / 2, 0, CANVAS_WIDTH - newPaddle.width / 2, CANVAS_HEIGHT);
+  return newPaddle;
 }
 
 // Creates a new ball and attaches to paddle
@@ -757,7 +852,7 @@ function newBall (pool, paddle) {
     dx: 0,
     dy: 0,
     ttl: Infinity,
-    radius: 8,
+    radius: 9,
     color: 'blue',
     // image: kontra.assets.images.ball,
     update: movingBall,
@@ -890,7 +985,7 @@ function createWalls () {
 function renderBall() {
   this.context.fillStyle = this.color;
   this.context.beginPath();
-  this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+  this.context.arc(this.x, this.y, this.radius - 1, 0, 2 * Math.PI);
   this.context.fill();
 }
 
@@ -906,6 +1001,13 @@ function renderBall() {
 //   this.context.restore(); // restore to original state
 //   this.context.stroke();
 // }
+
+
+// Transparent render for buttons
+// renderButton :: () -> Void
+function renderButton () {
+  this.context.fillStyle = 'rgba(0,0,0,0)';
+}
 
 /* #endregion */
 
