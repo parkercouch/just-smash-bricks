@@ -69,7 +69,7 @@ const sfxAssets = [
 /* #region */
 
 // MAIN GAME LOGIC
-// startGameLoop :: () -> Void
+// startGameLoop :: () -> ()
 const startGameLoop = function () {
 
   // Reset lives and score
@@ -80,14 +80,19 @@ const startGameLoop = function () {
 
   // PADDLE //
   const paddle = createPaddle();
+
+  //* AUTO MOVE DEBUG MODE *//
+  paddle.autoMove = debugAutoMove;
+  //* -------------------- *//
   
   // BALLS //
   const ballPool = newBallPool();
   newBall(ballPool, paddle);
   // Clamp vector in boundaries
-  ballPool.getAliveObjects().forEach((ball) => {
-    ball.contain();
-  });
+  ballPool.getAliveObjects()[0].contain();
+  // ballPool.getAliveObjects().forEach((ball) => {
+  //   ball.contain();
+  // });
 
   // TOUCH BUTTONS //
   // Create buttons
@@ -102,29 +107,30 @@ const startGameLoop = function () {
 
 
   // QUADTREE FOR COLLISION DETECTION //
-  const collidableObjects = kontra.quadtree({
-    maxObjects: 10,
-  });
+  // const collidableObjects = kontra.quadtree({
+  //   maxObjects: 10,
+  // });
 
   // BOUNDARY WALLS //
   const walls = createWalls();
 
   // Objects that always need to be checked for
-  const alwaysCollidableObjects = [...walls, paddle];
+  // const alwaysCollidableObjects = [...walls, paddle];
 
 
   // BRICKS //
   const brickPool = newBrickPool();
+  
   // Create Level 1
   levelOne(brickPool);
+  //* Debug easy mode *//
+  // levelOneTEST(brickPool);
+  //* --------------- *//
 
   // Particles //
-  const particlePool = makeParticlePool();
-  makeParticles(particlePool, 10, ballPool.getAliveObjects()[0]);
+  const particlePool = newParticlePool(100);
+  createParticles(particlePool, 10, ballPool.getAliveObjects()[0]);
 
-
-  // Keep this for testing
-  // levelOneTEST(brickPool);
 
   // PRE-RENDER //
 
@@ -139,8 +145,8 @@ const startGameLoop = function () {
 
 
   // Drop in first level
-  brickPool.getAliveObjects().forEach((brick) => {
-    brick.onSpawn(0);
+  brickPool.getAliveObjects().forEach((brick, i) => {
+    brick.onSpawn(100 / (1 + Math.floor(i / 6)));
   });
 
   //------------------//
@@ -152,14 +158,19 @@ const startGameLoop = function () {
     // UPDATE GAME STATE //
     update: function (dt) {
 
-      
-  // makeStartingParticles(particlePool, 10, ballPool.getAliveObjects()[0]);
       // Sync tween animations
       TWEEN.update();
 
       // Update paddle and bricks then add to quadtree
       brickPool.update();
-      paddle.update();
+
+      //DEBUG AUTO MOVE //
+      if (ballPool.getAliveObjects()[0].attached === null) {
+        paddle.autoMove(ballPool.getAliveObjects()[0]);
+      } else {
+        paddle.update();
+      }
+      // paddle.update(); // Normal paddle update
 
       // Update quadtree
       // collidableObjects.clear();
@@ -168,7 +179,10 @@ const startGameLoop = function () {
 
       // Ready to check for collision!
       // ballPool.update(dt, collidableObjects, alwaysCollidableObjects);
-      ballPool.update(dt, bricks, alwaysCollidableObjects);
+      // ballPool.update(dt, bricks, alwaysCollidableObjects);
+
+      // console.log(bricks, walls, paddle)
+      ballPool.update(dt, [...bricks, ...walls, paddle]);
 
       particlePool.update();
 
@@ -195,9 +209,7 @@ const startGameLoop = function () {
           updateLives();
           newBall(ballPool, paddle);
           // Clamp vector in boundaries
-          ballPool.getAliveObjects().forEach((ball) => {
-            ball.contain();
-          });
+          ballPool.getAliveObjects()[0].contain();
           // Reset button to launch new ball
           middleButton.onDown = launchBall(ballPool.getAliveObjects()[0])
         }
@@ -268,7 +280,7 @@ function loadAssets() {
 };
 
 // Basic press any key to start 'menu'
-// displayMenu :: () -> Void
+// displayMenu :: () -> ()
 function displayMenu() {
   // Clear Canvas
   const context = kontra.canvas.getContext('2d');
@@ -310,13 +322,13 @@ function loseMessage() {
 }
 
 // Enter Game
-// gameEnd :: () -> Void
+// gameEnd :: () -> ()
 function gameStart() {
   document.addEventListener('keypress', pause);
 }
 
 // Leave Game
-// gameEnd :: () -> Void
+// gameEnd :: () -> ()
 function gameEnd() {
   document.removeEventListener('keypress', pause);
 }
@@ -332,7 +344,7 @@ function gameEnd() {
 
 
 // Keeps canvas size 1x1 pixels so it draws correctly
-// resizeCanvasToDisplaySize :: Element -> Void
+// resizeCanvasToDisplaySize :: Element -> ()
 function resizeCanvasToDisplaySize(canvas) {
   // Look up the size the canvas is being displayed
   canvas.clientWidth = CANVAS_WIDTH;
@@ -349,7 +361,7 @@ function resizeCanvasToDisplaySize(canvas) {
 }
 
 // Clear Messages from MESSAGES
-// clearMessage :: () -> Void
+// clearMessage :: () -> ()
 function clearMessages () {
   MESSAGE.classList.remove('showMessage');
   MESSAGE.classList.add('hideMessage');
@@ -359,7 +371,7 @@ function clearMessages () {
 }
 
 // Add Message to MESSAGES
-// addMessage :: String -> String -> Void
+// addMessage :: String -> String -> ()
 function addMessage (message, type) {
   MESSAGE.classList.remove('hideMessage');
   MESSAGE.classList.add('showMessage');
@@ -370,7 +382,7 @@ function addMessage (message, type) {
 }
 
 // Add title to HUD
-// addMessage :: String -> String -> Void
+// addMessage :: String -> String -> ()
 function addTitle (message, type) {
   const newMessage = document.createElement('h1');
   newMessage.textContent = message;
@@ -379,7 +391,7 @@ function addTitle (message, type) {
 }
 
 // Clear all elements from HUD
-// clearMessage :: () -> Void
+// clearMessage :: () -> ()
 function clearHUD () {
   while (HUD.firstChild) {
     HUD.removeChild(HUD.firstChild);
@@ -387,7 +399,7 @@ function clearHUD () {
 }
 
 // Display Lives/Score
-// addMessage :: () -> Void
+// addMessage :: () -> ()
 function showBottomDisplay () {
   const livesTitle = document.createElement('h5');
   livesTitle.textContent = 'Lives left: ';
@@ -411,7 +423,7 @@ function showBottomDisplay () {
 }
 
 // Clear bottom display 
-// hideBottomDisplay :: () -> Void
+// hideBottomDisplay :: () -> ()
 function hideBottomDisplay () {
   while (BOTTOM_DISPLAY.firstChild) {
     BOTTOM_DISPLAY.removeChild(BOTTOM_DISPLAY.firstChild);
@@ -419,14 +431,14 @@ function hideBottomDisplay () {
 }
 
 // Update score
-// updateScore :: () -> Void
+// updateScore :: () -> ()
 function updateScore () {
   const score = document.querySelector('.score');
   score.textContent = SCORE;
 }
 
 // Update lives 
-// updateLives :: () -> Void
+// updateLives :: () -> ()
 function updateLives () {
   const lives = document.querySelector('.lives');
   lives.textContent = LIVES - 1;
@@ -515,7 +527,7 @@ function move(object, dt) {
 }
 
 // Pause Game
-// pause :: Event -> Void
+// pause :: Event -> ()
 function pause(e) {
   if (e.keyCode === 112) {
     if (GAMELOOP.isStopped) {
@@ -537,7 +549,7 @@ function pause(e) {
 /* #region */
 
 // Update paddle and keep in bounds
-// paddleUpdate :: () -> Void
+// paddleUpdate :: () -> ()
 function paddleUpdate() {
   this.top = this.y - this.height / 2 - 1;
   this.bottom = this.y + this.height / 2 + 1;
@@ -550,7 +562,7 @@ function paddleUpdate() {
 
 // NEED TO COMBINE WITH TOUCH CONTROLS
 // Move paddle!
-// movePaddle :: Bool -> Bool -> Void
+// movePaddle :: Bool -> Bool -> ()
 function movePaddle() {
   this.advance();
   switch (true) {
@@ -566,7 +578,7 @@ function movePaddle() {
 }
 
 // Touch control move paddle
-// movePaddleLeft :: Sprite -> () -> Void
+// movePaddleLeft :: Sprite -> () -> ()
 function movePaddleLeft (p) {
   return () => {
     p.moving = true;
@@ -575,7 +587,7 @@ function movePaddleLeft (p) {
 }
 
 // Touch control move paddle
-// movePaddleLeft :: Sprite -> () -> Void
+// movePaddleLeft :: Sprite -> () -> ()
 function movePaddleRight (p) {
   return () => {
     p.moving = true;
@@ -584,7 +596,7 @@ function movePaddleRight (p) {
 }
 
 // Touch control stop movement on release
-// movePaddleLeft :: Sprite -> () -> Void
+// movePaddleLeft :: Sprite -> () -> ()
 function stopPaddle (p) {
   return () => {
     p.moving = false;
@@ -594,7 +606,7 @@ function stopPaddle (p) {
 
 // MAGIC NUMBERS
 // Touch control launch
-// launchBall :: Sprite -> () -> Void
+// launchBall :: Sprite -> () -> ()
 function launchBall (b) {
   return () => {
     // Shoot left/right randomly
@@ -609,7 +621,7 @@ function launchBall (b) {
 }
 
 // Turn off touch launch after launching
-// disableLaunch :: () -> Void
+// disableLaunch :: () -> ()
 function disableLaunch () {
   this.onDown = () => {};
 }
@@ -617,8 +629,9 @@ function disableLaunch () {
 
 // MODIFIED KONTRA JS TO PASS IN MULTIPLE ARGUMENTS
 // Update logic for ball objects
-// movingBall :: Num -> [Object] -> [Object] -> Void
-function movingBall(dt, collidableObjects, alwaysCollidable) {
+// movingBall :: Num -> [Object] -> [Object] -> ()
+// function movingBall(dt, collidableObjects, alwaysCollidable) {
+function movingBall(dt, collidableObjects) {
 
   // If attached to something then wait for keypress
   if (this.attached) {
@@ -648,10 +661,12 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
 
   // Check all objects in current node of quadtree and walls/paddle
   // const nearbyCollidableObjects = collidableObjects.get(this)
-  const nearbyCollidableObjects = collidableObjects;
-  const allCollidableObjects = [...nearbyCollidableObjects, ...alwaysCollidable];
+  // const nearbyCollidableObjects = collidableObjects;
+  // const allCollidableObjects = [...nearbyCollidableObjects, ...alwaysCollidable];
+  // console.log(collidableObjects);
 
-  allCollidableObjects.forEach((item) => {
+  // allCollidableObjects.forEach((item) => {
+  collidableObjects.forEach((item) => {
     // Check for point of collision
     const point = this.collidesWith(item, nextPosition)
     // If it exists then check magnitudes
@@ -716,10 +731,11 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
         closest.item.hits -= 1;
         this.combo += 1;
 
-        // Animate all bricks in same quadrant
-        nearbyCollidableObjects.forEach((brick) => {
-          brick.onHit(this);
-        });
+        // Animate all bricks
+        collidableObjects.filter(n => n.type === 'brick')
+          .forEach(brick => {
+            brick.onHit(this);
+          })
 
         // ** ROOM FOR IMPROVEMENT **
         SCORE += this.combo * 50;
@@ -757,7 +773,8 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
     // ----------------------------------------- //
 
     // Run collision recursively if there is time left
-    return this.update(dt - udt, collidableObjects, alwaysCollidable);
+    // return this.update(dt - udt, collidableObjects, alwaysCollidable);
+    return this.update(dt - udt, collidableObjects);
   }
 
   // Update ball position after all collisions have been resolved
@@ -765,7 +782,7 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
 }
 
 // Brick color changing logic
-// colorChange :: Num -> Void
+// colorChange :: Num -> ()
 function colorChange(dt) {
   this.advance(dt);
 
@@ -796,6 +813,36 @@ function colorChange(dt) {
   this.left = this.x - this.width / 2 - 2;
   this.right = this.x + this.width / 2 + 2;
 }
+
+
+// Orbit around barycenter (the ball)
+// particleGravity :: () -> ()
+function particleGravity() {
+  const vectorX = this.barycenter.x - this.x;
+  const vectorY = this.barycenter.y - this.y;
+  const force = this.barycenter.mass / Math.pow(vectorX * vectorX + vectorY * vectorY, 1.5);
+  const totalDistance = Math.sqrt(vectorX ** 2 + vectorY ** 2);
+
+  // Ramp up acceleration when particles move far away to keep them contained
+  if (totalDistance > 50) {
+    this.acceleration.x = vectorX * force * 100;
+    this.acceleration.y = vectorY * force * 100;
+  } else {
+    this.acceleration.x = vectorX * force;
+    this.acceleration.y = vectorY * force;
+  }
+
+  // Keep particles from going too fast
+  if (Math.abs(this.dx) > this.maxDx) {
+    this.dx > 0 ? this.dx = this.maxDx : this.dx = -1 * this.maxDx;
+  }
+  if (Math.abs(this.dy) > this.maxDy) {
+    this.dy > 0 ? this.dy = this.maxDy : this.dy = -1 * this.maxDy;
+  }
+
+  this.advance();
+};
+
 
 
 /* #endregion */
@@ -844,7 +891,7 @@ function createPaddle () {
 }
 
 // Creates a new ball and attaches to paddle
-// newBall :: Pool -> Sprite -> Void
+// newBall :: Pool -> Sprite -> ()
 function newBall (pool, paddle) {
   pool.get({
     type: 'ball',
@@ -874,7 +921,7 @@ function newBall (pool, paddle) {
 }
 
 // Creates new brick pool
-// newBrickPool :: () -> Void
+// newBrickPool :: () -> ()
 function newBrickPool () {
   return kontra.pool({
     // create a new sprite every time the pool needs new objects
@@ -885,7 +932,7 @@ function newBrickPool () {
 }
 
 // Creates new ball pool
-// newBallPool :: () -> Void
+// newBallPool :: () -> ()
 function newBallPool () {
   return kontra.pool({
     create: kontra.sprite,
@@ -981,6 +1028,54 @@ function createWalls () {
   ];
 }
 
+// PARTICLES //
+
+
+// Create a pool to pull particles from
+// newParticlePool :: Maybe Int -> Pool
+function newParticlePool (max = 50) {
+  return kontra.pool({
+    // create a new sprite every time the pool needs new objects
+    create: kontra.sprite,  
+    maxSize: max,
+    fill: true,
+  });
+}
+
+
+// Creates a group of particles
+// createParticles :: Pool -> Int -> Sprite -> ()
+function createParticles (pool, amount, barycenter) {
+  for (let i = 0; i < amount; i++) {
+    pool.get({
+      type: 'particle',
+      barycenter: barycenter, // keep track if it is stuck to something
+      anchor: {
+        x: 0.5,
+        y: 0.5,
+      },
+      x: barycenter.x + (2 - Math.random() * 4),
+      y: barycenter.y + (2 - Math.random() * 4),
+      dx: 2 - Math.random() * 4,
+      dy: 2 - Math.random() * 4,
+      maxDx: 10,
+      maxDy: 10,
+      ttl: Infinity,
+      color: PARTICLE_COLOR,
+      width: 3,
+      height: 3,
+      update: particleGravity,
+      render: particleRender,
+    });
+  }
+  // Keep particles contained so they don't fly too far away
+  // This keeps them just off screen so they don't clump up and look weird
+  pool.getAliveObjects().forEach((particle) => {
+    particle.position.clamp(-50, -50, CANVAS_WIDTH + 50, CANVAS_HEIGHT + 50);
+  })
+}
+
+
 
 // TOUCH BUTTONS //
 
@@ -1066,7 +1161,7 @@ function createMiddleButton(balls) {
 /* #region */
 
 // Renders ball of this.radius in this.color
-// renderBall :: () -> Void
+// renderBall :: () -> ()
 function renderBall() {
   this.context.fillStyle = this.color;
   this.context.beginPath();
@@ -1074,12 +1169,19 @@ function renderBall() {
   this.context.fill();
 }
 
-
 // Transparent render for buttons
-// renderButton :: () -> Void
+// renderButton :: () -> ()
 function renderButton () {
   this.context.fillStyle = 'rgba(0,250,0,1)';
 }
+
+// Basic render for particles
+// particleRender :: () -> ()
+function particleRender () {
+  this.context.fillStyle = this.color;
+  this.context.fillRect(this.x, this.y, this.height, this.width);
+};
+
 
 /* #endregion */
 
@@ -1091,7 +1193,7 @@ function renderButton () {
 
 
 // paddle onHit animation/sounds
-// paddleBounce :: () -> Void
+// paddleBounce :: () -> ()
 function paddleBounce() {
   // testing beep sounds
   playBeepSound();
@@ -1117,18 +1219,19 @@ function paddleBounce() {
 }
 
 // Brick onHit animation/sound
-// brickBounce :: (Object) -> Void
+// brickBounce :: Sprite -> ()
 function brickBounce (hitLocation) {
   playHighBeepSound();
   const thisObject = this;
-  const xOffset = 5 * Math.random() + 5;
-  const yOffset = 5 * Math.random() + 5;
+  const xOffset = 10 * Math.random() + 10;
+  const yOffset = 10 * Math.random() + 10;
   const xDirection = hitLocation.dx >= 0 ? 1 : -1;
   const yDirection = hitLocation.dy >= 0 ? 1 : -1;
   const startX = this.originalX;
   const startY = this.originalY;
-  const endx = startX + (xDirection * xOffset);
-  const endy = startY + (yDirection * yOffset);
+  // Movement based on hits left
+  const endx = startX + (xDirection * xOffset * (1 / this.hits));
+  const endy = startY + (yDirection * yOffset * (1 / this.hits));
 
 
   const coords = {
@@ -1163,6 +1266,7 @@ function brickBounce (hitLocation) {
 }
 
 // Fall from sky animation
+// dropDown :: Int -> ()
 function dropDown (delay) {
   const thisObject = this;
   const coords = { y: this.y };
@@ -1195,6 +1299,7 @@ function advanceLevel(loop, bricks, currentLevel) {
 
   switch (level) {
 
+    // Level 2
     case 2:
       startNextSong(level2);
       levelTwo(bricks);
@@ -1203,6 +1308,7 @@ function advanceLevel(loop, bricks, currentLevel) {
       });
       return level;
 
+    // Level 3
     case 3:
       startNextSong(level3);
       levelThree(bricks);
@@ -1211,24 +1317,26 @@ function advanceLevel(loop, bricks, currentLevel) {
       });
       return level;
 
+    // Level 4
     case 4:
-      startSequence(level4);
+      startNextSong(level4);
       levelFour(bricks);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
       });
       return level;
 
+    // Level 5
     case 5:
-      startSequence(level5);
+      startNextSong(level5);
       levelFive(bricks);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
       });
       return level;
 
+    // Level 6
     case 6:
-      // startSequence(level6);
       stopMusic();
       levelSix(bricks);
       bricks.getAliveObjects().forEach((brick) => {
@@ -1236,7 +1344,9 @@ function advanceLevel(loop, bricks, currentLevel) {
       });
       return level;
 
+    // WIN!
     default:
+      // Add win music here
       loop.stop();
       gameStates.win();
       break;
@@ -1245,7 +1355,7 @@ function advanceLevel(loop, bricks, currentLevel) {
 }
 
 // LEVEL 1 EASY MODE TO DEBUG
-// levelOne :: Pool -> Void
+// levelOne :: Pool -> ()
 function levelOneTEST (pool) {
   for (let i = 1; i <= 5; i++) {
     // for (let j = 1; j <= 6; j++) {
@@ -1283,7 +1393,7 @@ function levelOneTEST (pool) {
 
 
 // LEVEL 1
-// levelOne :: Pool -> Void
+// levelOne :: Pool -> ()
 function levelOne (pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
@@ -1320,7 +1430,7 @@ function levelOne (pool) {
 }
 
 // LEVEL 2
-// levelTwo :: Pool -> Void
+// levelTwo :: Pool -> ()
 function levelTwo (pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
@@ -1358,9 +1468,8 @@ function levelTwo (pool) {
 
 
 // LEVEL 3
-// levelThree :: Pool -> Void
+// levelThree :: Pool -> ()
 function levelThree (pool) {
-  console.log('Creating level 2');
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1396,9 +1505,8 @@ function levelThree (pool) {
 }
 
 // LEVEL 4
-// levelFour :: Pool -> Void
+// levelFour :: Pool -> ()
 function levelFour (pool) {
-  console.log('Creating level 2');
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1434,9 +1542,8 @@ function levelFour (pool) {
 }
 
 // LEVEL 5
-// levelFive :: Pool -> Void
+// levelFive :: Pool -> ()
 function levelFive (pool) {
-  console.log('Creating level 2');
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1472,9 +1579,8 @@ function levelFive (pool) {
 }
 
 // LEVEL 6
-// levelSix :: Pool -> Void
+// levelSix :: Pool -> ()
 function levelSix (pool) {
-  console.log('Creating level 2');
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1513,98 +1619,20 @@ function levelSix (pool) {
 /* #endregion */
 
 
-// Orbit around barycenter (the ball)
-function particleGravity() {
-  const vectorX = this.barycenter.x - this.x;
-  const vectorY = this.barycenter.y - this.y;
-  const force = this.barycenter.mass / Math.pow(vectorX * vectorX + vectorY * vectorY, 1.5);
-  const totalDistance = Math.sqrt(vectorX ** 2 + vectorY ** 2);
 
-  if (totalDistance > 50) {
-    this.acceleration.x = vectorX * force * 100;
-    this.acceleration.y = vectorY * force * 100;
-  } else {
-    this.acceleration.x = vectorX * force;
-    this.acceleration.y = vectorY * force;
-  }
-  if (Math.abs(this.dx) > this.maxDx) {
-    this.dx > 0 ? this.dx = this.maxDx : this.dx = -1 * this.maxDx;
-  }
-  if (Math.abs(this.dy) > this.maxDy) {
-    this.dy > 0 ? this.dy = this.maxDy : this.dy = -1 * this.maxDy;
-  }
+// ------------------------------------------------------- //
+// -------------------DEBUG FUNCTIONS--------------------- //
+// ------------------------------------------------------- //
+/* #region */
 
-  // this.acceleration.x = vectorX * force * 100;
-  // this.acceleration.y = vectorY * force * 100;
-  // console.log(this.acceleration.x, this.acceleration.y);
-  // if (this.x >= 0 && this.x <= CANVAS_WIDTH) {
-  //   // console.log(this.barycenter);
-  //   console.log(this)
-
-  // }
-  // this.dx += this.barycenter.dx * force;
-  // this.dy += this.barycenter.dy * force;
-  // const totalDistance = Math.sqrt(vectorX ** 2 + vectorY ** 2);
-  // if (totalDistance > 50) {
-
-
-  // }
-  // this.x += this.barycenter.x;
-  // this.y += this.barycenter.y;
-
-  // this.position.clamp(this.barycenter.x - 30, this.barycenter.y - 30, this.barycenter.x + 30, this.barycenter.y + 30);
-  this.advance();
-};
-
-// basic render for particles
-function particleRender () {
-  this.context.fillStyle = this.color;
-  this.context.fillRect(this.x, this.y, 3, 3);
-};
-
-function makeParticlePool () {
-  return kontra.pool({
-    // create a new sprite every time the pool needs new objects
-    create: kontra.sprite,  
-    maxSize: 50,
-    fill: true,
-  });
+// Paddle update that auto moves for debugging!
+// debugAutoMove :: Sprite -> ()
+function debugAutoMove(ball) {
+  this.x = ball.x;
+  this.top = this.y - this.height / 2 - 1;
+  this.bottom = this.y + this.height / 2 + 1;
+  this.left = this.x - this.width / 2 + 1;
+  this.right = this.x + this.width / 2 - 1;
 }
 
-
-
-
-function makeParticles (pool, amount, barycenter) {
-  for (let i = 0; i < amount; i++) {
-    pool.get({
-      type: 'particle',
-      barycenter: barycenter, // keep track if it is stuck to something
-      mass: -50,
-      anchor: {
-        x: 0.5,
-        y: 0.5,
-      },
-      // Testing start ball location
-      x: barycenter.x + (2 - Math.random() * 4),
-      y: barycenter.y + (2 - Math.random() * 4),
-      // x: barycenter.x - 100,
-      // y: barycenter.y - 100,
-      dx: 2 - Math.random() * 4,
-      dy: 2 - Math.random() * 4,
-      maxDx: 10,
-      maxDy: 10,
-      // dx: Math.random() * 100 + 100,
-      // dy: Math.random() * 100 + 100,
-      ttl: Infinity,
-      color: PARTICLE_COLOR,
-      width: 3,
-      height: 3,
-      update: particleGravity,
-      render: particleRender,
-    });
-  }
-  pool.getAliveObjects().forEach((particle) => {
-    particle.position.clamp(-50, -50, CANVAS_WIDTH + 50, CANVAS_HEIGHT + 50);
-  })
-}
-
+/* #endregion */

@@ -1042,15 +1042,10 @@ kontra = {
         while (i >= index) {
           obj = this.objects[i];
 
+          // Passing extra arguments to update
           // BETTER WAY TO DO THIS?
-          /// HACKING AWAY
-          // if (options[0] === 1) {
-          //   obj.update(dt, [...options[1].get(obj), ...options[2]]);
-          // } else if (options[0] === 0) {
-          //   obj.update(dt, [...options[1], ...options[2]]);
-          if (options.length > 1) {
-            obj.update(dt, options[0], options[1]);
-
+          if (options.length >= 1) {
+            obj.update(dt, ...options);
           } else {
             obj.update(dt);
           }
