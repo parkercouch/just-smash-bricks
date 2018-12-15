@@ -188,7 +188,6 @@ const startGameLoop = function () {
 
     // RENDER GAME STATE //
     render: function () {
-      console.log(rightButton);
       paddle.render();
       ballPool.render();
       brickPool.render();
@@ -1175,7 +1174,7 @@ function advanceLevel(loop, bricks, currentLevel) {
   switch (level) {
 
     case 2:
-      startSequence(sequence1, ac.currentTime);
+      startNextSong(level2);
       levelTwo(bricks);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
@@ -1183,7 +1182,7 @@ function advanceLevel(loop, bricks, currentLevel) {
       return level;
 
     case 3:
-      startSequence(sequence2, ac.currentTime);
+      startNextSong(level3);
       levelThree(bricks);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
@@ -1191,7 +1190,7 @@ function advanceLevel(loop, bricks, currentLevel) {
       return level;
 
     case 4:
-      // startSequence(sequence2);
+      startSequence(level4);
       levelFour(bricks);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
@@ -1199,7 +1198,7 @@ function advanceLevel(loop, bricks, currentLevel) {
       return level;
 
     case 5:
-      // startSequence(sequence2);
+      startSequence(level5);
       levelFive(bricks);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
@@ -1207,7 +1206,8 @@ function advanceLevel(loop, bricks, currentLevel) {
       return level;
 
     case 6:
-      // startSequence(sequence2);
+      // startSequence(level6);
+      stopMusic();
       levelSix(bricks);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
@@ -1300,7 +1300,6 @@ function levelOne (pool) {
 // LEVEL 2
 // levelTwo :: Pool -> Void
 function levelTwo (pool) {
-  console.log('Creating level 2');
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
