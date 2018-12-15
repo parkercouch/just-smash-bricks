@@ -18,6 +18,10 @@ const MESSAGE = document.getElementById('message');
 const HUD = document.getElementById('hud');
 const BOTTOM_DISPLAY = document.getElementById('bottom-display');
 
+const PADDLE_COLOR = 'white';
+const PARTICLE_COLOR = 'white';
+const BALL_COLOR = 'white';
+
 
 /* #endregion */
 
@@ -114,10 +118,18 @@ const startGameLoop = function () {
   // Create Level 1
   levelOne(brickPool);
 
+  // Particles //
+  const particlePool = makeParticlePool();
+  makeStartingParticles(particlePool, 10, ballPool.getAliveObjects()[0]);
+  // particlePool.update();
+  // particlePool.render();
+
+
   // Keep this for testing
   // levelOneTEST(brickPool);
 
   // PRE-RENDER //
+
   brickPool.update();
   brickPool.render();
   paddle.update();
@@ -126,6 +138,12 @@ const startGameLoop = function () {
   leftButton.render();
   middleButton.render();
   showBottomDisplay();
+
+  // ballPool.update();
+  // ballPool.render();
+  
+  // particlePool.update();
+  // particlePool.render();
 
 
   // Drop in first level
@@ -142,6 +160,8 @@ const startGameLoop = function () {
     // UPDATE GAME STATE //
     update: function (dt) {
 
+      
+  // makeStartingParticles(particlePool, 10, ballPool.getAliveObjects()[0]);
       // Sync tween animations
       TWEEN.update();
 
@@ -155,6 +175,8 @@ const startGameLoop = function () {
 
       // Ready to check for collision!
       ballPool.update(dt, collidableObjects, alwaysCollidableObjects);
+
+      particlePool.update();
 
       // Update bricks after collision detection
       brickPool.update();
@@ -171,6 +193,7 @@ const startGameLoop = function () {
         // You Lose!
         if (LIVES <= 0) {
           this.stop();
+          stopMusic();
           gameStates.lose();
         } else {
           updateLives();
@@ -194,6 +217,7 @@ const startGameLoop = function () {
       rightButton.render();
       leftButton.render();
       middleButton.render();
+      particlePool.render();
     }
   });
 
@@ -808,7 +832,7 @@ function createPaddle () {
     bottom: CANVAS_HEIGHT - 50 + PADDLE_HEIGHT / 2 - 1,
     left: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
     right: CANVAS_WIDTH / 2 + PADDLE_WIDTH / 2,
-    color: 'black',
+    color: PADDLE_COLOR,
     // image: kontra.assets.images.paddle,
     update: paddleUpdate,
     move: movePaddle,
@@ -829,6 +853,7 @@ function newBall (pool, paddle) {
     type: 'ball',
     combo: 0,
     attached: paddle, // keep track if it is stuck to something
+    mass: 100,
     anchor: {
       x: 0.5,
       y: 0.5,
@@ -840,7 +865,7 @@ function newBall (pool, paddle) {
     dy: 0,
     ttl: Infinity,
     radius: 11,
-    color: 'blue',
+    color: BALL_COLOR,
     // image: kontra.assets.images.ball,
     update: movingBall,
     render: renderBall,
@@ -960,29 +985,29 @@ function createWalls () {
 }
 
 
-  // TOUCH BUTTONS //
+// TOUCH BUTTONS //
 
-  // Create left button sprite for touch input
-  // createLeftButton :: Sprite -> Sprite
-  function createLeftButton (p) {
-    return kontra.sprite({
-      type: 'button',
-      action: 'left',
-      anchor: {
-        x: 0.5,
-        y: 0.5,
-      },
-      x: CANVAS_WIDTH / 4,
-      y: CANVAS_HEIGHT / 2,
-      dx: 0,
-      dy: 0,
-      ttl: Infinity,
-      width: CANVAS_WIDTH / 2,
-      height: CANVAS_HEIGHT,
-      onDown: movePaddleLeft(p),
-      onUp: stopPaddle(p),
-      render: renderButton,
-    });
+// Create left button sprite for touch input
+// createLeftButton :: Sprite -> Sprite
+function createLeftButton(p) {
+  return kontra.sprite({
+    type: 'button',
+    action: 'left',
+    anchor: {
+      x: 0.5,
+      y: 0.5,
+    },
+    x: CANVAS_WIDTH / 4,
+    y: CANVAS_HEIGHT / 2,
+    dx: 0,
+    dy: 0,
+    ttl: Infinity,
+    width: CANVAS_WIDTH / 2,
+    height: CANVAS_HEIGHT,
+    onDown: movePaddleLeft(p),
+    onUp: stopPaddle(p),
+    render: renderButton,
+  });
 }
 
 // Create right button sprite for touch input
@@ -1489,4 +1514,100 @@ function levelSix (pool) {
 
 
 /* #endregion */
+
+
+// Orbit around barycenter (the ball)
+function particleGravity() {
+  const vectorX = this.barycenter.x - this.x;
+  const vectorY = this.barycenter.y - this.y;
+  const force = this.barycenter.mass / Math.pow(vectorX * vectorX + vectorY * vectorY, 1.5);
+  const totalDistance = Math.sqrt(vectorX ** 2 + vectorY ** 2);
+
+  if (totalDistance > 50) {
+    this.acceleration.x = vectorX * force * 100;
+    this.acceleration.y = vectorY * force * 100;
+  } else {
+    this.acceleration.x = vectorX * force;
+    this.acceleration.y = vectorY * force;
+  }
+  if (Math.abs(this.dx) > this.maxDx) {
+    this.dx > 0 ? this.dx = this.maxDx : this.dx = -1 * this.maxDx;
+  }
+  if (Math.abs(this.dy) > this.maxDy) {
+    this.dy > 0 ? this.dy = this.maxDy : this.dy = -1 * this.maxDy;
+  }
+
+  // this.acceleration.x = vectorX * force * 100;
+  // this.acceleration.y = vectorY * force * 100;
+  // console.log(this.acceleration.x, this.acceleration.y);
+  // if (this.x >= 0 && this.x <= CANVAS_WIDTH) {
+  //   // console.log(this.barycenter);
+  //   console.log(this)
+
+  // }
+  // this.dx += this.barycenter.dx * force;
+  // this.dy += this.barycenter.dy * force;
+  // const totalDistance = Math.sqrt(vectorX ** 2 + vectorY ** 2);
+  // if (totalDistance > 50) {
+
+
+  // }
+  // this.x += this.barycenter.x;
+  // this.y += this.barycenter.y;
+
+  // this.position.clamp(this.barycenter.x - 30, this.barycenter.y - 30, this.barycenter.x + 30, this.barycenter.y + 30);
+  this.advance();
+};
+
+// basic render for particles
+function particleRender () {
+  this.context.fillStyle = this.color;
+  this.context.fillRect(this.x, this.y, 3, 3);
+};
+
+function makeParticlePool () {
+  return kontra.pool({
+    // create a new sprite every time the pool needs new objects
+    create: kontra.sprite,  
+    maxSize: 50,
+    fill: true,
+  });
+}
+
+
+
+
+function makeStartingParticles (pool, amount, barycenter) {
+  for (let i = 0; i < amount; i++) {
+    pool.get({
+      type: 'particle',
+      barycenter: barycenter, // keep track if it is stuck to something
+      mass: -50,
+      anchor: {
+        x: 0.5,
+        y: 0.5,
+      },
+      // Testing start ball location
+      x: barycenter.x + (2 - Math.random() * 4),
+      y: barycenter.y + (2 - Math.random() * 4),
+      // x: barycenter.x - 100,
+      // y: barycenter.y - 100,
+      dx: 2 - Math.random() * 4,
+      dy: 2 - Math.random() * 4,
+      maxDx: 10,
+      maxDy: 10,
+      // dx: Math.random() * 100 + 100,
+      // dy: Math.random() * 100 + 100,
+      ttl: Infinity,
+      color: PARTICLE_COLOR,
+      width: 3,
+      height: 3,
+      update: particleGravity,
+      render: particleRender,
+    });
+  }
+  pool.getAliveObjects().forEach((particle) => {
+    particle.position.clamp(-50, -50, CANVAS_WIDTH + 50, CANVAS_HEIGHT + 50);
+  })
+}
 
