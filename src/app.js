@@ -162,11 +162,13 @@ const startGameLoop = function () {
       paddle.update();
 
       // Update quadtree
-      collidableObjects.clear();
-      collidableObjects.add(brickPool.getAliveObjects());
+      // collidableObjects.clear();
+      // collidableObjects.add(brickPool.getAliveObjects());
+      const bricks = brickPool.getAliveObjects();
 
       // Ready to check for collision!
-      ballPool.update(dt, collidableObjects, alwaysCollidableObjects);
+      // ballPool.update(dt, collidableObjects, alwaysCollidableObjects);
+      ballPool.update(dt, bricks, alwaysCollidableObjects);
 
       particlePool.update();
 
@@ -645,7 +647,8 @@ function movingBall(dt, collidableObjects, alwaysCollidable) {
   let closest = null;
 
   // Check all objects in current node of quadtree and walls/paddle
-  const nearbyCollidableObjects = collidableObjects.get(this)
+  // const nearbyCollidableObjects = collidableObjects.get(this)
+  const nearbyCollidableObjects = collidableObjects;
   const allCollidableObjects = [...nearbyCollidableObjects, ...alwaysCollidable];
 
   allCollidableObjects.forEach((item) => {
