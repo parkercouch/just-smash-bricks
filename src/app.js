@@ -120,9 +120,7 @@ const startGameLoop = function () {
 
   // Particles //
   const particlePool = makeParticlePool();
-  makeStartingParticles(particlePool, 10, ballPool.getAliveObjects()[0]);
-  // particlePool.update();
-  // particlePool.render();
+  makeParticles(particlePool, 10, ballPool.getAliveObjects()[0]);
 
 
   // Keep this for testing
@@ -138,12 +136,6 @@ const startGameLoop = function () {
   leftButton.render();
   middleButton.render();
   showBottomDisplay();
-
-  // ballPool.update();
-  // ballPool.render();
-  
-  // particlePool.update();
-  // particlePool.render();
 
 
   // Drop in first level
@@ -185,6 +177,8 @@ const startGameLoop = function () {
       if (brickPool.getAliveObjects().length <= 0) {
         brickPool.clear();
         currentLevel = advanceLevel(this, brickPool, currentLevel);
+        // Add a life every level
+        LIVES += 1;
       }
 
       // Check if any balls are left
@@ -1577,7 +1571,7 @@ function makeParticlePool () {
 
 
 
-function makeStartingParticles (pool, amount, barycenter) {
+function makeParticles (pool, amount, barycenter) {
   for (let i = 0; i < amount; i++) {
     pool.get({
       type: 'particle',
