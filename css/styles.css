@@ -21,12 +21,9 @@ body {
 
 #message {
   position: absolute;
-  display: flex;
   flex-flow: row;
   justify-content: center;
   align-items: center;
-  top: 200px;
-  left: 5px;
   width: 350px;
   height: 200px;
   margin: 0;
@@ -53,7 +50,7 @@ body {
   flex-flow: row;
   justify-content: center;
   align-items: center;
-  top: 585px;
+  top: 605px;
   left: 0;
   width: 400px;
   height: 20px;
@@ -110,15 +107,27 @@ body {
 }
 
 .lives-title {
-  color: black;
+  color: white;
   margin: 0;
   padding: 0;
   width: 100px;
 }
 
 .score-title {
-  color: black;
+  color: white;
   margin: 0;
   padding: 0;
   width: 300px
+}
+
+.showMessage {
+  display: flex;
+  top: 200px;
+  left: 5px;
+}
+
+.hideMessage {
+  display: none;
+  top: 700px;
+  left: 800px;
 }

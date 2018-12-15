@@ -188,6 +188,7 @@ const startGameLoop = function () {
 
     // RENDER GAME STATE //
     render: function () {
+      console.log(rightButton);
       paddle.render();
       ballPool.render();
       brickPool.render();
@@ -331,6 +332,8 @@ function resizeCanvasToDisplaySize(canvas) {
 // Clear Messages from MESSAGES
 // clearMessage :: () -> Void
 function clearMessages () {
+  MESSAGE.classList.remove('showMessage');
+  MESSAGE.classList.add('hideMessage');
   while (MESSAGE.firstChild) {
     MESSAGE.removeChild(MESSAGE.firstChild);
   }
@@ -339,6 +342,8 @@ function clearMessages () {
 // Add Message to MESSAGES
 // addMessage :: String -> String -> Void
 function addMessage (message, type) {
+  MESSAGE.classList.remove('hideMessage');
+  MESSAGE.classList.add('showMessage');
   const newMessage = document.createElement('h2');
   newMessage.textContent = message;
   newMessage.classList.add(type);
@@ -845,8 +850,6 @@ function newBall (pool, paddle) {
       this.position.clamp(0 + this.radius / 2, 0 + this.radius / 2, CANVAS_WIDTH - this.radius / 2, CANVAS_HEIGHT - this.radius / 2);
     }
   });
-
-
 }
 
 // Creates new brick pool
@@ -971,12 +974,12 @@ function createWalls () {
         y: 0.5,
       },
       x: CANVAS_WIDTH / 4,
-      y: CANVAS_HEIGHT * (3 / 4),
+      y: CANVAS_HEIGHT / 2,
       dx: 0,
       dy: 0,
       ttl: Infinity,
       width: CANVAS_WIDTH / 2,
-      height: CANVAS_HEIGHT / 2,
+      height: CANVAS_HEIGHT,
       onDown: movePaddleLeft(p),
       onUp: stopPaddle(p),
       render: renderButton,
@@ -994,13 +997,13 @@ function createRightButton(p) {
       y: 0.5,
     },
     x: CANVAS_WIDTH * (3 / 4),
-    y: CANVAS_HEIGHT * (3 / 4),
+    y: CANVAS_HEIGHT / 2,
     dx: 0,
     dy: 0,
     ttl: Infinity,
     width: CANVAS_WIDTH / 2,
-    height: CANVAS_HEIGHT / 2,
-    fill: false,
+    height: CANVAS_HEIGHT,
+    fill: true,
     onDown: movePaddleRight(p),
     onUp: stopPaddle(p),
     render: renderButton,
@@ -1018,20 +1021,18 @@ function createMiddleButton(balls) {
       y: 0.5,
     },
     x: CANVAS_WIDTH / 2,
-    y: CANVAS_HEIGHT * (3 / 4),
+    y: CANVAS_HEIGHT / 2,
     dx: 0,
     dy: 0,
     ttl: Infinity,
     width: CANVAS_WIDTH / 4,
-    height: CANVAS_HEIGHT / 2,
+    height: CANVAS_HEIGHT,
     fill: false,
     onDown: launchBall(balls.getAliveObjects()[0]),
     onUp: disableLaunch,
     render: renderButton,
   });
 }
-
-
 
 
 
@@ -1056,7 +1057,7 @@ function renderBall() {
 // Transparent render for buttons
 // renderButton :: () -> Void
 function renderButton () {
-  this.context.fillStyle = 'rgba(0,0,0,0)';
+  this.context.fillStyle = 'rgba(0,250,0,1)';
 }
 
 /* #endregion */
@@ -1174,7 +1175,7 @@ function advanceLevel(loop, bricks, currentLevel) {
   switch (level) {
 
     case 2:
-      startSequence(sequence1);
+      startSequence(sequence1, ac.currentTime);
       levelTwo(bricks);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
@@ -1182,7 +1183,7 @@ function advanceLevel(loop, bricks, currentLevel) {
       return level;
 
     case 3:
-      startSequence(sequence2);
+      startSequence(sequence2, ac.currentTime);
       levelThree(bricks);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
