@@ -82,7 +82,7 @@ const startGameLoop = function () {
   const paddle = createPaddle();
 
   //* AUTO MOVE DEBUG MODE *//
-  paddle.autoMove = debugAutoMove;
+  // paddle.autoMove = debugAutoMove;
   //* -------------------- *//
   
   // BALLS //
@@ -166,21 +166,16 @@ const startGameLoop = function () {
       brickPool.update();
 
       //DEBUG AUTO MOVE //
-      if (ballPool.getAliveObjects()[0].attached === null) {
-        paddle.autoMove(ballPool.getAliveObjects()[0]);
-      } else {
-        paddle.update();
-      }
-      // paddle.update(); // Normal paddle update
+      // if (ballPool.getAliveObjects()[0].attached === null) {
+      //   paddle.autoMove(ballPool.getAliveObjects()[0]);
+      // } else {
+      //   paddle.update();
+      // }
+      paddle.update(); // Normal paddle update
 
-      // Update quadtree
-      // collidableObjects.clear();
-      // collidableObjects.add(brickPool.getAliveObjects());
       const bricks = brickPool.getAliveObjects();
 
       // Ready to check for collision!
-      // ballPool.update(dt, collidableObjects, alwaysCollidableObjects);
-      // ballPool.update(dt, bricks, alwaysCollidableObjects);
 
       // console.log(bricks, walls, paddle)
       ballPool.update(dt, [...bricks, ...walls, paddle]);
