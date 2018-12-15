@@ -145,6 +145,7 @@ const startGameLoop = function () {
 
 
   // Drop in first level
+  playDropSound(100);
   brickPool.getAliveObjects().forEach((brick, i) => {
     brick.onSpawn(100 / (1 + Math.floor(i / 6)));
   });
@@ -746,9 +747,25 @@ function movingBall(dt, collidableObjects) {
           closest.item.ttl = 0;
         }
 
-      // FALLTHROUGH! Both brick and wall update dx/dy the same way
+        switch (closest.point.d) {
+          // Reflect x if right/left hit
+          case 'left':
+          case 'right':
+            this.dx *= -1;
+            break;
+
+          // Reflect y if top/bottom hit
+          case 'top':
+          case 'bottom':
+            this.dy *= -1;
+            break;
+        }
+        break;
+
       case 'wall':
         // IF A WALL OR BRICK IS HIT //
+        // Need to move this into a onHit Function
+        playBounceSound();
         switch (closest.point.d) {
           // Reflect x if right/left hit
           case 'left':
@@ -791,19 +808,24 @@ function colorChange(dt) {
       this.color = 'black';
       break;
     case (this.hits > 4):
-      this.color = 'blue';
+      // this.color = 'blue';
+      this.color = '#718FEA';
       break;
     case (this.hits > 3):
-      this.color = 'green';
+      // this.color = 'green';
+      this.color = '#9EEA70';
       break;
     case (this.hits > 2):
-      this.color = 'yellow';
+      // this.color = 'yellow';
+      this.color = '#EDED86';
       break;
     case (this.hits > 1):
-      this.color = 'orange';
+      // this.color = 'orange';
+      this.color = '#E0986B';
       break;
     default:
-      this.color = 'red';
+      // this.color = 'red';
+      this.color = '#E77474';
       break;
   }
   
@@ -1195,8 +1217,7 @@ function particleRender () {
 // paddle onHit animation/sounds
 // paddleBounce :: () -> ()
 function paddleBounce() {
-  // testing beep sounds
-  playBeepSound();
+  playPaddleSound();
   const thisObject = this;
   const coords = { y: this.y };
   // Chain up to the end of down
@@ -1221,7 +1242,7 @@ function paddleBounce() {
 // Brick onHit animation/sound
 // brickBounce :: Sprite -> ()
 function brickBounce (hitLocation) {
-  playHighBeepSound();
+  playChirpSound();
   const thisObject = this;
   const xOffset = 10 * Math.random() + 10;
   const yOffset = 10 * Math.random() + 10;
@@ -1303,6 +1324,7 @@ function advanceLevel(loop, bricks, currentLevel) {
     case 2:
       startNextSong(level2);
       levelTwo(bricks);
+      playDropSound(500);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
       });
@@ -1312,6 +1334,7 @@ function advanceLevel(loop, bricks, currentLevel) {
     case 3:
       startNextSong(level3);
       levelThree(bricks);
+      playDropSound(500);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
       });
@@ -1321,6 +1344,7 @@ function advanceLevel(loop, bricks, currentLevel) {
     case 4:
       startNextSong(level4);
       levelFour(bricks);
+      playDropSound(500);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
       });
@@ -1330,6 +1354,7 @@ function advanceLevel(loop, bricks, currentLevel) {
     case 5:
       startNextSong(level5);
       levelFive(bricks);
+      playDropSound(500);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
       });
@@ -1339,6 +1364,7 @@ function advanceLevel(loop, bricks, currentLevel) {
     case 6:
       stopMusic();
       levelSix(bricks);
+      playDropSound(500);
       bricks.getAliveObjects().forEach((brick) => {
         brick.onSpawn(500);
       });

@@ -113,27 +113,60 @@ level5.createCustomWave([-1,-0.9,-0.6,-0.3, 0, 0.3, 0.6, 0.9,1]);
 
 // SFX
 
-// Bounce sound
-const beep = [
-  'C#2  0.0125', 'C#1 0.0125'
+// Drop Down
+const drop = [
+  '- s', 'F#6  e', 'F#1 e', '- s'
+];
+
+// Wall bounce sound
+const bounce = [
+  // 'C#2  0.0125', 'C#1 0.0125',
+  'C#2 0.0125', 'F#1 0.0125',
+];
+
+// Paddle bonce sound
+const paddleBounceSFX = [
+  // 'C#3  0.0125', 'C#2 0.0125',
+  // 'C#3  0.0125', 'F#2 0.0125',
+  'F#2 s', '- s',
 ];
 
 // Chirp Sound
-const highBeep = [
-  'C#5  0.0125', 'C#2 0.0125'
+const chirp = [
+  'C#5  0.0125', 'C#2 0.0125',
 ];
 
-const beepSound = new TinyMusic.Sequence( ac, tempo, beep);
-const highBeepSound = new TinyMusic.Sequence( ac, tempo, highBeep);
+const bounceSound = new TinyMusic.Sequence( ac, tempo, bounce);
+const dropDownSound = new TinyMusic.Sequence( ac, tempo, drop);
+const paddleBounceSound = new TinyMusic.Sequence( ac, tempo, paddleBounceSFX);
+const chirpSound = new TinyMusic.Sequence( ac, tempo, chirp);
 
-beepSound.staccato = 0.65;
-beepSound.gain.gain.value = 1.0 / 6;
-beepSound.loop = false;
+// bounceSound.staccato = 0.65;
+bounceSound.staccato = .10;
+bounceSound.gain.gain.value = 0.6 / 9;
+bounceSound.loop = false;
 
-highBeepSound.staccato = 0.65;
-highBeepSound.gain.gain.value = 1.0 / 6;
-highBeepSound.loop = false;
+// paddleBounceSound.staccato = 0.65;
+paddleBounceSound.staccato = 0.2;
+paddleBounceSound.smoothing = 0.7;
+paddleBounceSound.gain.gain.value = 0.6 / 9;
+paddleBounceSound.loop = false;
 
+chirpSound.staccato = 0.65;
+chirpSound.gain.gain.value = 1.0 / 6;
+chirpSound.loop = false;
+
+dropDownSound.staccato = 0.05;
+dropDownSound.smoothing = 0.3;
+dropDownSound.gain.gain.value = 1.0 / 8;
+dropDownSound.mid.gain.value = 3;
+dropDownSound.bass.gain.value = 6;
+dropDownSound.bass.frequency.value = 80;
+dropDownSound.mid.gain.value = -6;
+dropDownSound.mid.frequency.value = 500;
+dropDownSound.treble.gain.value = -2;
+dropDownSound.treble.frequency.value = 1400;
+dropDownSound.loop = false;
 
 // play
 function playMusic() {
@@ -156,10 +189,18 @@ function stopMusic() {
   level5.stop();
 }
 
-function playBeepSound() {
-  beepSound.play( ac.currentTime );
+function playBounceSound() {
+  bounceSound.play( ac.currentTime );
 }
 
-function playHighBeepSound() {
-  highBeepSound.play( ac.currentTime );
+function playPaddleSound() {
+  paddleBounceSound.play( ac.currentTime );
+}
+
+function playChirpSound() {
+  chirpSound.play( ac.currentTime );
+}
+
+function playDropSound(delay) {
+  dropDownSound.play( ac.currentTime + delay / 1000 );
 }
