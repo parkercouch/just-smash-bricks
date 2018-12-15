@@ -14,8 +14,6 @@ const CANVAS_HEIGHT = 600;
 let LIVES;
 let SCORE;
 let GAMELOOP;
-// Temp fix to test levels
-let CURRENT_LEVEL = 1;
 const MESSAGE = document.getElementById('message');
 const HUD = document.getElementById('hud');
 const BOTTOM_DISPLAY = document.getElementById('bottom-display');
@@ -88,66 +86,14 @@ const startGameLoop = function () {
   });
 
   // TOUCH BUTTONS //
-  const leftButton = kontra.sprite({
-    type: 'button',
-    action: 'left',
-    anchor: {
-      x: 0.5,
-      y: 0.5,
-    },
-    x: CANVAS_WIDTH / 4,
-    y: CANVAS_HEIGHT * (3/4),
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    width: CANVAS_WIDTH / 2,
-    height: CANVAS_HEIGHT / 2, 
-    onDown: movePaddleLeft(paddle),
-    onUp: stopPaddle(paddle),
-    render: renderButton,
-  });
+  // Create buttons
+  const leftButton = createLeftButton(paddle);
+  const rightButton = createRightButton(paddle);
+  const middleButton = createMiddleButton(ballPool);
+
+  // Track pointer on buttons
   kontra.pointer.track(leftButton);
-
-  const rightButton = kontra.sprite({
-    type: 'button',
-    action: 'right',
-    anchor: {
-      x: 0.5,
-      y: 0.5,
-    },
-    x: CANVAS_WIDTH * (3/4),
-    y: CANVAS_HEIGHT * (3/4),
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    width: CANVAS_WIDTH / 2,
-    height: CANVAS_HEIGHT / 2, 
-    fill: false,
-    onDown: movePaddleRight(paddle),
-    onUp: stopPaddle(paddle),
-    render: renderButton,
-  });
   kontra.pointer.track(rightButton);
-
-  const middleButton = kontra.sprite({
-    type: 'button',
-    action: 'launch',
-    anchor: {
-      x: 0.5,
-      y: 0.5,
-    },
-    x: CANVAS_WIDTH / 2,
-    y: CANVAS_HEIGHT * (3/4),
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    width: CANVAS_WIDTH / 4,
-    height: CANVAS_HEIGHT / 2, 
-    fill: false,
-    onDown: launchBall(ballPool.getAliveObjects()[0]),
-    onUp: disableLaunch,
-    render: renderButton,
-  });
   kontra.pointer.track(middleButton);
 
 
@@ -165,10 +111,13 @@ const startGameLoop = function () {
 
   // BRICKS //
   const brickPool = newBrickPool();
+  // Create Level 1
   levelOne(brickPool);
+
+  // Keep this for testing
   // levelOneTEST(brickPool);
 
-  // PRE-RENDER ALL //
+  // PRE-RENDER //
   brickPool.update();
   brickPool.render();
   paddle.update();
@@ -179,11 +128,14 @@ const startGameLoop = function () {
   showBottomDisplay();
 
 
+  // Drop in first level
   brickPool.getAliveObjects().forEach((brick) => {
     brick.onSpawn(0);
   });
 
-  // MAIN GAME LOOP
+  //------------------//
+  //- MAIN GAME LOOP -//
+  //------------------//
   GAMELOOP = kontra.gameLoop({
     fps: FPS,
 
@@ -197,14 +149,16 @@ const startGameLoop = function () {
       brickPool.update();
       paddle.update();
 
+      // Update quadtree
       collidableObjects.clear();
       collidableObjects.add(brickPool.getAliveObjects());
 
       // Ready to check for collision!
       ballPool.update(dt, collidableObjects, alwaysCollidableObjects);
 
-
+      // Update bricks after collision detection
       brickPool.update();
+
       // If all bricks are gone then go to next level/win
       if (brickPool.getAliveObjects().length <= 0) {
         brickPool.clear();
@@ -1002,6 +956,83 @@ function createWalls () {
     }),
   ];
 }
+
+
+  // TOUCH BUTTONS //
+
+  // Create left button sprite for touch input
+  // createLeftButton :: Sprite -> Sprite
+  function createLeftButton (p) {
+    return kontra.sprite({
+      type: 'button',
+      action: 'left',
+      anchor: {
+        x: 0.5,
+        y: 0.5,
+      },
+      x: CANVAS_WIDTH / 4,
+      y: CANVAS_HEIGHT * (3 / 4),
+      dx: 0,
+      dy: 0,
+      ttl: Infinity,
+      width: CANVAS_WIDTH / 2,
+      height: CANVAS_HEIGHT / 2,
+      onDown: movePaddleLeft(p),
+      onUp: stopPaddle(p),
+      render: renderButton,
+    });
+}
+
+// Create right button sprite for touch input
+// createRightButton :: Sprite -> Sprite
+function createRightButton(p) {
+  return kontra.sprite({
+    type: 'button',
+    action: 'right',
+    anchor: {
+      x: 0.5,
+      y: 0.5,
+    },
+    x: CANVAS_WIDTH * (3 / 4),
+    y: CANVAS_HEIGHT * (3 / 4),
+    dx: 0,
+    dy: 0,
+    ttl: Infinity,
+    width: CANVAS_WIDTH / 2,
+    height: CANVAS_HEIGHT / 2,
+    fill: false,
+    onDown: movePaddleRight(p),
+    onUp: stopPaddle(p),
+    render: renderButton,
+  });
+}
+
+// Create Middle button sprite for touch input
+// createMiddleButton :: Pool -> Sprite
+function createMiddleButton(balls) {
+  return kontra.sprite({
+    type: 'button',
+    action: 'launch',
+    anchor: {
+      x: 0.5,
+      y: 0.5,
+    },
+    x: CANVAS_WIDTH / 2,
+    y: CANVAS_HEIGHT * (3 / 4),
+    dx: 0,
+    dy: 0,
+    ttl: Infinity,
+    width: CANVAS_WIDTH / 4,
+    height: CANVAS_HEIGHT / 2,
+    fill: false,
+    onDown: launchBall(balls.getAliveObjects()[0]),
+    onUp: disableLaunch,
+    render: renderButton,
+  });
+}
+
+
+
 
 
 /* #endregion */
