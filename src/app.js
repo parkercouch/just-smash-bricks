@@ -19,9 +19,10 @@ const MESSAGE = document.getElementById('message');
 const HUD = document.getElementById('hud');
 const TOP_DISPLAY = document.getElementById('top-display');
 
-const PADDLE_COLOR = 'white';
-const PARTICLE_COLOR = 'white';
-const BALL_COLOR = 'white';
+
+const PADDLE_COLOR = '#B993EA';
+const PARTICLE_COLOR = '#F6C5F7';
+const BALL_COLOR = '#ECFFE0';
 
 
 /* #endregion */
@@ -32,6 +33,20 @@ const BALL_COLOR = 'white';
 /* #region */
 
 document.addEventListener('DOMContentLoaded', function () {
+
+  // Add listener to fullscreen button and change/state
+  document.getElementById('fs-button').addEventListener('click', (e) => {
+    e.target.blur();
+    if (screenfull.enabled) { screenfull.toggle(); }
+  });
+  screenfull.onchange(() => {
+    if (screenfull.isFullscreen) {
+      document.getElementById('fs-button').innerText = 'Exit';
+    } else {
+      document.getElementById('fs-button').innerText = 'Fullscreen';
+    }
+  });
+
   const canvasElement = document.getElementById('game');
   // Make sure the canvas is the right size/resolution
   resizeCanvasToDisplaySize(canvasElement);
@@ -649,8 +664,7 @@ function disableLaunch () {
 
 // MODIFIED KONTRA JS TO PASS IN MULTIPLE ARGUMENTS
 // Update logic for ball objects
-// movingBall :: Num -> [Object] -> [Object] -> ()
-// function movingBall(dt, collidableObjects, alwaysCollidable) {
+// movingBall :: Num -> [Sprite] -> ()
 function movingBall(dt, collidableObjects) {
 
   // If attached to something then wait for keypress
@@ -673,19 +687,11 @@ function movingBall(dt, collidableObjects) {
   }
 
   // Calculate future position of ball
-  // const p2 = move(this, dt);
   const nextPosition = move(this, dt);
 
   let closestMagnitude = Infinity;
   let closest = null;
 
-  // Check all objects in current node of quadtree and walls/paddle
-  // const nearbyCollidableObjects = collidableObjects.get(this)
-  // const nearbyCollidableObjects = collidableObjects;
-  // const allCollidableObjects = [...nearbyCollidableObjects, ...alwaysCollidable];
-  // console.log(collidableObjects);
-
-  // allCollidableObjects.forEach((item) => {
   collidableObjects.forEach((item) => {
     // Check for point of collision
     const point = this.collidesWith(item, nextPosition)
@@ -753,9 +759,7 @@ function movingBall(dt, collidableObjects) {
 
         // Animate all bricks
         collidableObjects.filter(n => n.type === 'brick')
-          .forEach(brick => {
-            brick.onHit(this);
-          })
+          .forEach(brick => { brick.onHit(this); });
 
         // ** ROOM FOR IMPROVEMENT **
         SCORE += this.combo * 50;
@@ -1670,23 +1674,11 @@ function debugAutoMove(ball) {
 
 
 // ------------------------------------------------------- //
-// -------------------DEBUG FUNCTIONS--------------------- //
+// -------------------MISC FUNCTIONS---------------------- //
 // ------------------------------------------------------- //
 /* #region */
 
-document.getElementById('fs-button').addEventListener('click', (e) => {
-  e.target.blur();
-	if (screenfull.enabled) {
-		screenfull.toggle();
-	}
-  if (!screenfull.isFullscreen) {
-    e.target.innerText = 'Exit';
-  } else {
-    e.target.innerText = 'Fullscreen';
-  }
-});
 
 
 
 /* #endregion */
-
