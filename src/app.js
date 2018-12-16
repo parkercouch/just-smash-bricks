@@ -1724,7 +1724,7 @@ function updateHighScores (score) {
   currentHighScores.sort((a, b) => b - a);
 
   // If more than 3 then remove lowest one
-  if (currentHighScores.length > 3) {
+  if (currentHighScores.length >= 3) {
     currentHighScores.pop();
   }
 
