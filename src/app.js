@@ -14,6 +14,7 @@ const CANVAS_HEIGHT = 600;
 let LIVES;
 let SCORE;
 let GAMELOOP;
+const GAME_CONTAINER = document.getElementById('game-container');
 const MESSAGE = document.getElementById('message');
 const HUD = document.getElementById('hud');
 const BOTTOM_DISPLAY = document.getElementById('bottom-display');
@@ -1657,3 +1658,26 @@ function debugAutoMove(ball) {
 }
 
 /* #endregion */
+
+
+// ------------------------------------------------------- //
+// -------------------DEBUG FUNCTIONS--------------------- //
+// ------------------------------------------------------- //
+/* #region */
+
+document.getElementById('fs-button').addEventListener('click', (e) => {
+  e.target.blur();
+	if (screenfull.enabled) {
+		screenfull.toggle(GAME_CONTAINER);
+	}
+  if (!screenfull.isFullscreen) {
+    e.target.innerText = 'Exit';
+  } else {
+    e.target.innerText = 'Fullscreen';
+  }
+});
+
+
+
+/* #endregion */
+

@@ -15,6 +15,7 @@ body {
   height: 600px;
   margin: 0 auto;
   /* border: 1px solid black; */
+  border: 2px solid white;
 }
 
 #game-container {
@@ -24,7 +25,7 @@ body {
   max-width: 400px;
   margin: 0 auto;
   padding: 0;
-  border: 2px solid white;
+  padding-bottom: 20px;
 }
 
 #message {
@@ -53,19 +54,30 @@ body {
 }
 
 #bottom-display {
-  position: absolute;
+  /* position: absolute; */
   display: flex;
   flex-flow: row;
   justify-content: center;
   align-items: center;
-  top: 605px;
-  left: 0;
+  /* top: 605px;
+  left: 0; */
   width: 400px;
   height: 20px;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   padding-left: 5px;
   text-align: left
+}
+
+#info-container {
+  margin-top: 20px;
+}
+
+#fs-button {
+  border: 2px solid var(--text-color, white);
+  color: var(--text-color, white);
+  background-color: var(--bg-color, black);
+  margin: 20px auto;
 }
 
 
@@ -74,45 +86,20 @@ body {
   padding-top: 10px;
 }
 
-.win {
+.win, .lose, .title {
   color: var(--text-color, white);
   margin: 0;
   padding: 0;
 }
 
-.lose {
-  color: var(--text-color, white);
-  margin: 0;
-  padding: 0;
-}
-
-.loading {
+.loading, .menu, .pause{
   color: var(--text-color, white);
   margin: 0;
   padding: 0;
   animation: blinker 2s ease-in-out infinite alternate;  
 }
 
-.menu {
-  color: var(--text-color, white);
-  margin: 0;
-  padding: 0;
-  animation: blinker 2s ease-in-out infinite alternate;  
-}
-
-.pause {
-  color: var(--text-color, white);
-  margin: 0;
-  padding: 0;
-  animation: blinker 2s ease-in-out infinite alternate;  
-}
 @keyframes blinker { to { opacity: 0; } }
-
-.title {
-  color: var(--text-color, white);
-  margin: 0;
-  padding: 0;
-}
 
 .lives-title {
   color: var(--text-color, white);
