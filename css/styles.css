@@ -53,7 +53,7 @@ body {
   padding: 0 20px;
 }
 
-#bottom-display {
+#top-display {
   /* position: absolute; */
   display: flex;
   flex-flow: row;
@@ -105,14 +105,24 @@ body {
   color: var(--text-color, white);
   margin: 0;
   padding: 0;
-  width: 100px;
+  width: 90px;
 }
 
 .score-title {
   color: var(--text-color, white);
   margin: 0;
   padding: 0;
-  width: 300px
+  width: 200px;
+  text-align: center;
+}
+
+.level-title {
+  color: var(--text-color, white);
+  margin: 0;
+  padding: 0;
+  width: 100px;
+  margin-right: 5px;
+  text-align: right;
 }
 
 .showMessage {

@@ -17,7 +17,7 @@ let GAMELOOP;
 const GAME_CONTAINER = document.getElementById('game-container');
 const MESSAGE = document.getElementById('message');
 const HUD = document.getElementById('hud');
-const BOTTOM_DISPLAY = document.getElementById('bottom-display');
+const TOP_DISPLAY = document.getElementById('top-display');
 
 const PADDLE_COLOR = 'white';
 const PARTICLE_COLOR = 'white';
@@ -91,9 +91,7 @@ const startGameLoop = function () {
   newBall(ballPool, paddle);
   // Clamp vector in boundaries
   ballPool.getAliveObjects()[0].contain();
-  // ballPool.getAliveObjects().forEach((ball) => {
-  //   ball.contain();
-  // });
+
 
   // TOUCH BUTTONS //
   // Create buttons
@@ -107,16 +105,8 @@ const startGameLoop = function () {
   kontra.pointer.track(middleButton);
 
 
-  // QUADTREE FOR COLLISION DETECTION //
-  // const collidableObjects = kontra.quadtree({
-  //   maxObjects: 10,
-  // });
-
   // BOUNDARY WALLS //
   const walls = createWalls();
-
-  // Objects that always need to be checked for
-  // const alwaysCollidableObjects = [...walls, paddle];
 
 
   // BRICKS //
@@ -142,7 +132,7 @@ const startGameLoop = function () {
   rightButton.render();
   leftButton.render();
   middleButton.render();
-  showBottomDisplay();
+  showTopDisplay(currentLevel);
 
 
   // Drop in first level
@@ -282,7 +272,7 @@ function displayMenu() {
   // Clear Canvas
   const context = kontra.canvas.getContext('2d');
   context.clearRect(0, 0, kontra.canvas.width, kontra.canvas.height);
-   hideBottomDisplay();
+   hideTopDisplay();
    clearMessages();
   // Display Menu
   addTitle('BRICK SMASHING GAME!', 'title');
@@ -397,48 +387,81 @@ function clearHUD () {
 
 // Display Lives/Score
 // addMessage :: () -> ()
-function showBottomDisplay () {
+function showTopDisplay (currentLevel) {
   const livesTitle = document.createElement('h5');
   livesTitle.textContent = 'Lives left: ';
   livesTitle.classList.add('lives-title');
+
   const scoreTitle = document.createElement('h5');
   scoreTitle.textContent = 'Score: ';
   scoreTitle.classList.add('score-title');
 
-  const score = document.createElement('span');
-  score.textContent = SCORE;
-  score.classList.add('score');
-  scoreTitle.appendChild(score);
+  const levelTitle = document.createElement('h5');
+  levelTitle.textContent = 'Level ';
+  levelTitle.classList.add('level-title');
+
+
   const lives = document.createElement('span');
   lives.textContent = LIVES - 1;
   lives.classList.add('lives');
   livesTitle.appendChild(lives);
+  
+  const score = document.createElement('span');
+  score.textContent = SCORE;
+  score.classList.add('score');
+  scoreTitle.appendChild(score);
+
+  const level = document.createElement('span');
+  level.textContent = currentLevel;
+  level.classList.add('level');
+  levelTitle.appendChild(level);
 
 
-  BOTTOM_DISPLAY.appendChild(livesTitle);
-  BOTTOM_DISPLAY.appendChild(scoreTitle);
+
+  TOP_DISPLAY.appendChild(livesTitle);
+  TOP_DISPLAY.appendChild(scoreTitle);
+  TOP_DISPLAY.appendChild(levelTitle);
 }
 
+// // Show current level
+// // showLevel :: Int -> ()
+// function showLevel (currentLevel) {
+//   const levelTitle = document.createElement('h5');
+//   levelTitle.textContent = 'Level';
+//   levelTitle.classList.add('level-title');
+
+//   const level = document.createElement('span');
+//   level.textContent = currentLevel;
+//   level.classList.add('level');
+//   levelTitle.appendChild(level);
+
+//   TOP_DISPLAY.appendChild(levelTitle);
+// }
+
 // Clear bottom display 
-// hideBottomDisplay :: () -> ()
-function hideBottomDisplay () {
-  while (BOTTOM_DISPLAY.firstChild) {
-    BOTTOM_DISPLAY.removeChild(BOTTOM_DISPLAY.firstChild);
+// hideTopDisplay :: () -> ()
+function hideTopDisplay () {
+  while (TOP_DISPLAY.firstChild) {
+    TOP_DISPLAY.removeChild(TOP_DISPLAY.firstChild);
   }
+}
+
+// Update level
+// updateLevelDisplay :: Int -> ()
+function updateLevelDisplay (currentLevel) {
+  document.querySelector('.level').textContent = currentLevel;
 }
 
 // Update score
 // updateScore :: () -> ()
 function updateScore () {
-  const score = document.querySelector('.score');
-  score.textContent = SCORE;
+  document.querySelector('.score').textContent = SCORE;
 }
 
 // Update lives 
 // updateLives :: () -> ()
 function updateLives () {
-  const lives = document.querySelector('.lives');
-  lives.textContent = LIVES - 1;
+  document.querySelector('.lives').textContent = LIVES - 1;
 }
 
 // Line intercept
@@ -1320,51 +1343,31 @@ function advanceLevel(loop, bricks, currentLevel) {
     case 2:
       startNextSong(level2);
       levelTwo(bricks);
-      playDropSound(500);
-      bricks.getAliveObjects().forEach((brick) => {
-        brick.onSpawn(500);
-      });
-      return level;
+      break;
 
     // Level 3
     case 3:
       startNextSong(level3);
       levelThree(bricks);
-      playDropSound(500);
-      bricks.getAliveObjects().forEach((brick) => {
-        brick.onSpawn(500);
-      });
-      return level;
+      break;
 
     // Level 4
     case 4:
       startNextSong(level4);
       levelFour(bricks);
-      playDropSound(500);
-      bricks.getAliveObjects().forEach((brick) => {
-        brick.onSpawn(500);
-      });
-      return level;
+      break;
 
     // Level 5
     case 5:
       startNextSong(level5);
       levelFive(bricks);
-      playDropSound(500);
-      bricks.getAliveObjects().forEach((brick) => {
-        brick.onSpawn(500);
-      });
-      return level;
+      break;
 
     // Level 6
     case 6:
       stopMusic();
       levelSix(bricks);
-      playDropSound(500);
-      bricks.getAliveObjects().forEach((brick) => {
-        brick.onSpawn(500);
-      });
-      return level;
+      break;
 
     // WIN!
     default:
@@ -1374,6 +1377,12 @@ function advanceLevel(loop, bricks, currentLevel) {
       break;
   }
 
+  bricks.getAliveObjects().forEach((brick) => {
+    brick.onSpawn(500);
+  });
+  updateLevelDisplay(level);
+  playDropSound(500);
+  return level;
 }
 
 // LEVEL 1 EASY MODE TO DEBUG
@@ -1668,7 +1677,7 @@ function debugAutoMove(ball) {
 document.getElementById('fs-button').addEventListener('click', (e) => {
   e.target.blur();
 	if (screenfull.enabled) {
-		screenfull.toggle(GAME_CONTAINER);
+		screenfull.toggle();
 	}
   if (!screenfull.isFullscreen) {
     e.target.innerText = 'Exit';
