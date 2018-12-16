@@ -22,10 +22,14 @@ body {
   position: relative;
   background-color: var(--bg-color, black);
   color: var(--text-color, white);
-  max-width: 400px;
+  max-width: 404px;
   margin: 0 auto;
   padding: 0;
   padding-bottom: 20px;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
 }
 
 #message {
@@ -86,6 +90,10 @@ body {
   padding-top: 10px;
 }
 
+.no-padding {
+  padding: 0;
+}
+
 .win, .lose, .title {
   color: var(--text-color, white);
   margin: 0;
@@ -138,22 +146,44 @@ body {
 }
 
 
-.left {
+#controls {
+  flex-flow: row nowrap;
+  margin: 0;
+  width: 404px;
   height: 200px;
-  width: 200px;
+}
+
+.left {
+  flex-basis: 100px;
+  flex-grow: 2;
 }
 
 .right {
-  height: 200px;
-  width: 200px;
+  flex-basis: 100px;
+  flex-grow: 2;
 }
 
 .middle {
-  height: 200px;
-  width: 100px;
+  max-width: 100px;
+  flex-basis: 100px;
+  flex-grow: 1;
 }
 
 .touch-buttons {
-  background-color: red;
+  border: 1px solid var(--text-color, white);
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  font-size: 48px;
+  cursor: pointer;
 }
 
+.hide-controls {
+  display: none;
+  visibility: hidden;
+}
+
+.show-controls {
+  display: flex;
+}

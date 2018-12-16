@@ -42,8 +42,15 @@ document.addEventListener('DOMContentLoaded', function () {
   screenfull.onchange(() => {
     if (screenfull.isFullscreen) {
       document.getElementById('fs-button').innerText = 'Exit';
+      // Show touch buttons
+      document.querySelector('.container').classList.add('no-padding');
+      showTouchButtons();
+
     } else {
       document.getElementById('fs-button').innerText = 'Fullscreen';
+      // Hide touch buttons
+      document.querySelector('.container').classList.remove('no-padding');
+      hideTouchButtons();
     }
   });
 
@@ -1736,7 +1743,19 @@ function displayHighScore (highScores) {
 
 }
 
+function showTouchButtons () {
+  const controls = document.querySelector('#controls');
+  controls.classList.remove('hide-controls');
+  controls.classList.add('show-controls');
+  if (window.screen.height < 850) {
+    controls.style.height = `${window.screen.height - 26 - CANVAS_HEIGHT}px`;
+  }
+}
 
+function hideTouchButtons () {
+  document.querySelector('#controls').classList.add('hide-controls');
+  document.querySelector('#controls').classList.remove('show-controls');
+}
 
 
 
