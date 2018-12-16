@@ -14,7 +14,7 @@
 * 1 to 10 hit bricks
 * Teleports/Ball catchers
 * Falling blocks / bombs
-* (Stretch Goal) Long-term xp and upgrades
+* Long-term xp and upgrades
 
 #### Aesthetics
 * Basic pixel artwork or generated textures
@@ -78,4 +78,143 @@ to those as well to fix that.
 * Add a win condition when all bricks are gone
 * Add a lose condition when ball leaves the bottom of the screen
 * Add a ball start functionality (Launches off paddle to start game)
+
+### Day 2
+There was still some issues with the collision so I unified all the collision detection
+under one main function and created invisible sprites to act as boundary walls. This
+fixed a lot of the issues and I was able to move on to other things since it was working
+well enough.
+
+To manage all the sprites that would be collidable I tried using the quadtree object in
+Kontra js. It seemed to be working fine so I kept it.
+
+After that I wanted to add some difference in the gameplay by making the edges of the
+paddle bounce the ball away from that edge. This would allow some control over the ball
+instead of just reflecting.
+
+I was now close to a minimally viable game. I just needed to add a win/lose condition.
+I first added a start ball action by making the ball object have an attached to property
+that I assigned to the paddle. This allowed it to follow the paddle until a button was
+pressed then it would start moving. Then I changed the collision detection on the ball
+to just destroy the ball sprite when it hit the bottom (since all collision had been
+unified earlier this made it an easy change). This then would trigger a new ball sprite
+to be pulled from the object pool with its attached object being the paddle. I now had
+a start ball and lost ball functionality. 
+
+The win/lose conditions were easy to implement since all I had to check for is if there
+were any bricks/balls still left and show a message accordingly.
+
+Now I was at a very minamally viable game.
+
+##### BUGS/ISSUES:
+Major bugs from the previous day were fixed and I didn't notice any major issues at this
+time, but I would run into some in the following days.
+
+##### NEXT STEPS:
+* Display more information to the user
+* Add a pause functionality
+* Add some character
+
+### Day 3
+I spent the morning getting some basic message areas and score display set up. I didn't
+add much styling, but rather just got the structure there for now. After I got more of the game implemented I would go back and style it.
+
+I was now at a game that could be played by someone with the needed info. 
+
+The rest of the day I cleaned up code and prepared for adding more features. I wanted to
+start with some animations and that took a lot of time trying to figure out how to do 
+that effectively and without spaghetti code. I ended up finding a tweening library that
+made it much easier to manage. After getting that set up I was ready to start making the
+game a bit more appealing.
+
+##### BUGS/ISSUES:
+I mostly just worked on some basic structure and displaying information so nothing to
+major broke.
+
+##### NEXT STEPS:
+* Animations
+* Levels
+* Sounds
+
+### Day 4
+I got some basic animations working in the morning. I then started seeing some weird
+collision issues. The ball would go through bricks and every once in a while it would
+go off screen or through the paddle. I though I had fixed the issue, but I was wrong.
+
+I spend quite a bit of time refactoring and making sure everything was being updated
+correctly every frame so there weren't any missed collisions. I didn't get a whole lot
+done otherwise, but at least the game was handling everything more consistently. I was
+now in a position to start adding more levels.
+
+I did get some basic sounds made and a start of a song. It is using TinyMusic and it is
+just basic synth, but I think it fits the type of game well so I will continue pursuing
+that.
+
+##### BUGS/ISSUES:
+More collision issues...mostly fixed but still some weirdness every once in a while
+
+##### NEXT STEPS:
+* Levels
+* Touch controls
+* Sounds
+
+### Day 5
+I started the day looking up how I could implement touch controls. Kontra has a pointer
+library that allows touch/click events to be attached to sprites. This allowed me to
+draw invisible boxes that could act as buttons. Since this is a simple game I only
+needed to implement a left and right button with a middle button to launce the ball.
+I was happy that it wasn't too difficult to implement, but I had to create separate move
+functions for the touch buttons that didn't use the paddle's on update function. This
+seemed like a bit of a hack to me, but it actually worked well so I decided it would be
+good enough for now.
+
+I then went through and cleaned up the code and put repeated things into their own
+functions so that when I added new levels things would still be readable. This was a
+good choice and it made implementing levels fairly straightforward. I made the game
+6 levels that just add more hits to each brick. I will have to come back and make
+different shapes later, but I was happy to have the basic structure finished.
+
+I also got it deployed on GitHub pages so that I could also test it out on my phone.
+It was satisfying to see that the touch controls actually worked pretty smoothly!
+
+##### BUGS/ISSUES:
+Again some weird collision issues after levels implemented
+
+##### NEXT STEPS:
+* Finish sounds/music
+* Fix all collision bugs
+* Get mobile fullscreen working
+
+### Day 6
+I skipped some of the more needed things at first and decided to try and implement some
+particles. I wanted some little dots orbiting around the ball. I spend a good couple 
+hours getting this to work. I partly had to re-remember some physics and experiment and
+I also had to just make some weird hacks to get it to look alright. I ended up having
+the acceleration ramp up as the particles got farther from the ball so they wouldn't go
+too far away. I then limited the max speed so they wouldn't spin out of control and I 
+clamped their position vectors to just barely outside the canvas so they could leave sight, but would come back quickly rather than launching off into nothingness for long
+periods of time. It was a fun experiment and I thing the end result looks alright.
+
+I then decided to do away with the quadtree for collision detection. There weren't 
+enough objects on the screen to worry about the performance of checking against all
+of them and I was noticing that the collision bugs were happening when the ball was
+moving fast and passing through a different quadrant. I saw this when I had animations
+set to only the bricks in the same quadtree node as the ball. Sometimes a brick that was
+close wouldn't be added to that node and so it wouldn't be checked during collision
+detection. I just made a standard array and put all objects in it. It was repopulated
+every frame like the quadtree so that destroyed bricks wouldn't be in it. This pretty 
+much fixed all the weird bugs I was having.
+
+I then finished the basic sounds and music. Each level introduces a new part in the song
+and the ball makes chirp and bounce sounds as it hits the bricks/walls/paddle. There is
+not win/lose sound or a lost ball sound, but I will get those added. The basic structure
+of making/playing sounds is there so I just have to experiment with sounds until I find
+some I like.
+
+I then worked on getting fullscreen working. This seemed important for mobile use so
+that there would be no browser UI in the way. It was easy enough to set up, but I ran
+into a problem with the touch controls not being perfect when the bottom of the canvas
+was a bit above the bottom of the physical screen. Since the touch controls only work
+when touching the canvas elements I will have to make some buttons appear when the
+game goes into fullscreen mode.
 
