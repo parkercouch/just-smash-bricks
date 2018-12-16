@@ -132,7 +132,7 @@ const startGameLoop = function () {
   addTouchEventListeners(moveLeftFunc, moveRightFunc, shootBallFunc, stopPaddleFunc);
 
   // Fullscreen buttons
-  document.querySelector('.left').addEventListener('pointerdown', movePaddleLeft(paddle))
+  // document.querySelector('.left').addEventListener('pointerdown', movePaddleLeft(paddle))
 
   // Track pointer on buttons
   kontra.pointer.track(leftButton);
@@ -227,7 +227,7 @@ const startGameLoop = function () {
           this.stop();
           stopMusic();
           updateHighScores(SCORE);
-          removeTouchEventListeners(moveLeftFunc, moveRightFunc, shootBallFunc, stopPaddleFunc);
+          removeTouchEventListeners(moveLeftFunc, moveRightFunc, stopPaddleFunc);
           gameStates.lose();
         } else {
           updateLives();
@@ -237,7 +237,7 @@ const startGameLoop = function () {
           // Reset button to launch new ball
           middleButton.onDown = launchBall(ballPool.getAliveObjects()[0]);
           // Update fs-touch button
-          shootBallFunc = middleTouchButton(shootBallFunc, launchBall(ballPool.getAliveObjects()[0]));
+          updateMiddleTouchButton(launchBall(ballPool.getAliveObjects()[0]));
         }
       }
 
@@ -1775,21 +1775,24 @@ function addTouchEventListeners (left, right, middle, stop) {
   document.querySelector('.left').addEventListener('pointerup', stop);
   document.querySelector('.right').addEventListener('pointerdown', right);
   document.querySelector('.right').addEventListener('pointerup', stop);
-  document.querySelector('.middle').addEventListener('pointerdown', middle);
+  document.querySelector('.middle').addEventListener('pointerdown', function handle(e) {
+    e.target.removeEventListener('pointerdown', handle);
+    middle();
+  });
 }
 
-function removeTouchEventListeners (left, right, middle, stop) {
+function removeTouchEventListeners (left, right, stop) {
   document.querySelector('.left').removeEventListener('pointerdown', left);
   document.querySelector('.left').removeEventListener('pointerup', stop);
   document.querySelector('.right').removeEventListener('pointerdown', right);
   document.querySelector('.right').removeEventListener('pointerup', stop);
-  document.querySelector('.middle').removeEventListener('pointerdown', middle);
 }
 
-function middleTouchButton (oldFunction, newFunction) {
-  document.querySelector('.middle').removeEventListener('pointerdown', oldFunction);
-  document.querySelector('.middle').addEventListener('pointerdown', newFunction);
-  return newFunction;
+function updateMiddleTouchButton (newFunction) {
+  document.querySelector('.middle').addEventListener('pointerdown', function handle(e) {
+    e.target.removeEventListener('pointerdown', handle);
+    newFunction();
+  });
 }
 // pointerdown
 // pointerup
