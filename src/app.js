@@ -563,10 +563,10 @@ function paddleUpdate() {
 function movePaddle() {
   this.advance();
   switch (true) {
-    case (kontra.keys.pressed('left')):
+    case (kontra.keys.pressed('left') || kontra.keys.pressed('a')):
       this.dx = -5;
       break;
-    case (kontra.keys.pressed('right')):
+    case (kontra.keys.pressed('right') || kontra.keys.pressed('s')):
       this.dx = 5;
       break;
     case (!this.moving):
@@ -636,7 +636,7 @@ function movingBall(dt, collidableObjects) {
     this.y = this.attached.y - this.radius + 3 - this.attached.height / 2;
 
     // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
-    if (kontra.keys.pressed('space')) {
+    if (kontra.keys.pressed('z')) {
       if (Math.floor((Math.random() * 100)) % 2 === 0) {
         this.dx = -5;
       } else {
