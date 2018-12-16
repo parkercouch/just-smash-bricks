@@ -103,7 +103,6 @@ const startGameLoop = function () {
   SCORE = 0;
   let currentLevel = 1;
 
-
   // PADDLE //
   const paddle = createPaddle();
 
@@ -123,6 +122,17 @@ const startGameLoop = function () {
   const leftButton = createLeftButton(paddle);
   const rightButton = createRightButton(paddle);
   const middleButton = createMiddleButton(ballPool);
+
+  const moveLeftFunc = movePaddleLeft(paddle);
+  const moveRightFunc = movePaddleRight(paddle);
+  const stopPaddleFunc = stopPaddle(paddle);
+  // Needs to be updated with when new balls are created
+  let shootBallFunc = launchBall(ballPool.getAliveObjects()[0]);
+
+  addTouchEventListeners(moveLeftFunc, moveRightFunc, shootBallFunc, stopPaddleFunc);
+
+  // Fullscreen buttons
+  document.querySelector('.left').addEventListener('pointerdown', movePaddleLeft(paddle))
 
   // Track pointer on buttons
   kontra.pointer.track(leftButton);
@@ -217,6 +227,7 @@ const startGameLoop = function () {
           this.stop();
           stopMusic();
           updateHighScores(SCORE);
+          removeTouchEventListeners(moveLeftFunc, moveRightFunc, shootBallFunc, stopPaddleFunc);
           gameStates.lose();
         } else {
           updateLives();
@@ -224,7 +235,9 @@ const startGameLoop = function () {
           // Clamp vector in boundaries
           ballPool.getAliveObjects()[0].contain();
           // Reset button to launch new ball
-          middleButton.onDown = launchBall(ballPool.getAliveObjects()[0])
+          middleButton.onDown = launchBall(ballPool.getAliveObjects()[0]);
+          // Update fs-touch button
+          shootBallFunc = middleTouchButton(shootBallFunc, launchBall(ballPool.getAliveObjects()[0]));
         }
       }
 
@@ -1757,6 +1770,28 @@ function hideTouchButtons () {
   document.querySelector('#controls').classList.remove('show-controls');
 }
 
+function addTouchEventListeners (left, right, middle, stop) {
+  document.querySelector('.left').addEventListener('pointerdown', left);
+  document.querySelector('.left').addEventListener('pointerup', stop);
+  document.querySelector('.right').addEventListener('pointerdown', right);
+  document.querySelector('.right').addEventListener('pointerup', stop);
+  document.querySelector('.middle').addEventListener('pointerdown', middle);
+}
 
+function removeTouchEventListeners (left, right, middle, stop) {
+  document.querySelector('.left').removeEventListener('pointerdown', left);
+  document.querySelector('.left').removeEventListener('pointerup', stop);
+  document.querySelector('.right').removeEventListener('pointerdown', right);
+  document.querySelector('.right').removeEventListener('pointerup', stop);
+  document.querySelector('.middle').removeEventListener('pointerdown', middle);
+}
+
+function middleTouchButton (oldFunction, newFunction) {
+  document.querySelector('.middle').removeEventListener('pointerdown', oldFunction);
+  document.querySelector('.middle').addEventListener('pointerdown', newFunction);
+  return newFunction;
+}
+// pointerdown
+// pointerup
 
 /* #endregion */
