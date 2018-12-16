@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  // Make highscore list in localStorage if none exists
+  initializeHighScores();
+
   const canvasElement = document.getElementById('game');
   // Make sure the canvas is the right size/resolution
   resizeCanvasToDisplaySize(canvasElement);
@@ -206,6 +209,7 @@ const startGameLoop = function () {
         if (LIVES <= 0) {
           this.stop();
           stopMusic();
+          updateHighScores(SCORE);
           gameStates.lose();
         } else {
           updateLives();
@@ -270,17 +274,16 @@ const gameStates = new StateMachine({
 function loadAssets() {
   addMessage('Loading...', 'loading');
 
-  gameStates.finishLoading();
   // Skipping assets for now
-  // kontra.assets.load(...imgAssets, ...sfxAssets)
-  //   .then(() => {
-  //     clearMessages();
-  //     gameStates.finishLoading();
-  //   }).catch((err) => {
-  //     // error loading an asset
-  //     // Not addressed yet...
-  //     console.log(err);
-  //   });
+  kontra.assets.load(...imgAssets, ...sfxAssets)
+    .then(() => {
+      clearMessages();
+      gameStates.finishLoading();
+    }).catch((err) => {
+      // error loading an asset
+      // Not addressed yet...
+      console.log(err);
+    });
 };
 
 // Basic press any key to start 'menu'
@@ -1679,6 +1682,60 @@ function debugAutoMove(ball) {
 // -------------------MISC FUNCTIONS---------------------- //
 // ------------------------------------------------------- //
 /* #region */
+
+// Make initial empty highScore array if none exists
+// initializeHighScores :: () -> ()
+function initializeHighScores() {
+  // console.log(localStorage.getItem('highScores'));
+  if (localStorage.getItem('highScores') === null) {
+    kontra.store.set('highScores', []);
+  } else {
+    displayHighScore(kontra.store.get('highScores'));
+  }
+}
+
+// Add current score if in the top 3
+// updateHighScore :: Int -> ()
+function updateHighScores (score) {
+  // Add current score, sort, then remove lowest (to keep only 3)
+  const currentHighScores = kontra.store.get('highScores');
+  // console.log(currentHighScores);
+  currentHighScores.push(score);
+  currentHighScores.sort((a, b) => b - a);
+
+  // If more than 3 then remove lowest one
+  if (currentHighScores.length > 3) {
+    currentHighScores.pop();
+  }
+
+  displayHighScore(currentHighScores);
+
+  // update local storage
+  kontra.store.set('highScores', currentHighScores);
+}
+
+// Show high scores for the user
+// displayHighScore :: [Int] -> ()
+function displayHighScore (highScores) {
+  // Select high score element
+  const scoreList = document.getElementById('highscore-list');
+
+  // Remove all child nodes (there will only be 3 so not worth only updating)
+  // Maybe change this if a large list of high scores is kept
+  while(scoreList.firstChild) {
+    scoreList.removeChild(scoreList.firstChild);
+  }
+  // Add the top three
+  highScores.forEach((score) => {
+    const newScore = document.createElement('li');
+    newScore.classList.add('highscore-item');
+    console.log(score);
+    newScore.textContent = score;
+    scoreList.appendChild(newScore);
+  })
+
+}
+
 
 
 

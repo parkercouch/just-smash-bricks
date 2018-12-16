@@ -136,3 +136,24 @@ body {
   top: 700px;
   left: 800px;
 }
+
+
+.left {
+  height: 200px;
+  width: 200px;
+}
+
+.right {
+  height: 200px;
+  width: 200px;
+}
+
+.middle {
+  height: 200px;
+  width: 100px;
+}
+
+.touch-buttons {
+  background-color: red;
+}
+
