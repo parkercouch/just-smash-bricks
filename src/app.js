@@ -270,15 +270,17 @@ const gameStates = new StateMachine({
 function loadAssets() {
   addMessage('Loading...', 'loading');
 
-  kontra.assets.load(...imgAssets, ...sfxAssets)
-    .then(() => {
-      clearMessages();
-      gameStates.finishLoading();
-    }).catch((err) => {
-      // error loading an asset
-      // Not addressed yet...
-      console.log(err);
-    });
+  gameStates.finishLoading();
+  // Skipping assets for now
+  // kontra.assets.load(...imgAssets, ...sfxAssets)
+  //   .then(() => {
+  //     clearMessages();
+  //     gameStates.finishLoading();
+  //   }).catch((err) => {
+  //     // error loading an asset
+  //     // Not addressed yet...
+  //     console.log(err);
+  //   });
 };
 
 // Basic press any key to start 'menu'
