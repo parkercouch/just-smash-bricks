@@ -1,4 +1,38 @@
-# brick-smashing-game (Working Title)
+# Just Smash Bricks!
+
+### What is this?
+This is a breakout/arkanoid type game. I originally had one week to make the game 
+(I will keep that version in a separate branch to look back on). This was a fun
+challenge and I also was inspired but things like js13kgames when considering how
+I wanted to make the game. I didn't actually check to see the exact size of the
+files, but I made all the music and graphics in javascript instead of loading in
+assets. There are many things I wanted to add that I didn't have time for, but I
+am happy with how it turned out.
+
+
+### Story
+For some reason you have to smash bricks. That's all they will tell
+you and they won't let you ask questions. You don't remember anything
+and you have no idea where you are. I guess the only option now is to
+just smash bricks. 
+
+### Controls:
+*Fullscreen recommended for best touch controls*
+Move left -- Left, a, tap left, &#9664;
+Move right -- Right, d, tap right, &#9654;
+Launch Ball -- Up, w, tap middle, &#9650;
+Pause -- p (Sorry no pause on mobile...)
+
+#### Libraries Used:
+* [Kontra.js](https://github.com/straker/kontra) - Game loop, sprite management, localStorage, Object pools (particles)
+* [TinyMusic](https://github.com/kevincennis/TinyMusic) - All game sounds and music
+* [tween.js](https://github.com/tweenjs/tween.js) - Animation tweening 
+* [javascript-state-machine](https://github.com/jakesgordon/javascript-state-machine) - High level game states
+* [screenfull.js](https://github.com/sindresorhus/screenfull.js/) - For full screen support
+
+
+
+
 
 ## Developer's Journal
 
@@ -187,7 +221,7 @@ Again some weird collision issues after levels implemented
 
 ### Day 6
 I skipped some of the more needed things at first and decided to try and implement some
-particles. I wanted some little dots orbiting around the ball. I spend a good couple 
+particles. I wanted some little dots orbiting around the ball. I spent a good couple 
 hours getting this to work. I partly had to re-remember some physics and experiment and
 I also had to just make some weird hacks to get it to look alright. I ended up having
 the acceleration ramp up as the particles got farther from the ball so they wouldn't go
@@ -207,9 +241,9 @@ much fixed all the weird bugs I was having.
 
 I then finished the basic sounds and music. Each level introduces a new part in the song
 and the ball makes chirp and bounce sounds as it hits the bricks/walls/paddle. There is
-not win/lose sound or a lost ball sound, but I will get those added. The basic structure
-of making/playing sounds is there so I just have to experiment with sounds until I find
-some I like.
+not win/lose sound or a lost ball sound, but I think not having them fits the aesthetic
+of the game so I might not add them. The basic structure of making/playing sounds is
+there so I can easily add them later if I feel like it.
 
 I then worked on getting fullscreen working. This seemed important for mobile use so
 that there would be no browser UI in the way. It was easy enough to set up, but I ran
@@ -218,3 +252,51 @@ was a bit above the bottom of the physical screen. Since the touch controls only
 when touching the canvas elements I will have to make some buttons appear when the
 game goes into fullscreen mode.
 
+##### BUGS/ISSUES:
+Fullscreen works but the controls are a little weird when in fullscreen mode.
+
+##### NEXT STEPS:
+* Make fullscreen touch controls
+* Style the page
+* Make some sort of story
+
+### Day 7 -- LAST DAY!
+I now had to make sure all the important things were taken care of. There were plenty
+of things on my list that I wanted to add, but they were extra and they could wait. I
+took care of the fullscreen buttons first. Adding them wasn't too hard since I had some
+functions made for the original touch buttons I had made. I did have to do some hack
+fixes to be able to add and remove the event listeners and update them when starting a
+new game. I am seeing some structure choices I had made earlier get in my way now. It
+would be best to re-structure how the controls are implemented and have them all unified
+so they could be more easily modified, but I didn't have time to go into that so I just
+got things functioning for now.
+
+I then styled the page and dialed in colors. I wanted this game to have a sort of retro
+game vibe too it. I kept things very simple. Just white on black for the main colors and
+they bricks are some pastelly colors. I considered trying to get a pixelly look, but I
+liked the clean lines I had so I left that as is. This with the synth sound effects
+makes the game both retro and modern. I am happy with the overall aesthetic.
+
+I also wanted to add a bit of a 'story' or at least something to start the game off. I
+considered what could even be possible for a game like this. Arcade style games don't
+offer realistic situations so I went with a sort of unknown quality to the story. There
+are no questions answered and the player is just left with the command to smash bricks.
+I think I can explore this more as I make the game better. I could have follow up scenes
+in the middle of the game to push the story along. I think I probably drew my inspiration
+from Portal where you are doing tasks, but there is something bigger behind it. I don't
+want to take too many ideas from that, but I think it is a valid concept for this type
+of game.
+
+The game is done and playable. I also added some buttons for changing speed, debug, and mute.
+The speed change makes it much easier (but doesn't give you as many points). The debug mode
+just turns on auto move so you can't lose (but no points are awarded). And the mute button
+turns off the music to make it easier to quiet down no matter which device.
+
+##### BUGS/ISSUES:
+Browser/device compatibility is still lacking. It was only testing on Chrome on osx and
+android.
+
+##### NEXT STEPS:
+* Get it working on all modern browsers and devices
+* Add more interesting levels
+* Add brick breaking effects/sounds
