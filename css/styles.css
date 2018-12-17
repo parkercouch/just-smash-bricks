@@ -87,6 +87,7 @@ body {
   color: var(--text-color, white);
   background-color: var(--bg-color, black);
   margin: 5px auto;
+  width: 125px;
 }
 
 .column {
@@ -150,8 +151,7 @@ body {
 
 .hideMessage {
   display: none;
-  top: 700px;
-  left: 800px;
+  visibility: hidden;
 }
 
 
@@ -220,6 +220,8 @@ body {
 .row {
   display:flex;
   flex-flow: row wrap;
+  justify-content: space-around;
+  width: 100%;
 }
 
 .block-header{

@@ -4,16 +4,19 @@
 // ------------------------GLOBALS------------------------ //
 // ------------------------------------------------------- //
 /* #region */
-const FPS = 120;
+let FPS = 120;
 const BRICK_HEIGHT = 15;
 const BRICK_WIDTH = 50;
 const PADDLE_WIDTH = 80;
 const PADDLE_HEIGHT = 15;
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 600;
+
 let LIVES;
 let SCORE;
 let GAMELOOP;
+let DEBUG_ON = false;
+
 const GAME_CONTAINER = document.getElementById('game-container');
 const MESSAGE = document.getElementById('message');
 const HUD = document.getElementById('hud');
@@ -51,6 +54,26 @@ document.addEventListener('DOMContentLoaded', function () {
       // Hide touch buttons
       document.querySelector('.container').classList.remove('no-padding');
       hideTouchButtons();
+    }
+  });
+
+  // Add listener to change speed button
+  document.getElementById('speed-button').addEventListener('click', (e) => {
+    e.target.blur();
+    if (FPS === 120) {
+      FPS = 60;
+    } else {
+      FPS = 120;
+    }
+  });
+
+  // Add listener to debug mode button
+  document.getElementById('debug-button').addEventListener('click', (e) => {
+    e.target.blur();
+    if (DEBUG_ON === false) {
+      DEBUG_ON = true;
+    } else {
+      DEBUG_ON = false;
     }
   });
 
@@ -107,7 +130,7 @@ const startGameLoop = function () {
   const paddle = createPaddle();
 
   //* AUTO MOVE DEBUG MODE *//
-  // paddle.autoMove = debugAutoMove;
+  paddle.autoMove = debugAutoMove;
   //* -------------------- *//
   
   // BALLS //
@@ -192,12 +215,15 @@ const startGameLoop = function () {
       brickPool.update();
 
       //DEBUG AUTO MOVE //
-      // if (ballPool.getAliveObjects()[0].attached === null) {
-      //   paddle.autoMove(ballPool.getAliveObjects()[0]);
-      // } else {
-      //   paddle.update();
-      // }
-      paddle.update(); // Normal paddle update
+      if (DEBUG_ON) {
+        if (ballPool.getAliveObjects()[0].attached === null) {
+          paddle.autoMove(ballPool.getAliveObjects()[0]);
+        } else {
+          paddle.update();
+        }
+      } else {
+        paddle.update(); // Normal paddle update
+      }
 
       const bricks = brickPool.getAliveObjects();
 
