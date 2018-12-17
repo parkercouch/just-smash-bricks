@@ -78,6 +78,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  document.getElementById('mute-button').addEventListener('click', (e) => {
+    e.target.blur();
+    if(ac.state === 'running') {
+      ac.suspend().then(function() {
+        e.target.textContent = 'Unmute';
+      });
+    } else if(ac.state === 'suspended') {
+      ac.resume().then(function() {
+        playMusic();
+        e.target.textContent = 'Mute';
+      });  
+    }
+    stopMusic();
+  });
+
   // Make highscore list in localStorage if none exists
   initializeHighScores();
 
@@ -1733,7 +1748,6 @@ function initializeHighScores() {
 function updateHighScores (score) {
   // Add current score, sort, then remove lowest (to keep only 3)
   const currentHighScores = kontra.store.get('highScores');
-  console.log(currentHighScores);
   currentHighScores.push(score);
   currentHighScores.sort((a, b) => b - a);
 
@@ -1763,7 +1777,6 @@ function displayHighScore (highScores) {
   highScores.forEach((score) => {
     const newScore = document.createElement('li');
     newScore.classList.add('highscore-item');
-    console.log(score);
     newScore.textContent = score;
     scoreList.appendChild(newScore);
   })
