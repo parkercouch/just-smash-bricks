@@ -25,8 +25,8 @@ const TOP_DISPLAY = document.getElementById('top-display');
 
 
 const PADDLE_COLOR = '#B993EA';
-const PARTICLE_COLOR = '#F6C5F7';
-const BALL_COLOR = '#ECFFE0';
+const PARTICLE_COLOR = '#ECFFE0';
+const BALL_COLOR = 'white';
 
 
 /* #endregion */
@@ -1435,11 +1435,15 @@ function advanceLevel(loop, bricks, currentLevel) {
       return;
   }
 
-  bricks.getAliveObjects().forEach((brick) => {
-    brick.onSpawn(500);
+  bricks.getAliveObjects().forEach((brick, i) => {
+    brick.onSpawn(500 / (1 + Math.floor(i / 6)));
   });
+
+  // bricks.getAliveObjects().forEach((brick) => {
+  //   brick.onSpawn(500);
+  // });
   updateLevelDisplay(level);
-  playDropSound(500);
+  playDropSound(300);
   return level;
 }
 

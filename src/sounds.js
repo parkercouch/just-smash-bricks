@@ -120,14 +120,11 @@ const drop = [
 
 // Wall bounce sound
 const bounce = [
-  // 'C#2  0.0125', 'C#1 0.0125',
   'C#2 0.0125', 'F#1 0.0125',
 ];
 
 // Paddle bonce sound
 const paddleBounceSFX = [
-  // 'C#3  0.0125', 'C#2 0.0125',
-  // 'C#3  0.0125', 'F#2 0.0125',
   'F#2 s', '- s',
 ];
 
