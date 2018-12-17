@@ -649,7 +649,7 @@ function movePaddle() {
     case (kontra.keys.pressed('left') || kontra.keys.pressed('a')):
       this.dx = -5;
       break;
-    case (kontra.keys.pressed('right') || kontra.keys.pressed('s')):
+    case (kontra.keys.pressed('right') || kontra.keys.pressed('d')):
       this.dx = 5;
       break;
     case (!this.moving):
