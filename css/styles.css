@@ -8,6 +8,7 @@ body {
   text-align: center;
   background-color: var(--bg-color, black);
   color: var(--text-color, white);
+  font-family: 'Roboto', sans-serif;
 }
 
 #game {
@@ -41,6 +42,7 @@ body {
   height: 200px;
   margin: 0;
   padding: 0 20px;
+  white-space: pre-line;
 }
 
 #hud {

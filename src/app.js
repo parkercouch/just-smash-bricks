@@ -4,6 +4,7 @@
 // ------------------------GLOBALS------------------------ //
 // ------------------------------------------------------- //
 /* #region */
+const DEFAULT_FPS = 120;
 let FPS = 120;
 const BRICK_HEIGHT = 15;
 const BRICK_WIDTH = 50;
@@ -252,7 +253,10 @@ const startGameLoop = function () {
         if (LIVES <= 0) {
           this.stop();
           stopMusic();
-          updateHighScores(SCORE);
+          // Don't record high scores in debug mode
+          if (!DEBUG_ON) {
+            updateHighScores(SCORE);
+          }
           removeTouchEventListeners(moveLeftFunc, moveRightFunc, stopPaddleFunc);
           gameStates.lose();
         } else {
@@ -299,8 +303,8 @@ const gameStates = new StateMachine({
   init: 'pageLoad',
   transitions: [
     { name: 'startLoading',   from: 'pageLoad',  to: 'loading' },
-    { name: 'finishLoading',  from: 'loading',   to: 'menu' },
-    { name: 'start',          from: 'menu',      to: 'game' },
+    { name: 'finishLoading',  from: '*',         to: 'menu' },
+    { name: 'start',          from: '*',      to: 'game' },
     { name: 'quit',           from: '*',         to: 'menu'    },
     { name: 'win',            from: '*',         to: 'winner'    },
     { name: 'lose',           from: '*',         to: 'loser'    },
@@ -320,16 +324,24 @@ const gameStates = new StateMachine({
 function loadAssets() {
   addMessage('Loading...', 'loading');
 
-  // Skipping assets for now
-  kontra.assets.load(...imgAssets, ...sfxAssets)
-    .then(() => {
-      clearMessages();
-      gameStates.finishLoading();
-    }).catch((err) => {
-      // error loading an asset
-      // Not addressed yet...
-      console.log(err);
+  const introIntervals = startIntroScene();
+
+  const nextStep = function () {
+    document.removeEventListener('click', nextStep);
+    document.removeEventListener('keypress', nextStep);
+    clearMessages();
+    clearHUD();
+    introIntervals.forEach((id) => {
+      clearTimeout(id);
     });
+    // Resume AudioContext and start playing music after interaction
+    ac.resume().then(() => { playMusic(); });
+    setTimeout(() => { gameStates.start(); }, 500);
+  };
+  
+  // Make click/keypress skip intro
+  document.addEventListener('click', nextStep);
+  document.addEventListener('keypress', nextStep);
 };
 
 // Basic press any key to start 'menu'
@@ -360,17 +372,18 @@ function waitForButton (e) {
   setTimeout(() => { gameStates.start(); }, 500);
 }
 
+
 // Show win message
 // Skips straight to menu
 function winMessage() {
-  addMessage('You amount to something.', 'win');
+  addMessage(`We didn't think this would happen... \r\n Score: ${SCORE}`, 'win');
   setTimeout(() => {gameStates.restart();}, 3000);
 }
 
 // Show lose message
 // Skips straight to menu
 function loseMessage() {
-  addMessage('You are a loser.', 'lose');
+  addMessage(`You fail. \r\n Score: ${SCORE}`, 'lose');
   setTimeout(() => {gameStates.restart();}, 3000);
 }
 
@@ -397,7 +410,7 @@ function gameEnd() {
 
 
 // Keeps canvas size 1x1 pixels so it draws correctly
-// resizeCanvasToDisplaySize :: Element -> ()
+// resizeCanvasToDisplaySize :: Element -> Bool
 function resizeCanvasToDisplaySize(canvas) {
   // Look up the size the canvas is being displayed
   canvas.clientWidth = CANVAS_WIDTH;
@@ -435,7 +448,7 @@ function addMessage (message, type) {
 }
 
 // Add title to HUD
-// addMessage :: String -> String -> ()
+// addTitle :: String -> String -> ()
 function addTitle (message, type) {
   const newMessage = document.createElement('h1');
   newMessage.textContent = message;
@@ -489,20 +502,6 @@ function showTopDisplay (currentLevel) {
   TOP_DISPLAY.appendChild(levelTitle);
 }
 
-// // Show current level
-// // showLevel :: Int -> ()
-// function showLevel (currentLevel) {
-//   const levelTitle = document.createElement('h5');
-//   levelTitle.textContent = 'Level';
-//   levelTitle.classList.add('level-title');
-
-//   const level = document.createElement('span');
-//   level.textContent = currentLevel;
-//   level.classList.add('level');
-//   levelTitle.appendChild(level);
-
-//   TOP_DISPLAY.appendChild(levelTitle);
-// }
 
 // Clear bottom display 
 // hideTopDisplay :: () -> ()
@@ -812,8 +811,14 @@ function movingBall(dt, collidableObjects) {
         collidableObjects.filter(n => n.type === 'brick')
           .forEach(brick => { brick.onHit(this); });
 
-        // ** ROOM FOR IMPROVEMENT **
-        SCORE += this.combo * 50;
+        // No points in debug mode
+        if (!DEBUG_ON) {
+          if (FPS === DEFAULT_FPS) {
+            SCORE += this.combo * 50 * 5;
+          } else {
+            SCORE += this.combo * 50;
+          }
+        } 
         updateScore();
 
         // If the brick has no hits left then destroy it
@@ -1391,6 +1396,8 @@ function dropDown (delay) {
 function advanceLevel(loop, bricks, currentLevel) {
   // Move to next level
   const level = currentLevel + 1;
+  // score boost for every level
+  SCORE += level * 1000;
 
   switch (level) {
 
@@ -1427,9 +1434,11 @@ function advanceLevel(loop, bricks, currentLevel) {
     // WIN!
     default:
       // Add win music here
+      // Big score boost for win
+      SCORE += 10000;
       loop.stop();
       gameStates.win();
-      break;
+      return;
   }
 
   bricks.getAliveObjects().forEach((brick) => {
@@ -1820,7 +1829,96 @@ function updateMiddleTouchButton (newFunction) {
     newFunction();
   });
 }
-// pointerdown
-// pointerup
+
+
+// Intro 'scene'
+// startIntroScene :: () -> [timeout id's]
+function startIntroScene () {
+  const ids = [];
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`WAKE UP!`);
+    }, 2000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`What? Where am I?`);
+    }, 5000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`No questions. \r\n Just Smash Bricks!`);
+    }, 8000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`Just...What?`);
+    }, 11000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`No questions. \r\n Just Smash Bricks!`);
+    }, 14000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`...why? \r\n Who are you?`);
+    }, 17000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`No questions. \r\n Just Smash Bricks!`);
+    }, 20000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`Ok...fine. \r\n I'll smash the bricks.`);
+    }, 23000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`I'm glad you understand. \r\n Smash all 5 levels \r\n and we might let you live.`);
+    }, 26000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addMessage(`...I guess I don't have much of a choice.`);
+    }, 31000)
+  );
+
+  ids.push(
+    setTimeout(() => {
+      clearMessages();
+      addTitle('JUST SMASH BRICKS!', 'title');
+      addMessage(`Click, tap, press, or whatever to continue`, 'pause');
+    }, 34000)
+  );
+
+
+
+
+
+  return ids;
+}
 
 /* #endregion */
