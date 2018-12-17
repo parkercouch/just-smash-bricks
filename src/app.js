@@ -20,7 +20,7 @@ let DEBUG_ON = false;
 
 const GAME_CONTAINER = document.getElementById('game-container');
 const MESSAGE = document.getElementById('message');
-const HUD = document.getElementById('hud');
+const TITLE = document.getElementById('title');
 const TOP_DISPLAY = document.getElementById('top-display');
 
 
@@ -94,26 +94,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // ------------------------------------------------------- //
-// ------------------------ASSETS------------------------- //
-// ------------------------------------------------------- //
-/* #region */
-
-
-// Set kontra assets paths and assets to load at start
-kontra.assets.imagePath = './assets/img';
-kontra.assets.audioPath = './assets/sfx';
-const imgAssets = [
-  'ball.png',
-  'brick.png',
-  'paddle.png',
-];
-const sfxAssets = [
-  'hit.ogg',
-];
-
-/* #endregion */
-
-// ------------------------------------------------------- //
 // ---------------------KONTRA LOOP----------------------- //
 // ------------------------------------------------------- //
 /* #region */
@@ -147,16 +127,14 @@ const startGameLoop = function () {
   const rightButton = createRightButton(paddle);
   const middleButton = createMiddleButton(ballPool);
 
+  // Functions to add and remove from fullscreen button event listeners
   const moveLeftFunc = movePaddleLeft(paddle);
   const moveRightFunc = movePaddleRight(paddle);
   const stopPaddleFunc = stopPaddle(paddle);
-  // Needs to be updated with when new balls are created
-  let shootBallFunc = launchBall(ballPool.getAliveObjects()[0]);
-
-  addTouchEventListeners(moveLeftFunc, moveRightFunc, shootBallFunc, stopPaddleFunc);
+  const shootBallFunc = launchBall(ballPool.getAliveObjects()[0]);
 
   // Fullscreen buttons
-  // document.querySelector('.left').addEventListener('pointerdown', movePaddleLeft(paddle))
+  addTouchEventListeners(moveLeftFunc, moveRightFunc, shootBallFunc, stopPaddleFunc);
 
   // Track pointer on buttons
   kontra.pointer.track(leftButton);
@@ -253,12 +231,9 @@ const startGameLoop = function () {
         if (LIVES <= 0) {
           this.stop();
           stopMusic();
-          // Don't record high scores in debug mode
-          if (!DEBUG_ON) {
-            updateHighScores(SCORE);
-          }
           removeTouchEventListeners(moveLeftFunc, moveRightFunc, stopPaddleFunc);
           gameStates.lose();
+          return;
         } else {
           updateLives();
           newBall(ballPool, paddle);
@@ -304,7 +279,7 @@ const gameStates = new StateMachine({
   transitions: [
     { name: 'startLoading',   from: 'pageLoad',  to: 'loading' },
     { name: 'finishLoading',  from: '*',         to: 'menu' },
-    { name: 'start',          from: '*',      to: 'game' },
+    { name: 'start',          from: '*',         to: 'game' },
     { name: 'quit',           from: '*',         to: 'menu'    },
     { name: 'win',            from: '*',         to: 'winner'    },
     { name: 'lose',           from: '*',         to: 'loser'    },
@@ -330,7 +305,7 @@ function loadAssets() {
     document.removeEventListener('click', nextStep);
     document.removeEventListener('keypress', nextStep);
     clearMessages();
-    clearHUD();
+    clearTitle();
     introIntervals.forEach((id) => {
       clearTimeout(id);
     });
@@ -367,7 +342,7 @@ function waitForButton (e) {
   // Resume AudioContext and start playing music after interaction
   ac.resume().then(() => { playMusic(); });
   clearMessages();
-  clearHUD();
+  clearTitle();
   // Delay start so pressing space doesn't launch ball immediately
   setTimeout(() => { gameStates.start(); }, 500);
 }
@@ -385,6 +360,10 @@ function winMessage() {
 function loseMessage() {
   addMessage(`You fail. \r\n Score: ${SCORE}`, 'lose');
   setTimeout(() => {gameStates.restart();}, 3000);
+  // Don't record high scores in debug mode
+  if (!DEBUG_ON) {
+    updateHighScores(SCORE);
+  }
 }
 
 // Enter Game
@@ -447,20 +426,20 @@ function addMessage (message, type) {
   MESSAGE.appendChild(newMessage);
 }
 
-// Add title to HUD
+// Add title to TITLE
 // addTitle :: String -> String -> ()
 function addTitle (message, type) {
   const newMessage = document.createElement('h1');
   newMessage.textContent = message;
   newMessage.classList.add(type);
-  HUD.appendChild(newMessage);
+  TITLE.appendChild(newMessage);
 }
 
-// Clear all elements from HUD
+// Clear all elements from TITLE
 // clearMessage :: () -> ()
-function clearHUD () {
-  while (HUD.firstChild) {
-    HUD.removeChild(HUD.firstChild);
+function clearTitle () {
+  while (TITLE.firstChild) {
+    TITLE.removeChild(TITLE.firstChild);
   }
 }
 
@@ -1754,12 +1733,12 @@ function initializeHighScores() {
 function updateHighScores (score) {
   // Add current score, sort, then remove lowest (to keep only 3)
   const currentHighScores = kontra.store.get('highScores');
-  // console.log(currentHighScores);
+  console.log(currentHighScores);
   currentHighScores.push(score);
   currentHighScores.sort((a, b) => b - a);
 
-  // If more than 3 then remove lowest one
-  if (currentHighScores.length >= 3) {
+  // If more than 5 then remove lowest one
+  if (currentHighScores.length > 5) {
     currentHighScores.pop();
   }
 
@@ -1780,7 +1759,7 @@ function displayHighScore (highScores) {
   while(scoreList.firstChild) {
     scoreList.removeChild(scoreList.firstChild);
   }
-  // Add the top three
+  // Add the scores
   highScores.forEach((score) => {
     const newScore = document.createElement('li');
     newScore.classList.add('highscore-item');
@@ -1791,6 +1770,8 @@ function displayHighScore (highScores) {
 
 }
 
+// Show fullscreen touch buttons when changed to fullscreen
+// showTouchButtons () -> ()
 function showTouchButtons () {
   const controls = document.querySelector('#controls');
   controls.classList.remove('hide-controls');
@@ -1800,11 +1781,15 @@ function showTouchButtons () {
   }
 }
 
+// Hide fullscreen touch buttons when leaving fullscreen
+// hideTouchButtons () -> ()
 function hideTouchButtons () {
   document.querySelector('#controls').classList.add('hide-controls');
   document.querySelector('#controls').classList.remove('show-controls');
 }
 
+// Add needed listeners to fullscreen touch buttons
+// addTouchEventListeners :: Function -> Function -> Function -> Function -> ()
 function addTouchEventListeners (left, right, middle, stop) {
   document.querySelector('.left').addEventListener('pointerdown', left);
   document.querySelector('.left').addEventListener('pointerup', stop);
@@ -1816,6 +1801,8 @@ function addTouchEventListeners (left, right, middle, stop) {
   });
 }
 
+// Remove listeners to fullscreen touch buttons
+// removeTouchEventListeners :: Function -> Function -> Function -> ()
 function removeTouchEventListeners (left, right, stop) {
   document.querySelector('.left').removeEventListener('pointerdown', left);
   document.querySelector('.left').removeEventListener('pointerup', stop);
@@ -1823,6 +1810,8 @@ function removeTouchEventListeners (left, right, stop) {
   document.querySelector('.right').removeEventListener('pointerup', stop);
 }
 
+// Update which ball is launched when a new ball is created
+// updateMiddleTouchButton :: Function -> ()
 function updateMiddleTouchButton (newFunction) {
   document.querySelector('.middle').addEventListener('pointerdown', function handle(e) {
     e.target.removeEventListener('pointerdown', handle);

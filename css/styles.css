@@ -45,7 +45,7 @@ body {
   white-space: pre-line;
 }
 
-#hud {
+#title {
   position: absolute;
   display: flex;
   flex-flow: row;
@@ -84,7 +84,7 @@ body {
   max-width: 404px;
 }
 
-#fs-button, #speed-button, #debug-button {
+#fs-button, #speed-button, #debug-button, #mute-button {
   border: 2px solid var(--text-color, white);
   color: var(--text-color, white);
   background-color: var(--bg-color, black);
