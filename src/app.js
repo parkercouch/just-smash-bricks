@@ -237,6 +237,7 @@ const startGameLoop = function () {
         currentLevel = advanceLevel(this, brickPool, currentLevel);
         // Add a life every level
         LIVES += 1;
+        updateLives();
       }
 
       // Check if any balls are left
