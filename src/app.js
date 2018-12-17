@@ -315,8 +315,8 @@ function displayMenu() {
    hideTopDisplay();
    clearMessages();
   // Display Menu
-  addTitle('BRICK SMASHING GAME!', 'title');
-  addMessage('Touch or press a key to start', 'menu');
+  addTitle('JUST SMASH BRICKS!', 'title');
+  addMessage('Click, tap, press, or whatever to start smashing.', 'menu');
   document.addEventListener('click', waitForButton);
   document.addEventListener('keypress', waitForButton);
 };
@@ -698,7 +698,7 @@ function movingBall(dt, collidableObjects) {
     this.y = this.attached.y - this.radius + 3 - this.attached.height / 2;
 
     // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
-    if (kontra.keys.pressed('z')) {
+    if (kontra.keys.pressed('w') || kontra.keys.pressed('up')) {
       if (Math.floor((Math.random() * 100)) % 2 === 0) {
         this.dx = -5;
       } else {

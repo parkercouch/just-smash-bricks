@@ -74,16 +74,25 @@ body {
 }
 
 #info-container {
-  margin-top: 20px;
+  margin: 20px auto;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  max-width: 404px;
 }
 
-#fs-button {
+#fs-button, #speed-button, #debug-button {
   border: 2px solid var(--text-color, white);
   color: var(--text-color, white);
   background-color: var(--bg-color, black);
-  margin: 20px auto;
+  margin: 5px auto;
 }
 
+.column {
+  display: flex;
+  flex-flow: column wrap;
+}
 
 /* Will condense these once formatting is complete */
 .container {
@@ -186,4 +195,40 @@ body {
 
 .show-controls {
   display: flex;
+}
+
+
+#highscores {
+  margin-left: 10px;
+  text-align: center;
+}
+
+#highscore-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.highscore-item {
+  margin: 0;
+}
+
+.info {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.row {
+  display:flex;
+  flex-flow: row wrap;
+}
+
+.block-header{
+  display: block;
+  width: 100%;
+  margin: 5px 0 0 0;
+}
+
+.info p {
+  text-align: center;
+  width: 100%;
 }
