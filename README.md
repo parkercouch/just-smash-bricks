@@ -1,4 +1,6 @@
 # Just Smash Bricks!
+## School Branch
+This was originally a 1 week project at GA. This branch is where the game was at when turned in.
 
 ### What is this?
 This is a breakout/arkanoid type game. I originally had one week to make the game 
