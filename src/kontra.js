@@ -3,7 +3,7 @@
  * Kontra.js v5.0.4 (Custom Build on 2018-12-09) | MIT
  * Build: https://straker.github.io/kontra/download?files=gameLoop+keyboard+sprite+assets+pool+pointer+quadtree+spriteSheet+tileEngine+store
  */
-kontra = {
+export const kontra = {
 
   /**
    * Initialize the canvas.
@@ -178,7 +178,7 @@ kontra = {
     keyMap[65+i] = (10 + i).toString(36);
   }
   // numeric keys
-  for (i = 0; i < 10; i++) {
+  for (let i = 0; i < 10; i++) {
     keyMap[48+i] = ''+i;
   }
 

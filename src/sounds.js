@@ -1,9 +1,10 @@
 /* eslint-disable */
+import TinyMusic from "tinymusic";
 
 /* TINY MUSIC ENABLED SOUNDS! */
 
 // create the audio context and set the start time and tempo
-const ac = typeof AudioContext !== 'undefined' ? new AudioContext : new webkitAudioContext;
+export const ac = typeof AudioContext !== 'undefined' ? new AudioContext : new webkitAudioContext;
 let SONG_START = ac.currentTime;
 const tempo = 60;
 
@@ -57,11 +58,11 @@ const s5 = [
 ];
 
 // Create new sequences for each level
-const level1 = new TinyMusic.Sequence( ac, tempo, s1 );
-const level2 = new TinyMusic.Sequence( ac, tempo, s2 );
-const level3 = new TinyMusic.Sequence( ac, tempo, s3 );
-const level4 = new TinyMusic.Sequence( ac, tempo, s4 );
-const level5 = new TinyMusic.Sequence( ac, tempo, s5 );
+export const level1 = new TinyMusic.Sequence( ac, tempo, s1 );
+export const level2 = new TinyMusic.Sequence( ac, tempo, s2 );
+export const level3 = new TinyMusic.Sequence( ac, tempo, s3 );
+export const level4 = new TinyMusic.Sequence( ac, tempo, s4 );
+export const level5 = new TinyMusic.Sequence( ac, tempo, s5 );
 // const level6 = new TinyMusic.Sequence( ac, tempo, s6 );
 
 // Level 1
@@ -166,19 +167,19 @@ dropDownSound.treble.frequency.value = 1400;
 dropDownSound.loop = false;
 
 // play
-function playMusic() {
+export function playMusic() {
   // Set Global for other sequences to sync to
   SONG_START = ac.currentTime;
   level1.play( SONG_START );
 }
 
-function startNextSong(sequence) {
+export function startNextSong(sequence) {
   sequence.play( SONG_START );
 }
 
 
 // pause
-function stopMusic() {
+export function stopMusic() {
   level1.stop();
   level2.stop();
   level3.stop();
@@ -186,18 +187,18 @@ function stopMusic() {
   level5.stop();
 }
 
-function playBounceSound() {
+export function playBounceSound() {
   bounceSound.play( ac.currentTime );
 }
 
-function playPaddleSound() {
+export function playPaddleSound() {
   paddleBounceSound.play( ac.currentTime );
 }
 
-function playChirpSound() {
+export function playChirpSound() {
   chirpSound.play( ac.currentTime );
 }
 
-function playDropSound(delay) {
+export function playDropSound(delay) {
   dropDownSound.play( ac.currentTime + delay / 1000 );
 }
