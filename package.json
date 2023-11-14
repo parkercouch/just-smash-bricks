@@ -1,29 +1,35 @@
 {
-  "name": "brick-smashing-game",
+  "name": "just-smash-bricks",
   "version": "1.0.0-alpha",
   "description": "Breakout/Arkanoid type game",
   "main": "app.js",
   "devDependencies": {
-    "jest": "^23.6.0",
-    "browser-sync": "^2.26.3"
+    "vite": "^4.5.0"
   },
   "scripts": {
-    "test": "jest",
-    "testWithCoverage": "jest --coverage",
-    "start": "browser-sync start --server . --files ."
+    "test": "vite test",
+    "build": "vite build --base=./",
+    "start": "vite preview",
+    "dev": "vite build --base=./ --watch & vite preview"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/parkercouch/brick-smashing-game.git"
+    "url": "git+https://github.com/parkercouch/just-smash-bricks.git"
   },
   "keywords": [
     "arcade",
     "game"
   ],
-  "author": "Parker Couch",
+  "author": "parker couch",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/parkercouch/brick-smashing-game/issues"
+    "url": "https://github.com/parkercouch/just-smash-bricks/issues"
   },
-  "homepage": "https://github.com/parkercouch/brick-smashing-game#readme"
+  "homepage": "https://github.com/parkercouch/just-smash-bricks#readme",
+  "dependencies": {
+    "@tweenjs/tween.js": "^21.0.0",
+    "javascript-state-machine": "^3.1.0",
+    "screenfull": "^6.0.2",
+    "tinymusic": "^1.0.0"
+  }
 }
