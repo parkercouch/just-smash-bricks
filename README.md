@@ -12,8 +12,11 @@ but I made all the music and graphics in javascript instead of loading in
 assets. There are many things I wanted to add that I didn't have time for, but I
 am happy with how it turned out.
 
+### To Run Locally
+`pnpm i` - install packages\
+`pnpm dev` - start build watcher and dev server
+
 ### TODO:
-* Add a build script to minify/bundle everything
 * Improve browser compatibility
 * Create more levels
 * Add more types of bricks
