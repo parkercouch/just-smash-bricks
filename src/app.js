@@ -1,5 +1,11 @@
 /* eslint-disable */
 
+import { kontra } from "./kontra.js";
+import * as TWEEN from "@tweenjs/tween.js";
+import StateMachine from "javascript-state-machine";
+import screenfull from "screenfull";
+import {ac, playMusic, startNextSong, stopMusic, playBounceSound, playChirpSound, playDropSound, playPaddleSound, level2, level3, level4, level5 } from "./sounds.js";
+
 // ------------------------------------------------------- //
 // ------------------------GLOBALS------------------------ //
 // ------------------------------------------------------- //
@@ -41,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Add listener to fullscreen button and change/state
   document.getElementById('fs-button').addEventListener('click', (e) => {
     e.target.blur();
-    if (screenfull.enabled) { screenfull.toggle(); }
+    if (screenfull.isEnabled) { screenfull.toggle(); }
   });
   screenfull.onchange(() => {
     if (screenfull.isFullscreen) {
@@ -408,8 +414,8 @@ function gameEnd() {
 // resizeCanvasToDisplaySize :: Element -> Bool
 function resizeCanvasToDisplaySize(canvas) {
   // Look up the size the canvas is being displayed
-  canvas.clientWidth = CANVAS_WIDTH;
-  canvas.clientHeight = CANVAS_HEIGHT;
+  // canvas.clientWidth = CANVAS_WIDTH;
+  // canvas.clientHeight = CANVAS_HEIGHT;
 
   // If it's resolution does not match change it
   if (canvas.width !== CANVAS_WIDTH || canvas.height !== CANVAS_HEIGHT) {
@@ -527,14 +533,14 @@ function updateLives () {
 // Line intercept
 // intercept :: (Num, Num), (Num, Num), (Num, Num), (Num, Num), String -> {Num, Num, String}
 function intercept (x1, y1, x2, y2, x3, y3, x4, y4, d) {
-  var denom = ((y4-y3) * (x2-x1)) - ((x4-x3) * (y2-y1));
+  const denom = ((y4-y3) * (x2-x1)) - ((x4-x3) * (y2-y1));
   if (denom != 0) {
-    var ua = (((x4-x3) * (y1-y3)) - ((y4-y3) * (x1-x3))) / denom;
+    const ua = (((x4-x3) * (y1-y3)) - ((y4-y3) * (x1-x3))) / denom;
     if ((ua >= 0) && (ua <= 1)) {
-      var ub = (((x2-x1) * (y1-y3)) - ((y2-y1) * (x1-x3))) / denom;
+      const ub = (((x2-x1) * (y1-y3)) - ((y2-y1) * (x1-x3))) / denom;
       if ((ub >= 0) && (ub <= 1)) {
-        var x = x1 + (ua * (x2-x1));
-        var y = y1 + (ua * (y2-y1));
+        const x = x1 + (ua * (x2-x1));
+        const y = y1 + (ua * (y2-y1));
         return { x: x, y: y, d: d};
       }
     }
