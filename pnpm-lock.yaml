@@ -19,6 +19,9 @@ dependencies:
     version: 1.0.0
 
 devDependencies:
+  typescript:
+    specifier: ^5.2.2
+    version: 5.2.2
   vite:
     specifier: ^4.5.0
     version: 4.5.0
@@ -309,6 +312,12 @@ packages:
   /tinymusic@1.0.0:
     resolution: {integrity: sha512-l/BQzQ3Fmuuovt98XSZCU2/rWE91ECnXNee2dTFMPcp/cqSTc3rxmWiqpLmCk1gmA5BprdzHD9a7CsFFKbX3yw==}
     dev: false
+
+  /typescript@5.2.2:
+    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+    dev: true
 
   /vite@4.5.0:
     resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
