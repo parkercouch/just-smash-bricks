@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "allowJs": true,
+    "checkJs": false,
+    "rootDir": "./",
+    "noEmit": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "types": [ "vite/client" ],
+    /* TODO: remove after/while refactoring */
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+  },
+  "exclude": ["node_modules", "dist", "assets", "css"],
+  "include": [
+    "./src",
+    "./test",
+  ]
+}
