@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import { kontra } from "./kontra.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import StateMachine from "javascript-state-machine";
@@ -19,9 +17,9 @@ const PADDLE_HEIGHT = 15;
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 600;
 
-let LIVES;
-let SCORE;
-let GAMELOOP;
+let LIVES: number;
+let SCORE: number;
+let GAMELOOP: GameLoop;
 let DEBUG_ON = false;
 
 const GAME_CONTAINER = document.getElementById('game-container');
@@ -45,28 +43,28 @@ const BALL_COLOR = 'white';
 document.addEventListener('DOMContentLoaded', function () {
 
   // Add listener to fullscreen button and change/state
-  document.getElementById('fs-button').addEventListener('click', (e) => {
-    e.target.blur();
+  document.getElementById('fs-button')?.addEventListener('click', (e) => {
+    (e.target as HTMLElement).blur();
     if (screenfull.isEnabled) { screenfull.toggle(); }
   });
   screenfull.onchange(() => {
     if (screenfull.isFullscreen) {
-      document.getElementById('fs-button').innerText = 'Exit';
+      document.getElementById('fs-button')?.setAttribute('innerText', 'Exit');
       // Show touch buttons
-      document.querySelector('.container').classList.add('no-padding');
+      document.querySelector('.container')?.classList.add('no-padding');
       showTouchButtons();
 
     } else {
-      document.getElementById('fs-button').innerText = 'Fullscreen';
+      document.getElementById('fs-button')?.setAttribute('innerText', 'Fullscreen');
       // Hide touch buttons
-      document.querySelector('.container').classList.remove('no-padding');
+      document.querySelector('.container')?.classList.remove('no-padding');
       hideTouchButtons();
     }
   });
 
   // Add listener to change speed button
-  document.getElementById('speed-button').addEventListener('click', (e) => {
-    e.target.blur();
+  document.getElementById('speed-button')?.addEventListener('click', (e) => {
+    (e.target as HTMLElement).blur();
     if (FPS === 120) {
       FPS = 60;
     } else {
@@ -75,8 +73,8 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Add listener to debug mode button
-  document.getElementById('debug-button').addEventListener('click', (e) => {
-    e.target.blur();
+  document.getElementById('debug-button')?.addEventListener('click', (e) => {
+    (e.target as HTMLElement).blur();
     if (DEBUG_ON === false) {
       DEBUG_ON = true;
     } else {
@@ -84,16 +82,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  document.getElementById('mute-button').addEventListener('click', (e) => {
-    e.target.blur();
+  document.getElementById('mute-button')?.addEventListener('click', (e) => {
+    (e.target as HTMLElement).blur();
     if(ac.state === 'running') {
       ac.suspend().then(function() {
-        e.target.textContent = 'Unmute';
+        (e.target as HTMLElement).textContent = 'Unmute';
       });
     } else if(ac.state === 'suspended') {
       ac.resume().then(function() {
         playMusic();
-        e.target.textContent = 'Mute';
+        (e.target as HTMLElement).textContent = 'Mute';
       });  
     }
     stopMusic();
@@ -102,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Make highscore list in localStorage if none exists
   initializeHighScores();
 
-  const canvasElement = document.getElementById('game');
+  const canvasElement = document.getElementById('game')! as HTMLCanvasElement;
   // Make sure the canvas is the right size/resolution
   resizeCanvasToDisplaySize(canvasElement);
   // Attach canvas to Kontra
@@ -195,7 +193,7 @@ const startGameLoop = function () {
 
   // Drop in first level
   playDropSound(100);
-  brickPool.getAliveObjects().forEach((brick, i) => {
+  brickPool.getAliveObjects().forEach((brick: Sprite, i: number) => {
     brick.onSpawn(100 / (1 + Math.floor(i / 6)));
   });
 
@@ -206,7 +204,7 @@ const startGameLoop = function () {
     fps: FPS,
 
     // UPDATE GAME STATE //
-    update: function (dt) {
+    update: function (dt: number) {
 
       // Sync tween animations
       TWEEN.update();
@@ -324,7 +322,7 @@ function loadAssets() {
   const introIntervals = startIntroScene();
 
   const nextStep = function () {
-    GAME_CONTAINER.removeEventListener('click', nextStep);
+    GAME_CONTAINER?.removeEventListener('click', nextStep);
     document.removeEventListener('keypress', nextStep);
     clearMessages();
     clearTitle();
@@ -337,7 +335,7 @@ function loadAssets() {
   };
   
   // Make click/keypress skip intro
-  GAME_CONTAINER.addEventListener('click', nextStep);
+  GAME_CONTAINER?.addEventListener('click', nextStep);
   document.addEventListener('keypress', nextStep);
 };
 
@@ -352,14 +350,14 @@ function displayMenu() {
   // Display Menu
   addTitle('JUST SMASH BRICKS!', 'title');
   addMessage('Click, tap, press, or whatever to start smashing.', 'menu');
-  GAME_CONTAINER.addEventListener('click', waitForButton);
+  GAME_CONTAINER?.addEventListener('click', waitForButton);
   document.addEventListener('keypress', waitForButton);
 };
 
 // Start click event listener
 // waitForButton :: Event -> ()
-function waitForButton (e) {
-  GAME_CONTAINER.removeEventListener('click', waitForButton);
+function waitForButton (_e: any) {
+  GAME_CONTAINER?.removeEventListener('click', waitForButton);
   document.removeEventListener('keypress', waitForButton);
   // Resume AudioContext and start playing music after interaction
   ac.resume().then(() => { playMusic(); });
@@ -412,7 +410,7 @@ function gameEnd() {
 
 // Keeps canvas size 1x1 pixels so it draws correctly
 // resizeCanvasToDisplaySize :: Element -> Bool
-function resizeCanvasToDisplaySize(canvas) {
+function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
   // Look up the size the canvas is being displayed
   // canvas.clientWidth = CANVAS_WIDTH;
   // canvas.clientHeight = CANVAS_HEIGHT;
@@ -430,44 +428,44 @@ function resizeCanvasToDisplaySize(canvas) {
 // Clear Messages from MESSAGES
 // clearMessage :: () -> ()
 function clearMessages () {
-  MESSAGE.classList.remove('showMessage');
-  MESSAGE.classList.add('hideMessage');
-  while (MESSAGE.firstChild) {
+  MESSAGE?.classList.remove('showMessage');
+  MESSAGE?.classList.add('hideMessage');
+  while (MESSAGE?.firstChild) {
     MESSAGE.removeChild(MESSAGE.firstChild);
   }
 }
 
 // Add Message to MESSAGES
 // addMessage :: String -> String -> ()
-function addMessage (message, type) {
-  MESSAGE.classList.remove('hideMessage');
-  MESSAGE.classList.add('showMessage');
+function addMessage (message: string, type: string) {
+  MESSAGE?.classList.remove('hideMessage');
+  MESSAGE?.classList.add('showMessage');
   const newMessage = document.createElement('h2');
   newMessage.textContent = message;
   newMessage.classList.add(type);
-  MESSAGE.appendChild(newMessage);
+  MESSAGE?.appendChild(newMessage);
 }
 
 // Add title to TITLE
 // addTitle :: String -> String -> ()
-function addTitle (message, type) {
+function addTitle (message: string, type: string) {
   const newMessage = document.createElement('h1');
   newMessage.textContent = message;
   newMessage.classList.add(type);
-  TITLE.appendChild(newMessage);
+  TITLE?.appendChild(newMessage);
 }
 
 // Clear all elements from TITLE
 // clearMessage :: () -> ()
 function clearTitle () {
-  while (TITLE.firstChild) {
+  while (TITLE?.firstChild) {
     TITLE.removeChild(TITLE.firstChild);
   }
 }
 
 // Display Lives/Score
 // addMessage :: () -> ()
-function showTopDisplay (currentLevel) {
+function showTopDisplay (currentLevel: number) {
   const livesTitle = document.createElement('h5');
   livesTitle.textContent = 'Lives left: ';
   livesTitle.classList.add('lives-title');
@@ -482,57 +480,57 @@ function showTopDisplay (currentLevel) {
 
 
   const lives = document.createElement('span');
-  lives.textContent = LIVES - 1;
+  lives.textContent = `${LIVES - 1}`;
   lives.classList.add('lives');
   livesTitle.appendChild(lives);
   
   const score = document.createElement('span');
-  score.textContent = SCORE;
+  score.textContent = SCORE.toString();
   score.classList.add('score');
   scoreTitle.appendChild(score);
 
   const level = document.createElement('span');
-  level.textContent = currentLevel;
+  level.textContent = `${currentLevel}`;
   level.classList.add('level');
   levelTitle.appendChild(level);
 
 
 
-  TOP_DISPLAY.appendChild(livesTitle);
-  TOP_DISPLAY.appendChild(scoreTitle);
-  TOP_DISPLAY.appendChild(levelTitle);
+  TOP_DISPLAY?.appendChild(livesTitle);
+  TOP_DISPLAY?.appendChild(scoreTitle);
+  TOP_DISPLAY?.appendChild(levelTitle);
 }
 
 
 // Clear bottom display 
 // hideTopDisplay :: () -> ()
 function hideTopDisplay () {
-  while (TOP_DISPLAY.firstChild) {
+  while (TOP_DISPLAY?.firstChild) {
     TOP_DISPLAY.removeChild(TOP_DISPLAY.firstChild);
   }
 }
 
 // Update level
 // updateLevelDisplay :: Int -> ()
-function updateLevelDisplay (currentLevel) {
-  document.querySelector('.level').textContent = currentLevel;
+function updateLevelDisplay (currentLevel: number) {
+  document.querySelector('.level')?.setAttribute('textContent', currentLevel.toString());
 }
 
 // Update score
 // updateScore :: () -> ()
 function updateScore () {
-  document.querySelector('.score').textContent = SCORE;
+  document.querySelector('.score')?.setAttribute('textContent', SCORE.toString());
 }
 
 // Update lives 
 // updateLives :: () -> ()
 function updateLives () {
-  document.querySelector('.lives').textContent = LIVES - 1;
+  document.querySelector('.lives')?.setAttribute('textContent', `${LIVES - 1}`);
 }
 
 // Line intercept
 // intercept :: (Num, Num), (Num, Num), (Num, Num), (Num, Num), String -> {Num, Num, String}
-function intercept (x1, y1, x2, y2, x3, y3, x4, y4, d) {
+function intercept (x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, d: string) {
   const denom = ((y4-y3) * (x2-x1)) - ((x4-x3) * (y2-y1));
   if (denom != 0) {
     const ua = (((x4-x3) * (y1-y3)) - ((y4-y3) * (x1-x3))) / denom;
@@ -550,10 +548,10 @@ function intercept (x1, y1, x2, y2, x3, y3, x4, y4, d) {
 
 // USED TO OVERRIDE collidesWith function for ball sprites
 // ballIntercept {top, bottom, left, right} -> {nx, ny} -> {x,y,d}
-function ballIntercept (rect, futurePosition) {
+function ballIntercept (rect: { right: number; top: number; bottom: number; left: number; }, futurePosition: { nx: number; ny: number; }): { x: number, y: number, d: string } | null {
   const nx = futurePosition.nx;
   const ny = futurePosition.ny;
-  let pt;
+  let pt: { x: number; y: number; d: string; } | null = null;
   if (nx < 0) {
     pt = intercept(this.x, this.y, this.x + nx, this.y + ny, 
                              rect.right  + this.radius, 
@@ -592,19 +590,13 @@ function ballIntercept (rect, futurePosition) {
 }
 
 // magnitute :: Num -> Num -> Num
-function magnitude (x, y) {
+function magnitude (x: number, y: number) {
   return Math.sqrt(x * x + y * y);
-}
-
-// Converts degrees to radians
-// degToRad :: Num -> Num
-function degToRad (deg) {
-  return deg * Math.PI / 180;
 }
 
 // Calculated position after move
 // move :: {dx,dy}, dt -> {nx,ny}
-function move(object, dt) {
+function move(object: { dx: number; dy: number; }, dt: number): {nx: number, ny: number} {
   // KONTRA USES FIXED GAME LOOP dx is just change in pixel/frame
   return { 
     nx: object.dx * dt * FPS,
@@ -614,7 +606,7 @@ function move(object, dt) {
 
 // Pause Game
 // pause :: Event -> ()
-function pause(e) {
+function pause(e: any) {
   if (e.keyCode === 112) {
     if (GAMELOOP.isStopped) {
       clearMessages();
@@ -665,44 +657,44 @@ function movePaddle() {
 
 // Touch control move paddle
 // movePaddleLeft :: Sprite -> () -> ()
-function movePaddleLeft (p) {
+function movePaddleLeft (paddle: Sprite) {
   return () => {
-    p.moving = true;
-    p.dx = -5;
+    paddle.moving = true;
+    paddle.dx = -5;
   }
 }
 
 // Touch control move paddle
 // movePaddleLeft :: Sprite -> () -> ()
-function movePaddleRight (p) {
+function movePaddleRight (paddle: Sprite) {
   return () => {
-    p.moving = true;
-    p.dx = 5;
+    paddle.moving = true;
+    paddle.dx = 5;
   }
 }
 
 // Touch control stop movement on release
 // movePaddleLeft :: Sprite -> () -> ()
-function stopPaddle (p) {
+function stopPaddle (paddle: Sprite) {
   return () => {
-    p.moving = false;
-    p.dx = 0;
+    paddle.moving = false;
+    paddle.dx = 0;
   }
 }
 
 // MAGIC NUMBERS
 // Touch control launch
 // launchBall :: Sprite -> () -> ()
-function launchBall (b) {
+function launchBall (ball: Sprite) {
   return () => {
     // Shoot left/right randomly
     if (Math.floor((Math.random() * 100)) % 2 === 0) {
-      b.dx = -5;
+      ball.dx = -5;
     } else {
-      b.dx = 5;
+      ball.dx = 5;
     }
-    b.dy = -6;
-    b.attached = null;
+    ball.dy = -6;
+    ball.attached = null;
   }
 }
 
@@ -716,7 +708,7 @@ function disableLaunch () {
 // MODIFIED KONTRA JS TO PASS IN MULTIPLE ARGUMENTS
 // Update logic for ball objects
 // movingBall :: Num -> [Sprite] -> ()
-function movingBall(dt, collidableObjects) {
+function movingBall(dt: number, collidableObjects: Sprite[]) {
 
   // If attached to something then wait for keypress
   if (this.attached) {
@@ -740,25 +732,28 @@ function movingBall(dt, collidableObjects) {
   // Calculate future position of ball
   const nextPosition = move(this, dt);
 
-  let closestMagnitude = Infinity;
-  let closest = null;
+  const { closest, closestMagnitude } : {closest: Collidable | null, closestMagnitude: number} = collidableObjects.reduce((acc: {closest: Collidable | null, closestMagnitude: number}, item: Item) => {
+    const point: Point | null = this.collidesWith(item, nextPosition)
+    if (isNullOrUndefined(point)) {
+      // No collision happened
+      return acc;
+    }
 
-  collidableObjects.forEach((item) => {
-    // Check for point of collision
-    const point = this.collidesWith(item, nextPosition)
-    // If it exists then check magnitudes
-    if (point) {
-      const currentMagnitude = magnitude(point.x - this.x, point.y - this.y);
-      if (currentMagnitude < closestMagnitude) {
-        closestMagnitude = currentMagnitude;
-        // set the closest point of collision/item hit
-        closest = { item: item, point: point };
+    const currentMagnitude = magnitude(point.x - this.x, point.y - this.y);
+    if (currentMagnitude < acc.closestMagnitude) {
+      return {
+        closest: {item, point},
+        closestMagnitude: currentMagnitude,
       }
     }
-  });
+    return acc;
+  }, {closestMagnitude: Infinity, closest: null});
+
+  if (isNullOrUndefined(closest)) {
+    return this.advance(dt * FPS);
+  }
 
   // ----- A collision happend so deal with it ------- //
-  if (closest) {
 
     // How much time did it take to get to first collision?
     const udt = dt * (closestMagnitude / magnitude(nextPosition.nx, nextPosition.ny));
@@ -870,17 +865,12 @@ function movingBall(dt, collidableObjects) {
     // ----------------------------------------- //
 
     // Run collision recursively if there is time left
-    // return this.update(dt - udt, collidableObjects, alwaysCollidable);
     return this.update(dt - udt, collidableObjects);
-  }
-
-  // Update ball position after all collisions have been resolved
-  this.advance(dt * FPS);
 }
 
 // Brick color changing logic
 // colorChange :: Num -> ()
-function colorChange(dt) {
+function colorChange(dt: number) {
   this.advance(dt);
 
   switch (true) {
@@ -994,7 +984,7 @@ function createPaddle () {
 
 // Creates a new ball and attaches to paddle
 // newBall :: Pool -> Sprite -> ()
-function newBall (pool, paddle) {
+function newBall (pool: Pool, paddle: Sprite) {
   pool.get({
     type: 'ball',
     combo: 0,
@@ -1147,7 +1137,7 @@ function newParticlePool (max = 50) {
 
 // Creates a group of particles
 // createParticles :: Pool -> Int -> Sprite -> ()
-function createParticles (pool, amount, barycenter) {
+function createParticles (pool: Pool, amount: number, barycenter: Sprite) {
   for (let i = 0; i < amount; i++) {
     pool.get({
       type: 'particle',
@@ -1172,7 +1162,7 @@ function createParticles (pool, amount, barycenter) {
   }
   // Keep particles contained so they don't fly too far away
   // This keeps them just off screen so they don't clump up and look weird
-  pool.getAliveObjects().forEach((particle) => {
+  pool.getAliveObjects().forEach((particle: Sprite) => {
     particle.position.clamp(-50, -50, CANVAS_WIDTH + 50, CANVAS_HEIGHT + 50);
   })
 }
@@ -1183,7 +1173,7 @@ function createParticles (pool, amount, barycenter) {
 
 // Create left button sprite for touch input
 // createLeftButton :: Sprite -> Sprite
-function createLeftButton(p) {
+function createLeftButton(paddle: Sprite): Sprite {
   return kontra.sprite({
     type: 'button',
     action: 'left',
@@ -1198,15 +1188,15 @@ function createLeftButton(p) {
     ttl: Infinity,
     width: CANVAS_WIDTH / 2,
     height: CANVAS_HEIGHT,
-    onDown: movePaddleLeft(p),
-    onUp: stopPaddle(p),
+    onDown: movePaddleLeft(paddle),
+    onUp: stopPaddle(paddle),
     render: renderButton,
   });
 }
 
 // Create right button sprite for touch input
 // createRightButton :: Sprite -> Sprite
-function createRightButton(p) {
+function createRightButton(paddle: Sprite): Sprite {
   return kontra.sprite({
     type: 'button',
     action: 'right',
@@ -1222,15 +1212,15 @@ function createRightButton(p) {
     width: CANVAS_WIDTH / 2,
     height: CANVAS_HEIGHT,
     fill: true,
-    onDown: movePaddleRight(p),
-    onUp: stopPaddle(p),
+    onDown: movePaddleRight(paddle),
+    onUp: stopPaddle(paddle),
     render: renderButton,
   });
 }
 
 // Create Middle button sprite for touch input
 // createMiddleButton :: Pool -> Sprite
-function createMiddleButton(balls) {
+function createMiddleButton(balls: Pool): Sprite {
   return kontra.sprite({
     type: 'button',
     action: 'launch',
@@ -1321,7 +1311,7 @@ function paddleBounce() {
 
 // Brick onHit animation/sound
 // brickBounce :: Sprite -> ()
-function brickBounce (hitLocation) {
+function brickBounce (hitLocation: Sprite) {
   playChirpSound();
   const thisObject = this;
   const xOffset = 10 * Math.random() + 10;
@@ -1368,7 +1358,7 @@ function brickBounce (hitLocation) {
 
 // Fall from sky animation
 // dropDown :: Int -> ()
-function dropDown (delay) {
+function dropDown (delay: number) {
   const thisObject = this;
   const coords = { y: this.y };
   new TWEEN.Tween(coords)
@@ -1394,7 +1384,7 @@ function dropDown (delay) {
 
 
 // Start next level and check for win
-function advanceLevel(loop, bricks, currentLevel) {
+function advanceLevel(loop: GameLoop, bricks: Pool, currentLevel: number): number {
   // Move to next level
   const level = currentLevel + 1;
   // score boost for every level
@@ -1439,10 +1429,10 @@ function advanceLevel(loop, bricks, currentLevel) {
       SCORE += 10000;
       loop.stop();
       gameStates.win();
-      return;
+      return 0;
   }
 
-  bricks.getAliveObjects().forEach((brick, i) => {
+  bricks.getAliveObjects().forEach((brick: Sprite, i: number) => {
     brick.onSpawn(500 / (1 + Math.floor(i / 6)));
   });
 
@@ -1454,47 +1444,9 @@ function advanceLevel(loop, bricks, currentLevel) {
   return level;
 }
 
-// LEVEL 1 EASY MODE TO DEBUG
-// levelOne :: Pool -> ()
-function levelOneTEST (pool) {
-  for (let i = 1; i <= 5; i++) {
-    // for (let j = 1; j <= 6; j++) {
-      const startX = 30 + (i * 5) + (i - 1) * 50;
-      const startY = 30 + (i * 5) + (i - 1) * 15;
-
-      pool.get({
-        type: 'brick',
-        hits: 1,
-        anchor: {
-          x: 0.5,
-          y: 0.5,
-        },
-        x: startX + BRICK_WIDTH / 2,
-        y: startY + BRICK_HEIGHT / 2 - 500,
-        originalX: startX + BRICK_WIDTH / 2,
-        originalY: startY + BRICK_HEIGHT / 2,
-        dx: 0,
-        dy: 0,
-        ttl: Infinity,
-        width: BRICK_WIDTH,
-        height: BRICK_HEIGHT,
-        top: startY - BRICK_HEIGHT - 1, 
-        bottom: startY + BRICK_HEIGHT + 1,
-        left: startX - BRICK_WIDTH - 1,
-        right: startX + BRICK_WIDTH + 1,
-        color: 'black',
-        update: colorChange,
-        onHit: brickBounce,
-        onSpawn: dropDown,
-      });
-    }
-  // }
-}
-
-
 // LEVEL 1
 // levelOne :: Pool -> ()
-function levelOne (pool) {
+function levelOne (pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1531,7 +1483,7 @@ function levelOne (pool) {
 
 // LEVEL 2
 // levelTwo :: Pool -> ()
-function levelTwo (pool) {
+function levelTwo (pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1569,7 +1521,7 @@ function levelTwo (pool) {
 
 // LEVEL 3
 // levelThree :: Pool -> ()
-function levelThree (pool) {
+function levelThree (pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1606,7 +1558,7 @@ function levelThree (pool) {
 
 // LEVEL 4
 // levelFour :: Pool -> ()
-function levelFour (pool) {
+function levelFour (pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1643,7 +1595,7 @@ function levelFour (pool) {
 
 // LEVEL 5
 // levelFive :: Pool -> ()
-function levelFive (pool) {
+function levelFive (pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1680,7 +1632,7 @@ function levelFive (pool) {
 
 // LEVEL 6
 // levelSix :: Pool -> ()
-function levelSix (pool) {
+function levelSix (pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1727,7 +1679,7 @@ function levelSix (pool) {
 
 // Paddle update that auto moves for debugging!
 // debugAutoMove :: Sprite -> ()
-function debugAutoMove(ball) {
+function debugAutoMove(ball: Sprite) {
   this.x = ball.x;
   this.top = this.y - this.height / 2 - 1;
   this.bottom = this.y + this.height / 2 + 1;
@@ -1756,11 +1708,11 @@ function initializeHighScores() {
 
 // Add current score if in the top 3
 // updateHighScore :: Int -> ()
-function updateHighScores (score) {
+function updateHighScores (score: number) {
   // Add current score, sort, then remove lowest (to keep only 3)
   const currentHighScores = kontra.store.get('highScores');
   currentHighScores.push(score);
-  currentHighScores.sort((a, b) => b - a);
+  currentHighScores.sort((a: number, b: number) => b - a);
 
   // If more than 5 then remove lowest one
   if (currentHighScores.length > 5) {
@@ -1775,21 +1727,21 @@ function updateHighScores (score) {
 
 // Show high scores for the user
 // displayHighScore :: [Int] -> ()
-function displayHighScore (highScores) {
+function displayHighScore (highScores: number[]) {
   // Select high score element
   const scoreList = document.getElementById('highscore-list');
 
   // Remove all child nodes (there will only be 3 so not worth only updating)
   // Maybe change this if a large list of high scores is kept
-  while(scoreList.firstChild) {
+  while(scoreList?.firstChild) {
     scoreList.removeChild(scoreList.firstChild);
   }
   // Add the scores
   highScores.forEach((score) => {
     const newScore = document.createElement('li');
     newScore.classList.add('highscore-item');
-    newScore.textContent = score;
-    scoreList.appendChild(newScore);
+    newScore.textContent = `${score}`;
+    scoreList?.appendChild(newScore);
   })
 
 }
@@ -1797,9 +1749,9 @@ function displayHighScore (highScores) {
 // Show fullscreen touch buttons when changed to fullscreen
 // showTouchButtons () -> ()
 function showTouchButtons () {
-  const controls = document.querySelector('#controls');
-  controls.classList.remove('hide-controls');
-  controls.classList.add('show-controls');
+  const controls = document.querySelector('#controls') as HTMLElement;
+  controls?.classList.remove('hide-controls');
+  controls?.classList.add('show-controls');
   if (window.screen.height < 850) {
     controls.style.height = `${window.screen.height - 26 - CANVAS_HEIGHT}px`;
   }
@@ -1808,37 +1760,37 @@ function showTouchButtons () {
 // Hide fullscreen touch buttons when leaving fullscreen
 // hideTouchButtons () -> ()
 function hideTouchButtons () {
-  document.querySelector('#controls').classList.add('hide-controls');
-  document.querySelector('#controls').classList.remove('show-controls');
+  document.querySelector('#controls')?.classList.add('hide-controls');
+  document.querySelector('#controls')?.classList.remove('show-controls');
 }
 
 // Add needed listeners to fullscreen touch buttons
 // addTouchEventListeners :: Function -> Function -> Function -> Function -> ()
-function addTouchEventListeners (left, right, middle, stop) {
-  document.querySelector('.left').addEventListener('pointerdown', left);
-  document.querySelector('.left').addEventListener('pointerup', stop);
-  document.querySelector('.right').addEventListener('pointerdown', right);
-  document.querySelector('.right').addEventListener('pointerup', stop);
-  document.querySelector('.middle').addEventListener('pointerdown', function handle(e) {
-    e.target.removeEventListener('pointerdown', handle);
+function addTouchEventListeners (left: ()=>void, right: ()=>void, middle: ()=>void, stop: ()=>void) {
+  document.querySelector('.left')?.addEventListener('pointerdown', left);
+  document.querySelector('.left')?.addEventListener('pointerup', stop);
+  document.querySelector('.right')?.addEventListener('pointerdown', right);
+  document.querySelector('.right')?.addEventListener('pointerup', stop);
+  document.querySelector('.middle')?.addEventListener('pointerdown', function handle(e) {
+    e.target?.removeEventListener('pointerdown', handle);
     middle();
   });
 }
 
 // Remove listeners to fullscreen touch buttons
 // removeTouchEventListeners :: Function -> Function -> Function -> ()
-function removeTouchEventListeners (left, right, stop) {
-  document.querySelector('.left').removeEventListener('pointerdown', left);
-  document.querySelector('.left').removeEventListener('pointerup', stop);
-  document.querySelector('.right').removeEventListener('pointerdown', right);
-  document.querySelector('.right').removeEventListener('pointerup', stop);
+function removeTouchEventListeners (left: ()=>void, right: ()=>void, stop: ()=>void) {
+  document.querySelector('.left')?.removeEventListener('pointerdown', left);
+  document.querySelector('.left')?.removeEventListener('pointerup', stop);
+  document.querySelector('.right')?.removeEventListener('pointerdown', right);
+  document.querySelector('.right')?.removeEventListener('pointerup', stop);
 }
 
 // Update which ball is launched when a new ball is created
 // updateMiddleTouchButton :: Function -> ()
-function updateMiddleTouchButton (newFunction) {
-  document.querySelector('.middle').addEventListener('pointerdown', function handle(e) {
-    e.target.removeEventListener('pointerdown', handle);
+function updateMiddleTouchButton (newFunction: Function) {
+  document.querySelector('.middle')?.addEventListener('pointerdown', function handle(e) {
+    e.target?.removeEventListener('pointerdown', handle);
     newFunction();
   });
 }
@@ -1847,75 +1799,75 @@ function updateMiddleTouchButton (newFunction) {
 // Intro 'scene'
 // startIntroScene :: () -> [timeout id's]
 function startIntroScene () {
-  const ids = [];
+  const ids: number[] = [];
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`WAKE UP!`);
+      addMessage(`WAKE UP!`, 'intro');
     }, 2000)
   );
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`What? Where am I?`);
+      addMessage(`What? Where am I?`, 'intro');
     }, 5000)
   );
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`No questions. \r\n Just Smash Bricks!`);
+      addMessage(`No questions. \r\n Just Smash Bricks!`, 'intro');
     }, 8000)
   );
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`Just...What?`);
+      addMessage(`Just...What?`, 'intro');
     }, 11000)
   );
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`No questions. \r\n Just Smash Bricks!`);
+      addMessage(`No questions. \r\n Just Smash Bricks!`, 'intro');
     }, 14000)
   );
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`...why? \r\n Who are you?`);
+      addMessage(`...why? \r\n Who are you?`, 'intro');
     }, 17000)
   );
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`No questions. \r\n Just Smash Bricks!`);
+      addMessage(`No questions. \r\n Just Smash Bricks!`, 'intro');
     }, 20000)
   );
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`Ok...fine. \r\n I'll smash the bricks.`);
+      addMessage(`Ok...fine. \r\n I'll smash the bricks.`, 'intro');
     }, 23000)
   );
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`I'm glad you understand. \r\n Smash all 5 levels \r\n and we might let you live.`);
+      addMessage(`I'm glad you understand. \r\n Smash all 5 levels \r\n and we might let you live.`, 'intro');
     }, 26000)
   );
 
   ids.push(
     setTimeout(() => {
       clearMessages();
-      addMessage(`...I guess I don't have much of a choice.`);
+      addMessage(`...I guess I don't have much of a choice.`, 'intro');
     }, 31000)
   );
 
@@ -1935,3 +1887,36 @@ function startIntroScene () {
 }
 
 /* #endregion */
+
+// TODO: Move to actual Kontra types. This is just a temp fix
+
+type Item = {
+  type: string
+  onHit: Function,
+  width: number,
+  hits: number,
+  ttl: number,
+  x: number,
+  y: number,
+};
+
+type Point = {
+  x: number,
+  y: number,
+  d: string,
+  onHit: Function,
+};
+
+type Collidable = {
+  item: Item,
+  point: Point,
+}
+
+// TODO: Temp type aliases to make swapping to real types easier
+type Sprite = any;
+type Pool = any;
+type GameLoop = any;
+
+function isNullOrUndefined(obj: any): obj is null | undefined {
+  return obj === null || obj === undefined
+}

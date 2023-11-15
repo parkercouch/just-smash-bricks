@@ -4,6 +4,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "isolatedModules": true,
+    "esModuleInterop": true,
     "allowJs": true,
     "checkJs": false,
     "rootDir": "./",
