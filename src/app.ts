@@ -2,7 +2,7 @@ import { kontra } from "./kontra.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import StateMachine from "javascript-state-machine";
 import screenfull from "screenfull";
-import {ac, playMusic, startNextSong, stopMusic, playBounceSound, playChirpSound, playDropSound, playPaddleSound, level2, level3, level4, level5 } from "./sounds.js";
+import { ac, playMusic, startNextSong, stopMusic, playBounceSound, playChirpSound, playDropSound, playPaddleSound, level2, level3, level4, level5 } from "./sounds.js";
 
 // ------------------------------------------------------- //
 // ------------------------GLOBALS------------------------ //
@@ -40,7 +40,7 @@ const BALL_COLOR = 'white';
 // ------------------------------------------------------- //
 /* #region */
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
 
   // Add listener to fullscreen button and change/state
   document.getElementById('fs-button')?.addEventListener('click', (e) => {
@@ -84,15 +84,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.getElementById('mute-button')?.addEventListener('click', (e) => {
     (e.target as HTMLElement).blur();
-    if(ac.state === 'running') {
+    if (ac.state === 'running') {
       ac.suspend().then(function() {
         (e.target as HTMLElement).textContent = 'Unmute';
       });
-    } else if(ac.state === 'suspended') {
+    } else if (ac.state === 'suspended') {
       ac.resume().then(function() {
         playMusic();
         (e.target as HTMLElement).textContent = 'Mute';
-      });  
+      });
     }
     stopMusic();
   });
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // MAIN GAME LOGIC
 // startGameLoop :: () -> ()
-const startGameLoop = function () {
+const startGameLoop = function() {
 
   // Reset lives and score
   LIVES = 5;
@@ -132,7 +132,7 @@ const startGameLoop = function () {
   //* AUTO MOVE DEBUG MODE *//
   paddle.autoMove = debugAutoMove;
   //* -------------------- *//
-  
+
   // BALLS //
   const ballPool = newBallPool();
   newBall(ballPool, paddle);
@@ -167,7 +167,7 @@ const startGameLoop = function () {
 
   // BRICKS //
   const brickPool = newBrickPool();
-  
+
   // Create Level 1
   levelOne(brickPool);
   //* Debug easy mode *//
@@ -204,7 +204,7 @@ const startGameLoop = function () {
     fps: FPS,
 
     // UPDATE GAME STATE //
-    update: function (dt: number) {
+    update: function(dt: number) {
 
       // Sync tween animations
       TWEEN.update();
@@ -269,7 +269,7 @@ const startGameLoop = function () {
     },
 
     // RENDER GAME STATE //
-    render: function () {
+    render: function() {
       paddle.render();
       ballPool.render();
       brickPool.render();
@@ -321,7 +321,7 @@ function loadAssets() {
 
   const introIntervals = startIntroScene();
 
-  const nextStep = function () {
+  const nextStep = function() {
     GAME_CONTAINER?.removeEventListener('click', nextStep);
     document.removeEventListener('keypress', nextStep);
     clearMessages();
@@ -333,7 +333,7 @@ function loadAssets() {
     ac.resume().then(() => { playMusic(); });
     setTimeout(() => { gameStates.start(); }, 500);
   };
-  
+
   // Make click/keypress skip intro
   GAME_CONTAINER?.addEventListener('click', nextStep);
   document.addEventListener('keypress', nextStep);
@@ -345,8 +345,8 @@ function displayMenu() {
   // Clear Canvas
   const context = kontra.canvas.getContext('2d');
   context.clearRect(0, 0, kontra.canvas.width, kontra.canvas.height);
-   hideTopDisplay();
-   clearMessages();
+  hideTopDisplay();
+  clearMessages();
   // Display Menu
   addTitle('JUST SMASH BRICKS!', 'title');
   addMessage('Click, tap, press, or whatever to start smashing.', 'menu');
@@ -356,7 +356,7 @@ function displayMenu() {
 
 // Start click event listener
 // waitForButton :: Event -> ()
-function waitForButton (_e: any) {
+function waitForButton(_e: any) {
   GAME_CONTAINER?.removeEventListener('click', waitForButton);
   document.removeEventListener('keypress', waitForButton);
   // Resume AudioContext and start playing music after interaction
@@ -372,14 +372,14 @@ function waitForButton (_e: any) {
 // Skips straight to menu
 function winMessage() {
   addMessage(`We didn't think this would happen... \r\n Score: ${SCORE}`, 'win');
-  setTimeout(() => {gameStates.restart();}, 3000);
+  setTimeout(() => { gameStates.restart(); }, 3000);
 }
 
 // Show lose message
 // Skips straight to menu
 function loseMessage() {
   addMessage(`You fail. \r\n Score: ${SCORE}`, 'lose');
-  setTimeout(() => {gameStates.restart();}, 3000);
+  setTimeout(() => { gameStates.restart(); }, 3000);
   // Don't record high scores in debug mode
   if (!DEBUG_ON) {
     updateHighScores(SCORE);
@@ -427,7 +427,7 @@ function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
 
 // Clear Messages from MESSAGES
 // clearMessage :: () -> ()
-function clearMessages () {
+function clearMessages() {
   MESSAGE?.classList.remove('showMessage');
   MESSAGE?.classList.add('hideMessage');
   while (MESSAGE?.firstChild) {
@@ -437,7 +437,7 @@ function clearMessages () {
 
 // Add Message to MESSAGES
 // addMessage :: String -> String -> ()
-function addMessage (message: string, type: string) {
+function addMessage(message: string, type: string) {
   MESSAGE?.classList.remove('hideMessage');
   MESSAGE?.classList.add('showMessage');
   const newMessage = document.createElement('h2');
@@ -448,7 +448,7 @@ function addMessage (message: string, type: string) {
 
 // Add title to TITLE
 // addTitle :: String -> String -> ()
-function addTitle (message: string, type: string) {
+function addTitle(message: string, type: string) {
   const newMessage = document.createElement('h1');
   newMessage.textContent = message;
   newMessage.classList.add(type);
@@ -457,7 +457,7 @@ function addTitle (message: string, type: string) {
 
 // Clear all elements from TITLE
 // clearMessage :: () -> ()
-function clearTitle () {
+function clearTitle() {
   while (TITLE?.firstChild) {
     TITLE.removeChild(TITLE.firstChild);
   }
@@ -465,7 +465,7 @@ function clearTitle () {
 
 // Display Lives/Score
 // addMessage :: () -> ()
-function showTopDisplay (currentLevel: number) {
+function showTopDisplay(currentLevel: number) {
   const livesTitle = document.createElement('h5');
   livesTitle.textContent = 'Lives left: ';
   livesTitle.classList.add('lives-title');
@@ -483,7 +483,7 @@ function showTopDisplay (currentLevel: number) {
   lives.textContent = `${LIVES - 1}`;
   lives.classList.add('lives');
   livesTitle.appendChild(lives);
-  
+
   const score = document.createElement('span');
   score.textContent = SCORE.toString();
   score.classList.add('score');
@@ -504,7 +504,7 @@ function showTopDisplay (currentLevel: number) {
 
 // Clear bottom display 
 // hideTopDisplay :: () -> ()
-function hideTopDisplay () {
+function hideTopDisplay() {
   while (TOP_DISPLAY?.firstChild) {
     TOP_DISPLAY.removeChild(TOP_DISPLAY.firstChild);
   }
@@ -512,34 +512,34 @@ function hideTopDisplay () {
 
 // Update level
 // updateLevelDisplay :: Int -> ()
-function updateLevelDisplay (currentLevel: number) {
+function updateLevelDisplay(currentLevel: number) {
   document.querySelector('.level')?.setAttribute('textContent', currentLevel.toString());
 }
 
 // Update score
 // updateScore :: () -> ()
-function updateScore () {
+function updateScore() {
   document.querySelector('.score')?.setAttribute('textContent', SCORE.toString());
 }
 
 // Update lives 
 // updateLives :: () -> ()
-function updateLives () {
+function updateLives() {
   document.querySelector('.lives')?.setAttribute('textContent', `${LIVES - 1}`);
 }
 
 // Line intercept
 // intercept :: (Num, Num), (Num, Num), (Num, Num), (Num, Num), String -> {Num, Num, String}
-function intercept (x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, d: string) {
-  const denom = ((y4-y3) * (x2-x1)) - ((x4-x3) * (y2-y1));
+function intercept(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, d: string) {
+  const denom = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
   if (denom != 0) {
-    const ua = (((x4-x3) * (y1-y3)) - ((y4-y3) * (x1-x3))) / denom;
+    const ua = (((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3))) / denom;
     if ((ua >= 0) && (ua <= 1)) {
-      const ub = (((x2-x1) * (y1-y3)) - ((y2-y1) * (x1-x3))) / denom;
+      const ub = (((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3))) / denom;
       if ((ub >= 0) && (ub <= 1)) {
-        const x = x1 + (ua * (x2-x1));
-        const y = y1 + (ua * (y2-y1));
-        return { x: x, y: y, d: d};
+        const x = x1 + (ua * (x2 - x1));
+        const y = y1 + (ua * (y2 - y1));
+        return { x: x, y: y, d: d };
       }
     }
   }
@@ -548,57 +548,57 @@ function intercept (x1: number, y1: number, x2: number, y2: number, x3: number, 
 
 // USED TO OVERRIDE collidesWith function for ball sprites
 // ballIntercept {top, bottom, left, right} -> {nx, ny} -> {x,y,d}
-function ballIntercept (rect: { right: number; top: number; bottom: number; left: number; }, futurePosition: { nx: number; ny: number; }): { x: number, y: number, d: string } | null {
+function ballIntercept(rect: { right: number; top: number; bottom: number; left: number; }, futurePosition: { nx: number; ny: number; }): { x: number, y: number, d: string } | null {
   const nx = futurePosition.nx;
   const ny = futurePosition.ny;
   let pt: { x: number; y: number; d: string; } | null = null;
   if (nx < 0) {
-    pt = intercept(this.x, this.y, this.x + nx, this.y + ny, 
-                             rect.right  + this.radius, 
-                             rect.top    - this.radius, 
-                             rect.right  + this.radius, 
-                             rect.bottom + this.radius, 
-                             "right");
+    pt = intercept(this.x, this.y, this.x + nx, this.y + ny,
+      rect.right + this.radius,
+      rect.top - this.radius,
+      rect.right + this.radius,
+      rect.bottom + this.radius,
+      "right");
   }
   else if (nx > 0) {
-    pt = intercept(this.x, this.y, this.x + nx, this.y + ny, 
-                             rect.left   - this.radius, 
-                             rect.top    - this.radius, 
-                             rect.left   - this.radius, 
-                             rect.bottom + this.radius,
-                             "left");
+    pt = intercept(this.x, this.y, this.x + nx, this.y + ny,
+      rect.left - this.radius,
+      rect.top - this.radius,
+      rect.left - this.radius,
+      rect.bottom + this.radius,
+      "left");
   }
   if (!pt) {
     if (ny < 0) {
-      pt = intercept(this.x, this.y, this.x + nx, this.y + ny, 
-                               rect.left   - this.radius, 
-                               rect.bottom + this.radius, 
-                               rect.right  + this.radius, 
-                               rect.bottom + this.radius,
-                               "bottom");
+      pt = intercept(this.x, this.y, this.x + nx, this.y + ny,
+        rect.left - this.radius,
+        rect.bottom + this.radius,
+        rect.right + this.radius,
+        rect.bottom + this.radius,
+        "bottom");
     }
     else if (ny > 0) {
-      pt = intercept(this.x, this.y, this.x + nx, this.y + ny, 
-                               rect.left   - this.radius, 
-                               rect.top    - this.radius, 
-                               rect.right  + this.radius, 
-                               rect.top    - this.radius,
-                               "top");
+      pt = intercept(this.x, this.y, this.x + nx, this.y + ny,
+        rect.left - this.radius,
+        rect.top - this.radius,
+        rect.right + this.radius,
+        rect.top - this.radius,
+        "top");
     }
   }
   return pt;
 }
 
 // magnitute :: Num -> Num -> Num
-function magnitude (x: number, y: number) {
+function magnitude(x: number, y: number) {
   return Math.sqrt(x * x + y * y);
 }
 
 // Calculated position after move
 // move :: {dx,dy}, dt -> {nx,ny}
-function move(object: { dx: number; dy: number; }, dt: number): {nx: number, ny: number} {
+function move(object: { dx: number; dy: number; }, dt: number): { nx: number, ny: number } {
   // KONTRA USES FIXED GAME LOOP dx is just change in pixel/frame
-  return { 
+  return {
     nx: object.dx * dt * FPS,
     ny: object.dy * dt * FPS,
   };
@@ -657,7 +657,7 @@ function movePaddle() {
 
 // Touch control move paddle
 // movePaddleLeft :: Sprite -> () -> ()
-function movePaddleLeft (paddle: Sprite) {
+function movePaddleLeft(paddle: Sprite) {
   return () => {
     paddle.moving = true;
     paddle.dx = -5;
@@ -666,7 +666,7 @@ function movePaddleLeft (paddle: Sprite) {
 
 // Touch control move paddle
 // movePaddleLeft :: Sprite -> () -> ()
-function movePaddleRight (paddle: Sprite) {
+function movePaddleRight(paddle: Sprite) {
   return () => {
     paddle.moving = true;
     paddle.dx = 5;
@@ -675,7 +675,7 @@ function movePaddleRight (paddle: Sprite) {
 
 // Touch control stop movement on release
 // movePaddleLeft :: Sprite -> () -> ()
-function stopPaddle (paddle: Sprite) {
+function stopPaddle(paddle: Sprite) {
   return () => {
     paddle.moving = false;
     paddle.dx = 0;
@@ -685,7 +685,7 @@ function stopPaddle (paddle: Sprite) {
 // MAGIC NUMBERS
 // Touch control launch
 // launchBall :: Sprite -> () -> ()
-function launchBall (ball: Sprite) {
+function launchBall(ball: Sprite) {
   return () => {
     // Shoot left/right randomly
     if (Math.floor((Math.random() * 100)) % 2 === 0) {
@@ -700,8 +700,8 @@ function launchBall (ball: Sprite) {
 
 // Turn off touch launch after launching
 // disableLaunch :: () -> ()
-function disableLaunch () {
-  this.onDown = () => {};
+function disableLaunch() {
+  this.onDown = () => { };
 }
 
 
@@ -732,7 +732,7 @@ function movingBall(dt: number, collidableObjects: Sprite[]) {
   // Calculate future position of ball
   const nextPosition = move(this, dt);
 
-  const { closest, closestMagnitude } : {closest: Collidable | null, closestMagnitude: number} = collidableObjects.reduce((acc: {closest: Collidable | null, closestMagnitude: number}, item: Item) => {
+  const { closest, closestMagnitude }: { closest: Collidable | null, closestMagnitude: number } = collidableObjects.reduce((acc: { closest: Collidable | null, closestMagnitude: number }, item: Item) => {
     const point: Point | null = this.collidesWith(item, nextPosition)
     if (isNullOrUndefined(point)) {
       // No collision happened
@@ -742,12 +742,12 @@ function movingBall(dt: number, collidableObjects: Sprite[]) {
     const currentMagnitude = magnitude(point.x - this.x, point.y - this.y);
     if (currentMagnitude < acc.closestMagnitude) {
       return {
-        closest: {item, point},
+        closest: { item, point },
         closestMagnitude: currentMagnitude,
       }
     }
     return acc;
-  }, {closestMagnitude: Infinity, closest: null});
+  }, { closestMagnitude: Infinity, closest: null });
 
   if (isNullOrUndefined(closest)) {
     return this.advance(dt * FPS);
@@ -755,117 +755,117 @@ function movingBall(dt: number, collidableObjects: Sprite[]) {
 
   // ----- A collision happend so deal with it ------- //
 
-    // How much time did it take to get to first collision?
-    const udt = dt * (closestMagnitude / magnitude(nextPosition.nx, nextPosition.ny));
-    // Update the ball to point of collision
-    this.advance(udt);
+  // How much time did it take to get to first collision?
+  const udt = dt * (closestMagnitude / magnitude(nextPosition.nx, nextPosition.ny));
+  // Update the ball to point of collision
+  this.advance(udt);
 
-    // Check what object was hit
-    switch (closest.item.type) {
-      case 'paddle':
-        // IF THE PADDLE IS HIT //
-        // Reset combo when paddle is hit
-        this.combo = 0;
+  // Check what object was hit
+  switch (closest.item.type) {
+    case 'paddle':
+      // IF THE PADDLE IS HIT //
+      // Reset combo when paddle is hit
+      this.combo = 0;
 
-        // Animate/sounds
-        closest.item.onHit();
+      // Animate/sounds
+      closest.item.onHit();
 
-        // Reflect ball
-        switch (closest.point.d) {
-          case 'left':
-          case 'right':
-            this.dx *= -1;
-            break;
+      // Reflect ball
+      switch (closest.point.d) {
+        case 'left':
+        case 'right':
+          this.dx *= -1;
+          break;
 
-          // ** ROOM FOR IMPROVEMENT **
-          // Edges of paddle bounce ball back instead of reflecting exact angles
-          case 'top':
-          case 'bottom':
-            // If right 1/4 then bounce back right
-            if (closest.point.x > (closest.item.x + closest.item.width / 4)) {
-              this.dx = Math.abs(this.dx);
-              this.dy *= -1;
+        // ** ROOM FOR IMPROVEMENT **
+        // Edges of paddle bounce ball back instead of reflecting exact angles
+        case 'top':
+        case 'bottom':
+          // If right 1/4 then bounce back right
+          if (closest.point.x > (closest.item.x + closest.item.width / 4)) {
+            this.dx = Math.abs(this.dx);
+            this.dy *= -1;
             // If in the middle 1/2 then reflect
-            } else if (closest.point.x >= (closest.item.x - closest.item.width / 4)) {
-              this.dy *= -1;
+          } else if (closest.point.x >= (closest.item.x - closest.item.width / 4)) {
+            this.dy *= -1;
             // If left 1/4 then bounce back left
-            } else {
-              this.dx = -1 * Math.abs(this.dx);
-              this.dy *= -1;
-            }
-            break;
-        }
-        break;
-
-      case 'brick':
-        // IF A BRICK IS HIT //
-        // Reduce its hitcount and add to combo
-        closest.item.hits -= 1;
-        this.combo += 1;
-
-        // Animate all bricks
-        collidableObjects.filter(n => n.type === 'brick')
-          .forEach(brick => { brick.onHit(this); });
-
-        // No points in debug mode
-        if (!DEBUG_ON) {
-          if (FPS === DEFAULT_FPS) {
-            SCORE += this.combo * 50 * 5;
           } else {
-            SCORE += this.combo * 50;
+            this.dx = -1 * Math.abs(this.dx);
+            this.dy *= -1;
           }
-        } 
-        updateScore();
+          break;
+      }
+      break;
 
-        // If the brick has no hits left then destroy it
-        if (closest.item.hits <= 0) {
-          closest.item.ttl = 0;
+    case 'brick':
+      // IF A BRICK IS HIT //
+      // Reduce its hitcount and add to combo
+      closest.item.hits -= 1;
+      this.combo += 1;
+
+      // Animate all bricks
+      collidableObjects.filter(n => n.type === 'brick')
+        .forEach(brick => { brick.onHit(this); });
+
+      // No points in debug mode
+      if (!DEBUG_ON) {
+        if (FPS === DEFAULT_FPS) {
+          SCORE += this.combo * 50 * 5;
+        } else {
+          SCORE += this.combo * 50;
         }
+      }
+      updateScore();
 
-        switch (closest.point.d) {
-          // Reflect x if right/left hit
-          case 'left':
-          case 'right':
-            this.dx *= -1;
-            break;
+      // If the brick has no hits left then destroy it
+      if (closest.item.hits <= 0) {
+        closest.item.ttl = 0;
+      }
 
-          // Reflect y if top/bottom hit
-          case 'top':
-          case 'bottom':
-            this.dy *= -1;
-            break;
-        }
-        break;
+      switch (closest.point.d) {
+        // Reflect x if right/left hit
+        case 'left':
+        case 'right':
+          this.dx *= -1;
+          break;
 
-      case 'wall':
-        // IF A WALL OR BRICK IS HIT //
-        // Need to move this into a onHit Function
-        playBounceSound();
-        switch (closest.point.d) {
-          // Reflect x if right/left hit
-          case 'left':
-          case 'right':
-            this.dx *= -1;
-            break;
+        // Reflect y if top/bottom hit
+        case 'top':
+        case 'bottom':
+          this.dy *= -1;
+          break;
+      }
+      break;
 
-          // Reflect y if top/bottom hit
-          case 'top':
-          case 'bottom':
-            this.dy *= -1;
-            break;
-        }
-        break;
+    case 'wall':
+      // IF A WALL OR BRICK IS HIT //
+      // Need to move this into a onHit Function
+      playBounceSound();
+      switch (closest.point.d) {
+        // Reflect x if right/left hit
+        case 'left':
+        case 'right':
+          this.dx *= -1;
+          break;
 
-      case 'blackhole':
-        // IF THE BOTTOM IS HIT //
-        // Lose a ball
-        this.ttl = 0;
-        return;
-    }
-    // ----------------------------------------- //
+        // Reflect y if top/bottom hit
+        case 'top':
+        case 'bottom':
+          this.dy *= -1;
+          break;
+      }
+      break;
 
-    // Run collision recursively if there is time left
-    return this.update(dt - udt, collidableObjects);
+    case 'blackhole':
+      // IF THE BOTTOM IS HIT //
+      // Lose a ball
+      this.ttl = 0;
+      return;
+  }
+  // ----------------------------------------- //
+
+  // Run collision recursively if there is time left
+  return this.update(dt - udt, collidableObjects);
 }
 
 // Brick color changing logic
@@ -898,7 +898,7 @@ function colorChange(dt: number) {
       this.color = '#E77474';
       break;
   }
-  
+
   //Update hitbox on move
   this.top = this.y - this.height / 2 - 2;
   this.bottom = this.y + this.height / 2 + 2;
@@ -948,7 +948,7 @@ function particleGravity() {
 
 // Create the main paddle
 // createPaddle :: () -> Sprite
-function createPaddle () {
+function createPaddle() {
   const newPaddle = kontra.sprite({
     type: 'paddle',
     anchor: {
@@ -963,7 +963,7 @@ function createPaddle () {
     moving: false,
     ttl: Infinity,
     width: PADDLE_WIDTH,
-    height: PADDLE_HEIGHT, 
+    height: PADDLE_HEIGHT,
     top: CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2 + 1,
     bottom: CANVAS_HEIGHT - 50 + PADDLE_HEIGHT / 2 - 1,
     left: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
@@ -984,7 +984,7 @@ function createPaddle () {
 
 // Creates a new ball and attaches to paddle
 // newBall :: Pool -> Sprite -> ()
-function newBall (pool: Pool, paddle: Sprite) {
+function newBall(pool: Pool, paddle: Sprite) {
   pool.get({
     type: 'ball',
     combo: 0,
@@ -1006,7 +1006,7 @@ function newBall (pool: Pool, paddle: Sprite) {
     update: movingBall,
     render: renderBall,
     collidesWith: ballIntercept,
-    contain: function () {
+    contain: function() {
       this.position.clamp(0 + this.radius / 2, 0 + this.radius / 2, CANVAS_WIDTH - this.radius / 2, CANVAS_HEIGHT - this.radius / 2);
     }
   });
@@ -1014,10 +1014,10 @@ function newBall (pool: Pool, paddle: Sprite) {
 
 // Creates new brick pool
 // newBrickPool :: () -> ()
-function newBrickPool () {
+function newBrickPool() {
   return kontra.pool({
     // create a new sprite every time the pool needs new objects
-    create: kontra.sprite,  
+    create: kontra.sprite,
     maxSize: 100,
     fill: true,
   });
@@ -1025,7 +1025,7 @@ function newBrickPool () {
 
 // Creates new ball pool
 // newBallPool :: () -> ()
-function newBallPool () {
+function newBallPool() {
   return kontra.pool({
     create: kontra.sprite,
     maxSize: 10,
@@ -1035,7 +1035,7 @@ function newBallPool () {
 
 // Creates the boundary walls
 // createWalls :: () -> [Sprite]
-function createWalls () {
+function createWalls() {
   // WALLS //
   return [
     // Left Wall
@@ -1125,10 +1125,10 @@ function createWalls () {
 
 // Create a pool to pull particles from
 // newParticlePool :: Maybe Int -> Pool
-function newParticlePool (max = 50) {
+function newParticlePool(max = 50) {
   return kontra.pool({
     // create a new sprite every time the pool needs new objects
-    create: kontra.sprite,  
+    create: kontra.sprite,
     maxSize: max,
     fill: true,
   });
@@ -1137,7 +1137,7 @@ function newParticlePool (max = 50) {
 
 // Creates a group of particles
 // createParticles :: Pool -> Int -> Sprite -> ()
-function createParticles (pool: Pool, amount: number, barycenter: Sprite) {
+function createParticles(pool: Pool, amount: number, barycenter: Sprite) {
   for (let i = 0; i < amount; i++) {
     pool.get({
       type: 'particle',
@@ -1263,13 +1263,13 @@ function renderBall() {
 
 // Transparent render for buttons
 // renderButton :: () -> ()
-function renderButton () {
+function renderButton() {
   this.context.fillStyle = 'rgba(0,250,0,1)';
 }
 
 // Basic render for particles
 // particleRender :: () -> ()
-function particleRender () {
+function particleRender() {
   this.context.fillStyle = this.color;
   this.context.fillRect(this.x, this.y, this.height, this.width);
 };
@@ -1294,14 +1294,14 @@ function paddleBounce() {
   const up = new TWEEN.Tween(coords)
     .to({ y: "-15" }, 50)
     .easing(TWEEN.Easing.Linear.None)
-    .onUpdate(function () {
+    .onUpdate(function() {
       thisObject.y = coords.y;
       thisObject.render();
     });
   new TWEEN.Tween(coords)
     .to({ y: "+15" }, 50)
     .easing(TWEEN.Easing.Quadratic.In)
-    .onUpdate(function () {
+    .onUpdate(function() {
       thisObject.y = coords.y;
       thisObject.render();
     })
@@ -1311,7 +1311,7 @@ function paddleBounce() {
 
 // Brick onHit animation/sound
 // brickBounce :: Sprite -> ()
-function brickBounce (hitLocation: Sprite) {
+function brickBounce(hitLocation: Sprite) {
   playChirpSound();
   const thisObject = this;
   const xOffset = 10 * Math.random() + 10;
@@ -1335,7 +1335,7 @@ function brickBounce (hitLocation: Sprite) {
       y: startY,
     }, 100)
     .easing(TWEEN.Easing.Quadratic.In)
-    .onUpdate(function () {
+    .onUpdate(function() {
       thisObject.x = coords.x;
       thisObject.y = coords.y;
       thisObject.render();
@@ -1347,7 +1347,7 @@ function brickBounce (hitLocation: Sprite) {
       y: endy,
     }, 50)
     .easing(TWEEN.Easing.Quadratic.Out)
-    .onUpdate(function () {
+    .onUpdate(function() {
       thisObject.x = coords.x;
       thisObject.y = coords.y;
       thisObject.render();
@@ -1358,13 +1358,13 @@ function brickBounce (hitLocation: Sprite) {
 
 // Fall from sky animation
 // dropDown :: Int -> ()
-function dropDown (delay: number) {
+function dropDown(delay: number) {
   const thisObject = this;
   const coords = { y: this.y };
   new TWEEN.Tween(coords)
     .to({ y: "+500" }, 750)
     .easing(TWEEN.Easing.Elastic.InOut)
-    .onUpdate(function () {
+    .onUpdate(function() {
       thisObject.y = coords.y;
       thisObject.originalY = coords.y;
       thisObject.render();
@@ -1446,7 +1446,7 @@ function advanceLevel(loop: GameLoop, bricks: Pool, currentLevel: number): numbe
 
 // LEVEL 1
 // levelOne :: Pool -> ()
-function levelOne (pool: Pool) {
+function levelOne(pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1468,7 +1468,7 @@ function levelOne (pool: Pool) {
         ttl: Infinity,
         width: BRICK_WIDTH,
         height: BRICK_HEIGHT,
-        top: startY - BRICK_HEIGHT - 1, 
+        top: startY - BRICK_HEIGHT - 1,
         bottom: startY + BRICK_HEIGHT + 1,
         left: startX - BRICK_WIDTH - 1,
         right: startX + BRICK_WIDTH + 1,
@@ -1483,7 +1483,7 @@ function levelOne (pool: Pool) {
 
 // LEVEL 2
 // levelTwo :: Pool -> ()
-function levelTwo (pool: Pool) {
+function levelTwo(pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1505,7 +1505,7 @@ function levelTwo (pool: Pool) {
         ttl: Infinity,
         width: BRICK_WIDTH,
         height: BRICK_HEIGHT,
-        top: startY - BRICK_HEIGHT - 1, 
+        top: startY - BRICK_HEIGHT - 1,
         bottom: startY + BRICK_HEIGHT + 1,
         left: startX - BRICK_WIDTH - 1,
         right: startX + BRICK_WIDTH + 1,
@@ -1521,7 +1521,7 @@ function levelTwo (pool: Pool) {
 
 // LEVEL 3
 // levelThree :: Pool -> ()
-function levelThree (pool: Pool) {
+function levelThree(pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1543,7 +1543,7 @@ function levelThree (pool: Pool) {
         ttl: Infinity,
         width: BRICK_WIDTH,
         height: BRICK_HEIGHT,
-        top: startY - BRICK_HEIGHT - 1, 
+        top: startY - BRICK_HEIGHT - 1,
         bottom: startY + BRICK_HEIGHT + 1,
         left: startX - BRICK_WIDTH - 1,
         right: startX + BRICK_WIDTH + 1,
@@ -1558,7 +1558,7 @@ function levelThree (pool: Pool) {
 
 // LEVEL 4
 // levelFour :: Pool -> ()
-function levelFour (pool: Pool) {
+function levelFour(pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1580,7 +1580,7 @@ function levelFour (pool: Pool) {
         ttl: Infinity,
         width: BRICK_WIDTH,
         height: BRICK_HEIGHT,
-        top: startY - BRICK_HEIGHT - 1, 
+        top: startY - BRICK_HEIGHT - 1,
         bottom: startY + BRICK_HEIGHT + 1,
         left: startX - BRICK_WIDTH - 1,
         right: startX + BRICK_WIDTH + 1,
@@ -1595,7 +1595,7 @@ function levelFour (pool: Pool) {
 
 // LEVEL 5
 // levelFive :: Pool -> ()
-function levelFive (pool: Pool) {
+function levelFive(pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1617,7 +1617,7 @@ function levelFive (pool: Pool) {
         ttl: Infinity,
         width: BRICK_WIDTH,
         height: BRICK_HEIGHT,
-        top: startY - BRICK_HEIGHT - 1, 
+        top: startY - BRICK_HEIGHT - 1,
         bottom: startY + BRICK_HEIGHT + 1,
         left: startX - BRICK_WIDTH - 1,
         right: startX + BRICK_WIDTH + 1,
@@ -1632,7 +1632,7 @@ function levelFive (pool: Pool) {
 
 // LEVEL 6
 // levelSix :: Pool -> ()
-function levelSix (pool: Pool) {
+function levelSix(pool: Pool) {
   for (let i = 1; i <= 5; i++) {
     for (let j = 1; j <= 6; j++) {
       const startX = 30 + (j * 5) + (j - 1) * 50;
@@ -1654,7 +1654,7 @@ function levelSix (pool: Pool) {
         ttl: Infinity,
         width: BRICK_WIDTH,
         height: BRICK_HEIGHT,
-        top: startY - BRICK_HEIGHT - 1, 
+        top: startY - BRICK_HEIGHT - 1,
         bottom: startY + BRICK_HEIGHT + 1,
         left: startX - BRICK_WIDTH - 1,
         right: startX + BRICK_WIDTH + 1,
@@ -1708,7 +1708,7 @@ function initializeHighScores() {
 
 // Add current score if in the top 3
 // updateHighScore :: Int -> ()
-function updateHighScores (score: number) {
+function updateHighScores(score: number) {
   // Add current score, sort, then remove lowest (to keep only 3)
   const currentHighScores = kontra.store.get('highScores');
   currentHighScores.push(score);
@@ -1727,13 +1727,13 @@ function updateHighScores (score: number) {
 
 // Show high scores for the user
 // displayHighScore :: [Int] -> ()
-function displayHighScore (highScores: number[]) {
+function displayHighScore(highScores: number[]) {
   // Select high score element
   const scoreList = document.getElementById('highscore-list');
 
   // Remove all child nodes (there will only be 3 so not worth only updating)
   // Maybe change this if a large list of high scores is kept
-  while(scoreList?.firstChild) {
+  while (scoreList?.firstChild) {
     scoreList.removeChild(scoreList.firstChild);
   }
   // Add the scores
@@ -1748,7 +1748,7 @@ function displayHighScore (highScores: number[]) {
 
 // Show fullscreen touch buttons when changed to fullscreen
 // showTouchButtons () -> ()
-function showTouchButtons () {
+function showTouchButtons() {
   const controls = document.querySelector('#controls') as HTMLElement;
   controls?.classList.remove('hide-controls');
   controls?.classList.add('show-controls');
@@ -1759,14 +1759,14 @@ function showTouchButtons () {
 
 // Hide fullscreen touch buttons when leaving fullscreen
 // hideTouchButtons () -> ()
-function hideTouchButtons () {
+function hideTouchButtons() {
   document.querySelector('#controls')?.classList.add('hide-controls');
   document.querySelector('#controls')?.classList.remove('show-controls');
 }
 
 // Add needed listeners to fullscreen touch buttons
 // addTouchEventListeners :: Function -> Function -> Function -> Function -> ()
-function addTouchEventListeners (left: ()=>void, right: ()=>void, middle: ()=>void, stop: ()=>void) {
+function addTouchEventListeners(left: () => void, right: () => void, middle: () => void, stop: () => void) {
   document.querySelector('.left')?.addEventListener('pointerdown', left);
   document.querySelector('.left')?.addEventListener('pointerup', stop);
   document.querySelector('.right')?.addEventListener('pointerdown', right);
@@ -1779,7 +1779,7 @@ function addTouchEventListeners (left: ()=>void, right: ()=>void, middle: ()=>vo
 
 // Remove listeners to fullscreen touch buttons
 // removeTouchEventListeners :: Function -> Function -> Function -> ()
-function removeTouchEventListeners (left: ()=>void, right: ()=>void, stop: ()=>void) {
+function removeTouchEventListeners(left: () => void, right: () => void, stop: () => void) {
   document.querySelector('.left')?.removeEventListener('pointerdown', left);
   document.querySelector('.left')?.removeEventListener('pointerup', stop);
   document.querySelector('.right')?.removeEventListener('pointerdown', right);
@@ -1788,7 +1788,7 @@ function removeTouchEventListeners (left: ()=>void, right: ()=>void, stop: ()=>v
 
 // Update which ball is launched when a new ball is created
 // updateMiddleTouchButton :: Function -> ()
-function updateMiddleTouchButton (newFunction: Function) {
+function updateMiddleTouchButton(newFunction: Function) {
   document.querySelector('.middle')?.addEventListener('pointerdown', function handle(e) {
     e.target?.removeEventListener('pointerdown', handle);
     newFunction();
@@ -1798,7 +1798,7 @@ function updateMiddleTouchButton (newFunction: Function) {
 
 // Intro 'scene'
 // startIntroScene :: () -> [timeout id's]
-function startIntroScene () {
+function startIntroScene() {
   const ids: number[] = [];
 
   ids.push(

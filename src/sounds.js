@@ -10,12 +10,12 @@ const tempo = 60;
 
 // Slow Bass
 const s1 = [
-  'C3  q',          '-   h',                            'E3   q',
-  'G2  q',          '-   h',                            'F#2  q',
-  'A#2 q',          '-   h',                            'C#2  q',
-  'C2  q',          '-   h',                            'E2   q',
-  'G2  q',          '-   h',                            'C#2  q',
-  'A#1 q',          '-   h',                            'C#2  q',
+  'C3  q', '-   h', 'E3   q',
+  'G2  q', '-   h', 'F#2  q',
+  'A#2 q', '-   h', 'C#2  q',
+  'C2  q', '-   h', 'E2   q',
+  'G2  q', '-   h', 'C#2  q',
+  'A#1 q', '-   h', 'C#2  q',
 ];
 
 // Lead
@@ -39,12 +39,12 @@ const s3 = [
 
 // Bass
 const s4 = [
-  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e','-   e',
-  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e','-   e',
-  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e','-   e',
-  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e','-   e',
-  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e','-   e',
-  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e','-   e',
+  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e', '-   e',
+  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e', '-   e',
+  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e', '-   e',
+  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e', '-   e',
+  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e', '-   e',
+  'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e', '-   e',
 ];
 
 // Dissonant harmony
@@ -58,11 +58,11 @@ const s5 = [
 ];
 
 // Create new sequences for each level
-export const level1 = new TinyMusic.Sequence( ac, tempo, s1 );
-export const level2 = new TinyMusic.Sequence( ac, tempo, s2 );
-export const level3 = new TinyMusic.Sequence( ac, tempo, s3 );
-export const level4 = new TinyMusic.Sequence( ac, tempo, s4 );
-export const level5 = new TinyMusic.Sequence( ac, tempo, s5 );
+export const level1 = new TinyMusic.Sequence(ac, tempo, s1);
+export const level2 = new TinyMusic.Sequence(ac, tempo, s2);
+export const level3 = new TinyMusic.Sequence(ac, tempo, s3);
+export const level4 = new TinyMusic.Sequence(ac, tempo, s4);
+export const level5 = new TinyMusic.Sequence(ac, tempo, s5);
 // const level6 = new TinyMusic.Sequence( ac, tempo, s6 );
 
 // Level 1
@@ -105,7 +105,7 @@ level5.staccato = .30;
 level5.gain.gain.value = 0.9 / 8;
 level5.bass.gain.value = 8;
 level5.bass.frequency.value = 100;
-level5.createCustomWave([-1,-0.9,-0.6,-0.3, 0, 0.3, 0.6, 0.9,1]);
+level5.createCustomWave([-1, -0.9, -0.6, -0.3, 0, 0.3, 0.6, 0.9, 1]);
 
 
 // Level 6
@@ -134,10 +134,10 @@ const chirp = [
   'C#5  0.0125', 'C#2 0.0125',
 ];
 
-const bounceSound = new TinyMusic.Sequence( ac, tempo, bounce);
-const dropDownSound = new TinyMusic.Sequence( ac, tempo, drop);
-const paddleBounceSound = new TinyMusic.Sequence( ac, tempo, paddleBounceSFX);
-const chirpSound = new TinyMusic.Sequence( ac, tempo, chirp);
+const bounceSound = new TinyMusic.Sequence(ac, tempo, bounce);
+const dropDownSound = new TinyMusic.Sequence(ac, tempo, drop);
+const paddleBounceSound = new TinyMusic.Sequence(ac, tempo, paddleBounceSFX);
+const chirpSound = new TinyMusic.Sequence(ac, tempo, chirp);
 
 // bounceSound.staccato = 0.65;
 bounceSound.staccato = .10;
@@ -170,11 +170,11 @@ dropDownSound.loop = false;
 export function playMusic() {
   // Set Global for other sequences to sync to
   SONG_START = ac.currentTime;
-  level1.play( SONG_START );
+  level1.play(SONG_START);
 }
 
 export function startNextSong(sequence) {
-  sequence.play( SONG_START );
+  sequence.play(SONG_START);
 }
 
 
@@ -188,17 +188,17 @@ export function stopMusic() {
 }
 
 export function playBounceSound() {
-  bounceSound.play( ac.currentTime );
+  bounceSound.play(ac.currentTime);
 }
 
 export function playPaddleSound() {
-  paddleBounceSound.play( ac.currentTime );
+  paddleBounceSound.play(ac.currentTime);
 }
 
 export function playChirpSound() {
-  chirpSound.play( ac.currentTime );
+  chirpSound.play(ac.currentTime);
 }
 
 export function playDropSound(delay) {
-  dropDownSound.play( ac.currentTime + delay / 1000 );
+  dropDownSound.play(ac.currentTime + delay / 1000);
 }
