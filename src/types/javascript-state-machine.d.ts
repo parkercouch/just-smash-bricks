@@ -8,9 +8,9 @@ declare module 'javascript-state-machine' {
         from: string,
         to: string,
       }[],
-      methods: {[key: string]: () => void},
+      methods: { [key: string]: () => void },
     });
-    [k: string]: () => void;
+    [key: string]: () => void;
   }
 }
 

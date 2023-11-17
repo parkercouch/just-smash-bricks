@@ -16,8 +16,8 @@ export const kontra = {
     // check if canvas is a string first, an element next, or default to getting
     // first canvas on page
     var canvasEl = this.canvas = document.getElementById(canvas) ||
-                                 canvas ||
-                                 document.querySelector('canvas');
+      canvas ||
+      document.querySelector('canvas');
 
     // @if DEBUG
     if (!canvasEl) {
@@ -73,7 +73,7 @@ export const kontra = {
 
     // check for required functions
     // @if DEBUG
-    if ( !(properties.update && properties.render) ) {
+    if (!(properties.update && properties.render)) {
       throw Error('You must provide update() and render() functions');
     }
     // @endif
@@ -85,10 +85,10 @@ export const kontra = {
     let step = 1 / fps;
 
     let clear = (properties.clearCanvas === false ?
-                kontra._noop :
-                function clear() {
-                  kontra.context.clearRect(0,0,kontra.canvas.width,kontra.canvas.height);
-                });
+      kontra._noop :
+      function clear() {
+        kontra.context.clearRect(0, 0, kontra.canvas.width, kontra.canvas.height);
+      });
     let last, rAF, now, dt;
 
     /**
@@ -175,11 +175,11 @@ export const kontra = {
   // alpha keys
   // @see https://stackoverflow.com/a/43095772/2124254
   for (let i = 0; i < 26; i++) {
-    keyMap[65+i] = (10 + i).toString(36);
+    keyMap[65 + i] = (10 + i).toString(36);
   }
   // numeric keys
   for (let i = 0; i < 10; i++) {
-    keyMap[48+i] = ''+i;
+    keyMap[48 + i] = '' + i;
   }
 
   addEventListener('keydown', keydownEventHandler);
@@ -208,7 +208,7 @@ export const kontra = {
    * @param {Event} e
    */
   function keyupEventHandler(e) {
-    pressedKeys[ keyMap[e.which] ] = false;
+    pressedKeys[keyMap[e.which]] = false;
   }
 
   /**
@@ -332,11 +332,11 @@ export const kontra = {
     }
 
     set x(value) {
-      this._x = (this._c ? Math.min( Math.max(this._a, value), this._d ) : value);
+      this._x = (this._c ? Math.min(Math.max(this._a, value), this._d) : value);
     }
 
     set y(value) {
-      this._y = (this._c ? Math.min( Math.max(this._b, value), this._e ) : value);
+      this._y = (this._c ? Math.min(Math.max(this._b, value), this._e) : value);
     }
   }
 
@@ -400,7 +400,7 @@ export const kontra = {
       // defaults
       this.width = this.height = this.rotation = 0;
       this.ttl = 0;
-      this.anchor = {x: 0, y: 0};
+      this.anchor = { x: 0, y: 0 };
       this.context = kontra.context;
 
       // loop through properties before overrides
@@ -524,7 +524,7 @@ export const kontra = {
     isAlive() {
       return this.ttl > 0;
     }
-    
+
     /**
      * Simple bounding box collision test.
      * NOTE: Does not take into account sprite rotation. If you need collision
@@ -551,9 +551,9 @@ export const kontra = {
       }
 
       return x < objX + object.width &&
-             x + this.width > objX &&
-             y < objY + object.height &&
-             y + this.height > objY;
+        x + this.width > objX &&
+        y < objY + object.height &&
+        y + this.height > objY;
     }
 
     /**
@@ -714,9 +714,9 @@ export const kontra = {
   let audio = new Audio();
   let canUse = {
     wav: '',
-    mp3: audio.canPlayType('audio/mpeg;').replace(noRegex,''),
-    ogg: audio.canPlayType('audio/ogg; codecs="vorbis"').replace(noRegex,''),
-    aac: audio.canPlayType('audio/aac;').replace(noRegex,'')
+    mp3: audio.canPlayType('audio/mpeg;').replace(noRegex, ''),
+    ogg: audio.canPlayType('audio/ogg; codecs="vorbis"').replace(noRegex, ''),
+    aac: audio.canPlayType('audio/aac;').replace(noRegex, '')
   };
 
   /**
@@ -779,7 +779,7 @@ export const kontra = {
 
       image.onload = function loadImageOnLoad() {
         let fullUrl = assets._u(url, window.location.href);
-        assets.images[ getName(originalUrl) ] = assets.images[url] = assets.images[fullUrl] = this;
+        assets.images[getName(originalUrl)] = assets.images[url] = assets.images[fullUrl] = this;
         resolve(this);
       };
 
@@ -810,7 +810,7 @@ export const kontra = {
 
       // determine which audio format the browser can play
       originalUrl = [].concat(originalUrl).reduce(function(a, source) {
-        return canUse[ getExtension(source) ] ? source : a
+        return canUse[getExtension(source)] ? source : a
       }, undefined);
 
       if (!originalUrl) {
@@ -822,7 +822,7 @@ export const kontra = {
 
         audio.addEventListener('canplay', function loadAudioOnLoad() {
           let fullUrl = assets._u(url, window.location.href);
-          assets.audio[ getName(originalUrl) ] = assets.audio[url] = assets.audio[fullUrl] = this;
+          assets.audio[getName(originalUrl)] = assets.audio[url] = assets.audio[fullUrl] = this;
           resolve(this);
         });
 
@@ -861,7 +861,7 @@ export const kontra = {
         assets._d.set(data, fullUrl);
       }
 
-      assets.data[ getName(originalUrl) ] = assets.data[url] = assets.data[fullUrl] = data;
+      assets.data[getName(originalUrl)] = assets.data[url] = assets.data[fullUrl] = data;
       return data;
     });
   }
@@ -950,10 +950,10 @@ export const kontra = {
     // @if DEBUG
     let obj;
     if (!properties.create ||
-        ( !( obj = properties.create() ) ||
-          !( obj.update && obj.init &&
-             obj.isAlive )
-       )) {
+      (!(obj = properties.create()) ||
+        !(obj.update && obj.init &&
+          obj.isAlive)
+      )) {
       throw Error('Must provide create() function which returns an object with init(), update(), and isAlive() functions');
     }
     // @endif
@@ -1224,7 +1224,7 @@ export const kontra = {
     let y = pageY - kontra.canvas.offsetTop;
     let el = kontra.canvas;
 
-    while ( (el = el.offsetParent) ) {
+    while ((el = el.offsetParent)) {
       x -= el.offsetLeft;
       y -= el.offsetTop;
     }
@@ -1452,7 +1452,7 @@ export const kontra = {
           indices = this._g(object);
 
           for (i = 0; i < indices.length; i++) {
-            objects.push.apply(objects, this.subnodes[ indices[i] ].get(object));
+            objects.push.apply(objects, this.subnodes[indices[i]].get(object));
           }
 
           return objects;
@@ -1523,7 +1523,7 @@ export const kontra = {
 
         // add the object to all subnodes it intersects
         for (i = 0; i < indices.length; i++) {
-          this.subnodes[ indices[i] ].add(object);
+          this.subnodes[indices[i]].add(object);
         }
       },
 
@@ -1596,7 +1596,7 @@ export const kontra = {
               width: subWidth,
               height: subHeight
             },
-            depth: this._d+1,
+            depth: this._d + 1,
             maxDepth: this.maxDepth,
             maxObjects: this.maxObjects,
             /* @if VISUAL_DEBUG */
@@ -1610,23 +1610,23 @@ export const kontra = {
        * Draw the quadtree. Useful for visual debugging.
        * @memberof kontra.quadtree
        */
-       /* @if VISUAL_DEBUG **
-       render() {
-         // don't draw empty leaf nodes, always draw branch nodes and the first node
-         if (this.objects.length || this._d === 0 ||
-             (this._p && this._p._b)) {
+      /* @if VISUAL_DEBUG **
+      render() {
+        // don't draw empty leaf nodes, always draw branch nodes and the first node
+        if (this.objects.length || this._d === 0 ||
+            (this._p && this._p._b)) {
 
-           kontra.context.strokeStyle = 'red';
-           kontra.context.strokeRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+          kontra.context.strokeStyle = 'red';
+          kontra.context.strokeRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 
-           if (this.subnodes.length) {
-             for (let i = 0; i < 4; i++) {
-               this.subnodes[i].render();
-             }
-           }
-         }
-       }
-       /* @endif */
+          if (this.subnodes.length) {
+            for (let i = 0; i < 4; i++) {
+              this.subnodes[i].render();
+            }
+          }
+        }
+      }
+      /* @endif */
     };
   };
 })();
@@ -1693,7 +1693,7 @@ export const kontra = {
     update(dt) {
 
       // if the animation doesn't loop we stop at the last frame
-      if (!this.loop && this._f == this.frames.length-1) return;
+      if (!this.loop && this._f == this.frames.length - 1) return;
 
       dt = dt || 1 / 60;
 
@@ -1943,11 +1943,11 @@ export const kontra = {
       // Firefox and Safari won't draw it.
       // @see http://stackoverflow.com/questions/19338032/canvas-indexsizeerror-index-or-size-is-negative-or-greater-than-the-allowed-a
       set sx(value) {
-        this._sx = Math.min( Math.max(0, value), mapwidth - kontra.canvas.width );
+        this._sx = Math.min(Math.max(0, value), mapwidth - kontra.canvas.width);
       },
 
       set sy(value) {
-        this._sy = Math.min( Math.max(0, value), mapheight - kontra.canvas.height );
+        this._sy = Math.min(Math.max(0, value), mapheight - kontra.canvas.height);
       },
 
       /**
@@ -2071,7 +2071,7 @@ export const kontra = {
         });
       }
 
-      if (''+tileset.image === tileset.image) {
+      if ('' + tileset.image === tileset.image) {
         // @if DEBUG
         if (!kontra.assets) {
           throw Error(`You must use "kontra.assets" to resolve tileset.image`);
@@ -2133,7 +2133,7 @@ export const kontra = {
         // find the tileset the tile belongs to
         // assume tilesets are ordered by firstgid
         let tileset;
-        for (let i = tileEngine.tilesets.length-1; i >= 0; i--) {
+        for (let i = tileEngine.tilesets.length - 1; i >= 0; i--) {
           tileset = tileEngine.tilesets[i];
 
           if (tile / tileset.firstgid >= 1) {
@@ -2236,7 +2236,7 @@ kontra.store = {
     try {
       value = JSON.parse(value);
     }
-    catch(e) {}
+    catch (e) { }
 
     return value;
   }
