@@ -1,13 +1,18 @@
 /* eslint-disable */
 import TinyMusic from 'tinymusic';
 
-/* TINY MUSIC ENABLED SOUNDS! */
+// TODO: figure out way to remove this
+declare global {
+  interface Window {
+    webkitAudioContext: typeof AudioContext;
+  }
+}
 
 // create the audio context and set the start time and tempo
-export const ac =
+export const ac: AudioContext =
   typeof AudioContext !== 'undefined'
     ? new AudioContext()
-    : new webkitAudioContext();
+    : new window.webkitAudioContext();
 let SONG_START = ac.currentTime;
 const tempo = 60;
 
@@ -171,7 +176,7 @@ export function playMusic() {
   level1.play(SONG_START);
 }
 
-export function startNextSong(sequence) {
+export function startNextSong(sequence: TinyMusic.Sequence) {
   sequence.play(SONG_START);
 }
 
@@ -196,6 +201,6 @@ export function playChirpSound() {
   chirpSound.play(ac.currentTime);
 }
 
-export function playDropSound(delay) {
+export function playDropSound(delay: number) {
   dropDownSound.play(ac.currentTime + delay / 1000);
 }
