@@ -1,14 +1,18 @@
 /* eslint-disable */
-import TinyMusic from "tinymusic";
+import TinyMusic from 'tinymusic';
 
 /* TINY MUSIC ENABLED SOUNDS! */
 
 // create the audio context and set the start time and tempo
-export const ac = typeof AudioContext !== 'undefined' ? new AudioContext : new webkitAudioContext;
+export const ac =
+  typeof AudioContext !== 'undefined'
+    ? new AudioContext()
+    : new webkitAudioContext();
 let SONG_START = ac.currentTime;
 const tempo = 60;
 
 // Slow Bass
+// prettier-ignore
 const s1 = [
   'C3  q', '-   h', 'E3   q',
   'G2  q', '-   h', 'F#2  q',
@@ -19,6 +23,7 @@ const s1 = [
 ];
 
 // Lead
+// prettier-ignore
 const s2 = [
   'C4   e', 'C4   e', 'C4   e', 'C4   e', 'C#4  e', 'C#4  e', 'C#4  e', 'C#4  e',
   'C#4  e', 'E5   e', 'E5   e', 'E5   e', 'E5   e', 'E5   e', 'E5   e', '-    e',
@@ -28,6 +33,7 @@ const s2 = [
 ];
 
 // Dissonant harmony
+// prettier-ignore
 const s3 = [
   '-   e', 'C#4 e', 'C#3 e', 'C#4 e', '-   e', '-   e', 'C#2 e', '-   e',
   '-   e', 'C#4 e', 'C#3 e', 'C#4 e', '-   e', '-   e', 'C#2 e', '-   e',
@@ -38,6 +44,7 @@ const s3 = [
 ];
 
 // Bass
+// prettier-ignore
 const s4 = [
   'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e', '-   e',
   'C#4 s', 'C#1 s', '- e', '- e', '-   e', '-   e', '- e', '-   e', '-   e',
@@ -48,6 +55,7 @@ const s4 = [
 ];
 
 // Dissonant harmony
+// prettier-ignore
 const s5 = [
   '-   e', '-   s', 'F#2 es', 'C#4 s', 'C#2 e', 'F#1 e', '-   es', 'C#2 s', '-   s',
   '-   e', '-   s', 'F#2 es', 'C#4 s', 'C#2 e', 'F#1 e', '-   es', 'C#2 s', 'C#1 s',
@@ -101,38 +109,28 @@ level4.treble.frequency.value = 1400;
 level4.gain.gain.value = 0.65 / 8;
 
 // Level 5
-level5.staccato = .30;
+level5.staccato = 0.3;
 level5.gain.gain.value = 0.9 / 8;
 level5.bass.gain.value = 8;
 level5.bass.frequency.value = 100;
 level5.createCustomWave([-1, -0.9, -0.6, -0.3, 0, 0.3, 0.6, 0.9, 1]);
 
-
 // Level 6
 // Silence...
-
 
 // SFX
 
 // Drop Down
-const drop = [
-  '- s', 'F#6  e', 'F#1 e', '- s'
-];
+const drop = ['- s', 'F#6  e', 'F#1 e', '- s'];
 
 // Wall bounce sound
-const bounce = [
-  'C#2 0.0125', 'F#1 0.0125',
-];
+const bounce = ['C#2 0.0125', 'F#1 0.0125'];
 
 // Paddle bonce sound
-const paddleBounceSFX = [
-  'F#2 s', '- s',
-];
+const paddleBounceSFX = ['F#2 s', '- s'];
 
 // Chirp Sound
-const chirp = [
-  'C#5  0.0125', 'C#2 0.0125',
-];
+const chirp = ['C#5  0.0125', 'C#2 0.0125'];
 
 const bounceSound = new TinyMusic.Sequence(ac, tempo, bounce);
 const dropDownSound = new TinyMusic.Sequence(ac, tempo, drop);
@@ -140,7 +138,7 @@ const paddleBounceSound = new TinyMusic.Sequence(ac, tempo, paddleBounceSFX);
 const chirpSound = new TinyMusic.Sequence(ac, tempo, chirp);
 
 // bounceSound.staccato = 0.65;
-bounceSound.staccato = .10;
+bounceSound.staccato = 0.1;
 bounceSound.gain.gain.value = 0.6 / 9;
 bounceSound.loop = false;
 
@@ -176,7 +174,6 @@ export function playMusic() {
 export function startNextSong(sequence) {
   sequence.play(SONG_START);
 }
-
 
 // pause
 export function stopMusic() {
