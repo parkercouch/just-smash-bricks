@@ -1,86 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-
-  <!-- Basic Page Needs
+  <head>
+    <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta charset="utf-8">
-  <title>Just Smash Bricks!</title>
-  <meta name="description" content="Breakout/Arkanoid type game">
-  <meta name="author" content="Parker Couch">
+    <meta charset="utf-8" />
+    <title>Just Smash Bricks!</title>
+    <meta name="description" content="Breakout/Arkanoid type game" />
+    <meta name="author" content="Parker Couch" />
 
-  <!-- Mobile Specific Metas
+    <!-- Mobile Specific Metas
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- FONT
+    <!-- FONT
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet"
+    />
 
-  <!-- CSS
+    <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="stylesheet" href="./css/normalize.css">
-  <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/normalize.css" />
+    <link rel="stylesheet" href="./css/styles.css" />
 
-  <!-- Favicon
+    <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="assets/img/png" href="./assets/img/favicon.png">
+    <link rel="icon" type="assets/img/png" href="./assets/img/favicon.png" />
 
-  <!-- Scripts
+    <!-- Scripts
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <script type="module" src="./src/app.ts"></script>
-</head>
-<body>
-
-  <!-- Primary Page Layout
+    <script type="module" src="./src/app.ts"></script>
+  </head>
+  <body>
+    <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <div class="container">
-    <!-- Canvas for game
+    <div class="container">
+      <!-- Canvas for game
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <div id="game-container">
-      <div id="top-display"></div>
-      <div id="message"></div>
-      <div id="title"></div>
-      <canvas id="game"></canvas>
-      <div id="controls" class="hide-controls">
-        <div class="left touch-buttons">&#9664;</div>
-        <div class="middle touch-buttons">&#9650;</div>
-        <div class="right touch-buttons">&#9654;</div>
-      </div>
-    </div>
-    <div id="info-container">
-      <div class="info row">
-        <div id="options" class="column">
-          <button id="fs-button">Fullscreen</button>
-          <button id="mute-button">Mute</button>
-          <button id="speed-button">Change Speed</button>
-          <button id="debug-button">Debug Mode</button>
-        </div>
-        <div id="highscores">
-          <h3 class="block-header">Top 5 High Scores</h3>
-          <ul id="highscore-list">
-          </ul>
+      <div id="game-container">
+        <div id="top-display"></div>
+        <div id="message"></div>
+        <div id="title"></div>
+        <canvas id="game"></canvas>
+        <div id="controls" class="hide-controls">
+          <div class="left touch-buttons">&#9664;</div>
+          <div class="middle touch-buttons">&#9650;</div>
+          <div class="right touch-buttons">&#9654;</div>
         </div>
       </div>
-      <div class="info row">
-        <h3 class="block-header">Story</h3>
-        <p>
-          For some reason you have to smash bricks. That's all they will tell
-          you and they won't let you ask questions. You don't remember anything
-          and you have no idea where you are. I guess the only option now is to
-          just smash bricks. 
-        </p>
-      </div>
-      
-      <div class="info row">
-        <h3 class="block-header">Controls</h3>
-        <h5 class="block-header">*Fullscreen recommended for best touch controls*</h5>
-        <p>Move left -- Left, a, tap left, &#9664;</p>
-        <p>Move right -- Right, d, tap right, &#9654;</p> 
-        <p>Launch Ball -- Up, w, tap middle, &#9650;</p>
-      </div>
+      <div id="info-container">
+        <div class="info row">
+          <div id="options" class="column">
+            <button id="fs-button">Fullscreen</button>
+            <button id="mute-button">Mute</button>
+            <button id="speed-button">Change Speed</button>
+            <button id="debug-button">Debug Mode</button>
+          </div>
+          <div id="highscores">
+            <h3 class="block-header">Top 5 High Scores</h3>
+            <ul id="highscore-list"></ul>
+          </div>
+        </div>
+        <div class="info row">
+          <h3 class="block-header">Story</h3>
+          <p>
+            For some reason you have to smash bricks. That's all they will tell
+            you and they won't let you ask questions. You don't remember
+            anything and you have no idea where you are. I guess the only option
+            now is to just smash bricks.
+          </p>
+        </div>
 
+        <div class="info row">
+          <h3 class="block-header">Controls</h3>
+          <h5 class="block-header">
+            *Fullscreen recommended for best touch controls*
+          </h5>
+          <p>Move left -- Left, a, tap left, &#9664;</p>
+          <p>Move right -- Right, d, tap right, &#9654;</p>
+          <p>Launch Ball -- Up, w, tap middle, &#9650;</p>
+        </div>
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>
