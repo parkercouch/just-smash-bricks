@@ -18,4 +18,10 @@ module.exports = {
       extends: ['plugin:@typescript-eslint/disable-type-checked'],
     },
   ],
+  ignorePatterns: [
+    'node_modules/',
+    '**/node_modules/',
+    '/**/node_modules/*',
+    'dist/',
+  ]
 };
