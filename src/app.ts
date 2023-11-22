@@ -1,4 +1,12 @@
-import { kontra } from './kontra.js';
+/* eslint-disable */
+/* eslint @typescript-eslint/no-unsafe-member-access:0 */
+/* eslint @typescript-eslint/no-unsafe-call:0 */
+/* eslint @typescript-eslint/no-unsafe-assignment:0 */
+/* eslint @typescript-eslint/no-explicit-any:0 */
+
+// import { kontra } from './kontra.js';
+// import Kontra from 'kontra';
+import { GameLoop, GameObject, Pool, Sprite, getCanvas, getContext, init, keyPressed, track } from 'kontra';
 import * as TWEEN from '@tweenjs/tween.js';
 import StateMachine from 'javascript-state-machine';
 import screenfull from 'screenfull';
@@ -52,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('fs-button')?.addEventListener('click', (e) => {
     (e.target as HTMLElement).blur();
     if (screenfull.isEnabled) {
-      screenfull.toggle();
+      void screenfull.toggle();
     }
   });
   screenfull.onchange(() => {
@@ -94,11 +102,11 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('mute-button')?.addEventListener('click', (e) => {
     (e.target as HTMLElement).blur();
     if (ac.state === 'running') {
-      ac.suspend().then(function() {
+      void ac.suspend().then(function() {
         (e.target as HTMLElement).textContent = 'Unmute';
       });
     } else if (ac.state === 'suspended') {
-      ac.resume().then(function() {
+      void ac.resume().then(function() {
         playMusic();
         (e.target as HTMLElement).textContent = 'Mute';
       });
@@ -113,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Make sure the canvas is the right size/resolution
   resizeCanvasToDisplaySize(canvasElement);
   // Attach canvas to Kontra
-  kontra.init(canvasElement);
+  init(canvasElement);
   // Start everything!
   gameStates.startLoading();
 });
@@ -141,7 +149,7 @@ const startGameLoop = function() {
   const ballPool = newBallPool();
   newBall(ballPool, paddle);
   // Clamp vector in boundaries
-  ballPool.getAliveObjects()[0].contain();
+  (ballPool.getAliveObjects()[0] as Sprite).contain();
 
   // TOUCH BUTTONS //
   // Create buttons
@@ -153,7 +161,7 @@ const startGameLoop = function() {
   const moveLeftFunc = movePaddleLeft(paddle);
   const moveRightFunc = movePaddleRight(paddle);
   const stopPaddleFunc = stopPaddle(paddle);
-  const shootBallFunc = launchBall(ballPool.getAliveObjects()[0]);
+  const shootBallFunc = launchBall(ballPool.getAliveObjects()[0] as Sprite);
 
   // Fullscreen buttons
   addTouchEventListeners(
@@ -164,9 +172,9 @@ const startGameLoop = function() {
   );
 
   // Track pointer on buttons
-  kontra.pointer.track(leftButton);
-  kontra.pointer.track(rightButton);
-  kontra.pointer.track(middleButton);
+  track(leftButton);
+  track(rightButton);
+  track(middleButton);
 
   // BOUNDARY WALLS //
   const walls = createWalls();
@@ -182,7 +190,7 @@ const startGameLoop = function() {
 
   // Particles //
   const particlePool = newParticlePool(100);
-  createParticles(particlePool, 10, ballPool.getAliveObjects()[0]);
+  createParticles(particlePool, 10, ballPool.getAliveObjects()[0] as Sprite);
 
   // PRE-RENDER //
 
@@ -197,14 +205,14 @@ const startGameLoop = function() {
 
   // Drop in first level
   playDropSound(100);
-  brickPool.getAliveObjects().forEach((brick: Sprite, i: number) => {
-    brick.onSpawn(100 / (1 + Math.floor(i / 6)));
+  brickPool.getAliveObjects().forEach((brick, i) => {
+    (brick as Sprite).onSpawn(100 / (1 + Math.floor(i / 6)));
   });
 
   //------------------//
   //- MAIN GAME LOOP -//
   //------------------//
-  GAMELOOP = kontra.gameLoop({
+  GAMELOOP = GameLoop({
     fps: FPS,
 
     // UPDATE GAME STATE //
@@ -217,7 +225,7 @@ const startGameLoop = function() {
 
       //DEBUG AUTO MOVE //
       if (DEBUG_ON) {
-        if (ballPool.getAliveObjects()[0].attached === null) {
+        if ((ballPool.getAliveObjects()[0] as Sprite).attached === null) {
           paddle.autoMove(ballPool.getAliveObjects()[0]);
         } else {
           paddle.update();
@@ -231,6 +239,7 @@ const startGameLoop = function() {
       // Ready to check for collision!
 
       // console.log(bricks, walls, paddle)
+      // @ts-ignore TODO: hmm...
       ballPool.update(dt, [...bricks, ...walls, paddle]);
 
       particlePool.update();
@@ -265,11 +274,11 @@ const startGameLoop = function() {
           updateLives();
           newBall(ballPool, paddle);
           // Clamp vector in boundaries
-          ballPool.getAliveObjects()[0].contain();
+          (ballPool.getAliveObjects()[0] as Sprite).contain();
           // Reset button to launch new ball
-          middleButton.onDown = launchBall(ballPool.getAliveObjects()[0]);
+          middleButton.onDown = launchBall(ballPool.getAliveObjects()[0] as Sprite);
           // Update fs-touch button
-          updateMiddleTouchButton(launchBall(ballPool.getAliveObjects()[0]));
+          updateMiddleTouchButton(launchBall(ballPool.getAliveObjects()[0] as Sprite));
         }
       }
     },
@@ -331,7 +340,7 @@ function loadAssets() {
       clearTimeout(id);
     });
     // Resume AudioContext and start playing music after interaction
-    ac.resume().then(() => {
+    void ac.resume().then(() => {
       playMusic();
     });
     setTimeout(() => {
@@ -348,8 +357,9 @@ function loadAssets() {
 // displayMenu :: () -> ()
 function displayMenu() {
   // Clear Canvas
-  const context = kontra.canvas.getContext('2d');
-  context.clearRect(0, 0, kontra.canvas.width, kontra.canvas.height);
+  const context = getContext();
+  const canvas = getCanvas();
+  context.clearRect(0, 0, canvas.width, canvas.height);
   hideTopDisplay();
   clearMessages();
   // Display Menu
@@ -361,11 +371,11 @@ function displayMenu() {
 
 // Start click event listener
 // waitForButton :: Event -> ()
-function waitForButton(_e: any) {
+function waitForButton() {
   GAME_CONTAINER?.removeEventListener('click', waitForButton);
   document.removeEventListener('keypress', waitForButton);
   // Resume AudioContext and start playing music after interaction
-  ac.resume().then(() => {
+  void ac.resume().then(() => {
     playMusic();
   });
   clearMessages();
@@ -682,10 +692,10 @@ function paddleUpdate() {
 function movePaddle() {
   this.advance();
   switch (true) {
-    case kontra.keys.pressed('left') || kontra.keys.pressed('a'):
+    case keyPressed('left') || keyPressed('a'):
       this.dx = -5;
       break;
-    case kontra.keys.pressed('right') || kontra.keys.pressed('d'):
+    case keyPressed('right') || keyPressed('d'):
       this.dx = 5;
       break;
     case !this.moving:
@@ -752,7 +762,7 @@ function movingBall(dt: number, collidableObjects: Sprite[]) {
     this.y = this.attached.y - this.radius + 3 - this.attached.height / 2;
 
     // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
-    if (kontra.keys.pressed('w') || kontra.keys.pressed('up')) {
+    if (keyPressed('w') || keyPressed('up')) {
       if (Math.floor(Math.random() * 100) % 2 === 0) {
         this.dx = -5;
       } else {
@@ -768,16 +778,8 @@ function movingBall(dt: number, collidableObjects: Sprite[]) {
   // Calculate future position of ball
   const nextPosition = move(this, dt);
 
-  const {
-    closest,
-    closestMagnitude,
-  }: { closest: Collidable | null; closestMagnitude: number } =
-    collidableObjects.reduce(
-      (
-        acc: { closest: Collidable | null; closestMagnitude: number },
-        item: Item,
-      ) => {
-        const point: Point | null = this.collidesWith(item, nextPosition);
+  const { closest, closestMagnitude } = collidableObjects.reduce( (acc, item) => {
+        const point: GameObject | null = this.collidesWith(item, nextPosition);
         if (isNullOrUndefined(point)) {
           // No collision happened
           return acc;
@@ -786,13 +788,13 @@ function movingBall(dt: number, collidableObjects: Sprite[]) {
         const currentMagnitude = magnitude(point.x - this.x, point.y - this.y);
         if (currentMagnitude < acc.closestMagnitude) {
           return {
-            closest: { item, point },
+            closest: item,
             closestMagnitude: currentMagnitude,
           };
         }
         return acc;
       },
-      { closestMagnitude: Infinity, closest: null },
+      { closestMagnitude: Infinity, closest: null } as {closestMagnitude: number, closest: Sprite | null},
     );
 
   if (isNullOrUndefined(closest)) {
@@ -994,8 +996,8 @@ function particleGravity() {
 
 // Create the main paddle
 // createPaddle :: () -> Sprite
-function createPaddle() {
-  const newPaddle = kontra.sprite({
+function createPaddle(): Sprite {
+  const newPaddle = Sprite({
     type: 'paddle',
     anchor: {
       x: 0.5,
@@ -1070,32 +1072,31 @@ function newBall(pool: Pool, paddle: Sprite) {
 
 // Creates new brick pool
 // newBrickPool :: () -> ()
-function newBrickPool() {
-  return kontra.pool({
-    // create a new sprite every time the pool needs new objects
-    create: kontra.sprite,
+function newBrickPool(): Pool {
+  return Pool({
+    // @ts-ignore issue with kontra d.ts
+    create: () => {return Sprite();},
     maxSize: 100,
-    fill: true,
   });
 }
 
 // Creates new ball pool
 // newBallPool :: () -> ()
-function newBallPool() {
-  return kontra.pool({
-    create: kontra.sprite,
+function newBallPool(): Pool {
+  return Pool({
+    // @ts-ignore issue with kontra d.ts
+    create: Sprite,
     maxSize: 10,
-    fill: true,
   });
 }
 
 // Creates the boundary walls
 // createWalls :: () -> [Sprite]
-function createWalls() {
+function createWalls(): Sprite[] {
   // WALLS //
   return [
     // Left Wall
-    kontra.sprite({
+    Sprite({
       type: 'wall',
       anchor: {
         x: 1,
@@ -1115,7 +1116,7 @@ function createWalls() {
     }),
 
     // Right Wall
-    kontra.sprite({
+    Sprite({
       type: 'wall',
       anchor: {
         x: 0,
@@ -1135,7 +1136,7 @@ function createWalls() {
     }),
 
     // Top Wall
-    kontra.sprite({
+    Sprite({
       type: 'wall',
       anchor: {
         x: 0,
@@ -1155,7 +1156,7 @@ function createWalls() {
     }),
 
     // Bottom Wall
-    kontra.sprite({
+    Sprite({
       type: 'blackhole',
       anchor: {
         x: 0,
@@ -1180,12 +1181,11 @@ function createWalls() {
 
 // Create a pool to pull particles from
 // newParticlePool :: Maybe Int -> Pool
-function newParticlePool(max = 50) {
-  return kontra.pool({
-    // create a new sprite every time the pool needs new objects
-    create: kontra.sprite,
+function newParticlePool(max = 50): Pool {
+  return Pool({
+    // @ts-ignore issue with kontra d.ts
+    create: Sprite,
     maxSize: max,
-    fill: true,
   });
 }
 
@@ -1216,8 +1216,8 @@ function createParticles(pool: Pool, amount: number, barycenter: Sprite) {
   }
   // Keep particles contained so they don't fly too far away
   // This keeps them just off screen so they don't clump up and look weird
-  pool.getAliveObjects().forEach((particle: Sprite) => {
-    particle.position.clamp(-50, -50, CANVAS_WIDTH + 50, CANVAS_HEIGHT + 50);
+  pool.getAliveObjects().forEach((particle) => {
+    (particle as Sprite).position.clamp(-50, -50, CANVAS_WIDTH + 50, CANVAS_HEIGHT + 50);
   });
 }
 
@@ -1226,7 +1226,7 @@ function createParticles(pool: Pool, amount: number, barycenter: Sprite) {
 // Create left button sprite for touch input
 // createLeftButton :: Sprite -> Sprite
 function createLeftButton(paddle: Sprite): Sprite {
-  return kontra.sprite({
+  return Sprite({
     type: 'button',
     action: 'left',
     anchor: {
@@ -1249,7 +1249,7 @@ function createLeftButton(paddle: Sprite): Sprite {
 // Create right button sprite for touch input
 // createRightButton :: Sprite -> Sprite
 function createRightButton(paddle: Sprite): Sprite {
-  return kontra.sprite({
+  return Sprite({
     type: 'button',
     action: 'right',
     anchor: {
@@ -1273,7 +1273,7 @@ function createRightButton(paddle: Sprite): Sprite {
 // Create Middle button sprite for touch input
 // createMiddleButton :: Pool -> Sprite
 function createMiddleButton(balls: Pool): Sprite {
-  return kontra.sprite({
+  return Sprite({
     type: 'button',
     action: 'launch',
     anchor: {
@@ -1288,7 +1288,7 @@ function createMiddleButton(balls: Pool): Sprite {
     width: CANVAS_WIDTH / 4,
     height: CANVAS_HEIGHT,
     fill: false,
-    onDown: launchBall(balls.getAliveObjects()[0]),
+    onDown: launchBall(balls.getAliveObjects()[0] as Sprite),
     onUp: disableLaunch,
     render: renderButton,
   });
@@ -1474,8 +1474,8 @@ function advanceLevel(
       return 0;
   }
 
-  bricks.getAliveObjects().forEach((brick: Sprite, i: number) => {
-    brick.onSpawn(500 / (1 + Math.floor(i / 6)));
+  bricks.getAliveObjects().forEach((brick, i) => {
+    (brick as Sprite).onSpawn(500 / (1 + Math.floor(i / 6)));
   });
 
   // bricks.getAliveObjects().forEach((brick) => {
@@ -1729,19 +1729,31 @@ function debugAutoMove(ball: Sprite) {
 // Make initial empty highScore array if none exists
 // initializeHighScores :: () -> ()
 function initializeHighScores() {
-  // console.log(localStorage.getItem('highScores'));
   if (localStorage.getItem('highScores') === null) {
-    kontra.store.set('highScores', []);
+    setHighScores([]);
   } else {
-    displayHighScore(kontra.store.get('highScores'));
+    displayHighScore(getHighScores());
   }
+}
+
+function getHighScores(): number[] {
+  try {
+    return JSON.parse(localStorage.getItem('highScores') ?? '[]');
+  }
+  catch (e) {
+    return [];
+  }
+}
+
+function setHighScores(scores: number[]) {
+  localStorage.setItem('highScores', JSON.stringify(scores));
 }
 
 // Add current score if in the top 3
 // updateHighScore :: Int -> ()
 function updateHighScores(score: number) {
   // Add current score, sort, then remove lowest (to keep only 3)
-  const currentHighScores = kontra.store.get('highScores');
+  const currentHighScores = getHighScores();
   currentHighScores.push(score);
   currentHighScores.sort((a: number, b: number) => b - a);
 
@@ -1752,8 +1764,7 @@ function updateHighScores(score: number) {
 
   displayHighScore(currentHighScores);
 
-  // update local storage
-  kontra.store.set('highScores', currentHighScores);
+  setHighScores(currentHighScores);
 }
 
 // Show high scores for the user
@@ -1927,35 +1938,6 @@ function startIntroScene() {
   return ids;
 }
 
-// TODO: Move to actual Kontra types. This is just a temp fix
-
-type Item = {
-  type: string;
-  onHit: Function;
-  width: number;
-  hits: number;
-  ttl: number;
-  x: number;
-  y: number;
-};
-
-type Point = {
-  x: number;
-  y: number;
-  d: string;
-  onHit: Function;
-};
-
-type Collidable = {
-  item: Item;
-  point: Point;
-};
-
-// TODO: Temp type aliases to make swapping to real types easier
-type Sprite = any;
-type Pool = any;
-type GameLoop = any;
-
-function isNullOrUndefined(obj: any): obj is null | undefined {
+function isNullOrUndefined(obj: unknown): obj is null | undefined {
   return obj === null || obj === undefined;
 }
