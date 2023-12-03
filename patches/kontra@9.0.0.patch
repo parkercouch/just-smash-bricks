@@ -1,0 +1,142 @@
+diff --git a/kontra.d.ts b/kontra.d.ts
+index c0284e892eb86cf78d9b19057ba2b0dc6fe531c9..606ab21c8de7e890d20206c091468cbc1bf347cb 100644
+--- a/kontra.d.ts
++++ b/kontra.d.ts
+@@ -96,7 +96,7 @@ declare namespace kontra {
+     velocity: Vector;
+     acceleration: Vector;
+     ttl: number;
+-    update(dt?: number): void;
++    update(dt?: number, options?: any): void;
+     advance(dt?: number): void;
+     dx: number;
+     dy: number;
+@@ -106,10 +106,10 @@ declare namespace kontra {
+     [prop: string]: any;
+   }
+   interface GameObjectConstructor {
+-    new(properties?: {x?: number, y?: number, width?: number, height?: number, context?: CanvasRenderingContext2D, dx?: number, dy?: number, ddx?: number, ddy?: number, ttl?: number, anchor?: {x: number, y: number}, children?: GameObject[], opacity?: number, rotation?: number, scaleX?: number, scaleY?: number, update?: (dt?: number) => void, render?: Function, [props: string]: any}): GameObject;
++    new(properties?: {x?: number, y?: number, width?: number, height?: number, context?: CanvasRenderingContext2D, dx?: number, dy?: number, ddx?: number, ddy?: number, ttl?: number, anchor?: {x: number, y: number}, children?: GameObject[], opacity?: number, rotation?: number, scaleX?: number, scaleY?: number, update?: (dt?: number, options?: any) => void, render?: Function, [props: string]: any}): GameObject;
+   }
+   var GameObjectClass: GameObjectConstructor
+-  function GameObject(properties?: {x?: number, y?: number, width?: number, height?: number, context?: CanvasRenderingContext2D, dx?: number, dy?: number, ddx?: number, ddy?: number, ttl?: number, anchor?: {x: number, y: number}, children?: GameObject[], opacity?: number, rotation?: number, scaleX?: number, scaleY?: number, update?: (dt?: number) => void, render?: Function, [props: string]: any}): GameObject;
++  function GameObject(properties?: {x?: number, y?: number, width?: number, height?: number, context?: CanvasRenderingContext2D, dx?: number, dy?: number, ddx?: number, ddy?: number, ttl?: number, anchor?: {x: number, y: number}, children?: GameObject[], opacity?: number, rotation?: number, scaleX?: number, scaleY?: number, update?: (dt?: number, options?: any) => void, render?: Function, [props: string]: any}): GameObject;
+   interface Sprite extends GameObject {
+     color: string;
+     image: HTMLImageElement | HTMLCanvasElement;
+@@ -120,10 +120,10 @@ declare namespace kontra {
+     playAnimation(name: string): void;
+   }
+   interface SpriteConstructor {
+-    new(properties?: {color?: string, image?: HTMLImageElement | HTMLCanvasElement, animations?: {[name: string] : Animation}, x?: number, y?: number, width?: number, height?: number, context?: CanvasRenderingContext2D, dx?: number, dy?: number, ddx?: number, ddy?: number, ttl?: number, anchor?: {x: number, y: number}, children?: GameObject[], opacity?: number, rotation?: number, scaleX?: number, scaleY?: number, update?: (dt?: number) => void, render?: Function, [props: string]: any}): Sprite;
++    new(properties?: {color?: string, image?: HTMLImageElement | HTMLCanvasElement, animations?: {[name: string] : Animation}, x?: number, y?: number, width?: number, height?: number, context?: CanvasRenderingContext2D, dx?: number, dy?: number, ddx?: number, ddy?: number, ttl?: number, anchor?: {x: number, y: number}, children?: GameObject[], opacity?: number, rotation?: number, scaleX?: number, scaleY?: number, update?: (dt?: number, options?: any) => void, render?: Function, [props: string]: any}): Sprite;
+   }
+   var SpriteClass: SpriteConstructor
+-  function Sprite(properties?: {color?: string, image?: HTMLImageElement | HTMLCanvasElement, animations?: {[name: string] : Animation}, x?: number, y?: number, width?: number, height?: number, context?: CanvasRenderingContext2D, dx?: number, dy?: number, ddx?: number, ddy?: number, ttl?: number, anchor?: {x: number, y: number}, children?: GameObject[], opacity?: number, rotation?: number, scaleX?: number, scaleY?: number, update?: (dt?: number) => void, render?: Function, [props: string]: any}): Sprite;
++  function Sprite(properties?: {color?: string, image?: HTMLImageElement | HTMLCanvasElement, animations?: {[name: string] : Animation}, x?: number, y?: number, width?: number, height?: number, context?: CanvasRenderingContext2D, dx?: number, dy?: number, ddx?: number, ddy?: number, ttl?: number, anchor?: {x: number, y: number}, children?: GameObject[], opacity?: number, rotation?: number, scaleX?: number, scaleY?: number, update?: (dt?: number, options?: any) => void, render?: Function, [props: string]: any}): Sprite;
+   interface Text extends GameObject {
+     text: string;
+     textAlign: string;
+@@ -227,14 +227,14 @@ declare namespace kontra {
+     get(properties?: object): object;
+     getAliveObjects(): object[];
+     clear(): void;
+-    update(dt?: number): void;
++    update(dt?: number, options?: any): void;
+     render(): void;
+   }
+   interface PoolConstructor {
+-    new(properties: {create: () => {update: (dt?: number) => void, render: Function, init: (properties?: object) => void, isAlive: () => boolean}, maxSize?: number}): Pool;
++    new(properties: {create: () => {update: (dt?: number, options?: any) => void, render: Function, init: (properties: object) => void, isAlive: () => boolean}, maxSize?: number}): Pool;
+   }
+   var PoolClass: PoolConstructor
+-  function Pool(properties: {create: () => {update: (dt?: number) => void, render: Function, init: (properties?: object) => void, isAlive: () => boolean}, maxSize?: number}): Pool;
++  function Pool(properties: {create: () => {update: (dt?: number, options?: any) => void, render: Function, init: (properties: object) => void, isAlive: () => boolean}, maxSize?: number}): Pool;
+   interface Quadtree {
+     maxDepth: number;
+     maxObjects: number;
+diff --git a/kontra.js b/kontra.js
+index 9b4b813fe9f37e025ce079763aa47a177fbac3e6..c72665ac2281190f35c79cd4ed133cf0cb4e67d7 100644
+--- a/kontra.js
++++ b/kontra.js
+@@ -1984,8 +1984,8 @@ var kontra = (function () {
+     /**
+      * Update all children
+      */
+-    update(dt) {
+-      this._uf(dt);
++    update(dt, options) {
++      this._uf(dt, options);
+ 
+       // @ifdef GAMEOBJECT_GROUP
+       this.children.map(child => child.update && child.update(dt));
+@@ -5650,14 +5650,15 @@ var kontra = (function () {
+      * @function update
+      *
+      * @param {Number} [dt] - Time since last update.
++     * @param {any} [options] - List to be passed into update
+      */
+-    update(dt) {
++    update(dt, options) {
+       let obj;
+       let doSort = false;
+       for (let i = this.size; i--; ) {
+         obj = this.objects[i];
+ 
+-        obj.update(dt);
++        obj.update(dt, options);
+ 
+         if (!obj.isAlive()) {
+           doSort = true;
+diff --git a/kontra.min.js b/kontra.min.js
+deleted file mode 100644
+index b04e4f0fb127f1aaa1ed496a7748c3c1252eb724..0000000000000000000000000000000000000000
+diff --git a/kontra.min.mjs b/kontra.min.mjs
+deleted file mode 100644
+index d5ec918ae3ab986f7b171ef0b4b06f3e0cd5f2d2..0000000000000000000000000000000000000000
+diff --git a/kontra.mjs b/kontra.mjs
+index 9059d3f52a63f9e3bc84bddecab9f0ffe9c1ae68..3683ec267815dc39b58eee156b62562049acd76e 100644
+--- a/kontra.mjs
++++ b/kontra.mjs
+@@ -1982,8 +1982,8 @@ class GameObject extends Updatable {
+   /**
+    * Update all children
+    */
+-  update(dt) {
+-    this._uf(dt);
++  update(dt, options) {
++    this._uf(dt, options);
+ 
+     // @ifdef GAMEOBJECT_GROUP
+     this.children.map(child => child.update && child.update(dt));
+@@ -5648,14 +5648,15 @@ class Pool {
+    * @function update
+    *
+    * @param {Number} [dt] - Time since last update.
++   * @param {any} [options] - List to be passed into update
+    */
+-  update(dt) {
++  update(dt, options) {
+     let obj;
+     let doSort = false;
+     for (let i = this.size; i--; ) {
+       obj = this.objects[i];
+ 
+-      obj.update(dt);
++      obj.update(dt, options);
+ 
+       if (!obj.isAlive()) {
+         doSort = true;
+diff --git a/package.json b/package.json
+index 8ca3d916cd72852f278a6282dd00538ae5a1c5df..916d7e5cc3c7f13a4e66dfd6adcffd5cb3c92288 100644
+--- a/package.json
++++ b/package.json
+@@ -8,8 +8,6 @@
+   "files": [
+     "kontra.js",
+     "kontra.mjs",
+-    "kontra.min.js",
+-    "kontra.min.mjs",
+     "kontra.d.ts"
+   ],
+   "scripts": {

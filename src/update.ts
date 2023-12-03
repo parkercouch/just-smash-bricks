@@ -123,7 +123,7 @@ export function movingBall(
       const currentMagnitude = magnitude(point.x - this.x, point.y - this.y);
       if (currentMagnitude < acc.closestMagnitude) {
         return {
-          closest: item,
+          closest: {item, point},
           closestMagnitude: currentMagnitude,
         };
       }
@@ -131,9 +131,9 @@ export function movingBall(
     },
     { closestMagnitude: Infinity, closest: null } as {
       closestMagnitude: number;
-      closest: Sprite | null;
+      closest: {item: Sprite, point: GameObject} | null;
     },
-  ) ?? { closest: null, closestMagnitude: Infinity };
+  );
 
   if (isNullOrUndefined(closest)) {
     return this.advance(dt * FPS.value);

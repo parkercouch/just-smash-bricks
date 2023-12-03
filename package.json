@@ -38,5 +38,10 @@
     "kontra": "^9.0.0",
     "screenfull": "^6.0.2",
     "tinymusic": "^1.0.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "kontra@9.0.0": "patches/kontra@9.0.0.patch"
+    }
   }
 }
