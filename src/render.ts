@@ -5,7 +5,7 @@ import { Sprite } from 'kontra';
 export function renderBall(this: Sprite) {
   this.context.fillStyle = this.color;
   this.context.beginPath();
-  this.context.arc(this.x, this.y, this.radius - 3, 0, 2 * Math.PI);
+  this.context.arc(0, 0, this.radius - 3, 0, 2 * Math.PI);
   this.context.fill();
 }
 
@@ -19,5 +19,5 @@ export function renderButton(this: Sprite) {
 // particleRender :: () -> ()
 export function particleRender(this: Sprite) {
   this.context.fillStyle = this.color;
-  this.context.fillRect(this.x, this.y, this.height, this.width);
+  this.context.fillRect(0, 0, this.height, this.width);
 }
