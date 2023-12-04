@@ -16,16 +16,17 @@ export function paddleUpdate(this: Sprite) {
   this.move();
 }
 
+
 // NEED TO COMBINE WITH TOUCH CONTROLS
 // Move paddle!
 // movePaddle :: Bool -> Bool -> ()
 export function movePaddle(this: Sprite) {
   this.advance();
   switch (true) {
-    case keyPressed('left') || keyPressed('a'):
+    case keyPressed('arrowleft') || keyPressed('a'):
       this.dx = -5;
       break;
-    case keyPressed('right') || keyPressed('d'):
+    case keyPressed('arrowright') || keyPressed('d'):
       this.dx = 5;
       break;
     case !this.moving:
@@ -96,7 +97,7 @@ export function movingBall(
     this.y = this.attached.y - this.radius + 3 - this.attached.height / 2;
 
     // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
-    if (keyPressed('w') || keyPressed('up')) {
+    if (keyPressed('w') || keyPressed('arrowup')) {
       if (Math.floor(Math.random() * 100) % 2 === 0) {
         this.dx = -5;
       } else {

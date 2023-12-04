@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { init, initPointer } from 'kontra';
+import { init, initInput, initKeys, initPointer } from 'kontra';
 import {
   initDebugButton,
   initFullscreenButton,
@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize Kontra
   init(canvasElement);
+  initInput();
+  initKeys();
   initPointer({ canvas: canvasElement });
 
   gameStates.startLoading();
