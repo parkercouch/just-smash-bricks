@@ -1,32 +1,7 @@
 /* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
-import { playChirpSound, playPaddleSound } from './sounds';
+import { playChirpSound } from './sounds';
 import { Sprite } from 'kontra';
-
-// paddle onHit animation/sounds
-// paddleBounce :: () -> ()
-export function paddleBounce() {
-  playPaddleSound();
-  const thisObject = this;
-  const coords = { y: this.y };
-  // Chain up to the end of down
-  const up = new TWEEN.Tween(coords)
-    .to({ y: '-15' }, 50)
-    .easing(TWEEN.Easing.Linear.None)
-    .onUpdate(function() {
-      thisObject.y = coords.y;
-      thisObject.render();
-    });
-  new TWEEN.Tween(coords)
-    .to({ y: '+15' }, 50)
-    .easing(TWEEN.Easing.Quadratic.In)
-    .onUpdate(function() {
-      thisObject.y = coords.y;
-      thisObject.render();
-    })
-    .chain(up)
-    .start();
-}
 
 // Brick onHit animation/sound
 // brickBounce :: Sprite -> ()

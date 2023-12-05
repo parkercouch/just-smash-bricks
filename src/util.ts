@@ -1,5 +1,6 @@
 import { CANVAS_HEIGHT, CANVAS_WIDTH, FPS, LIVES, SCORE } from './globals';
 
+// TODO: is this needed anymore?
 // Keeps canvas size 1x1 pixels so it draws correctly
 // resizeCanvasToDisplaySize :: Element -> Bool
 export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
@@ -21,29 +22,30 @@ export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
 // updateLevelDisplay :: Int -> ()
 export function updateLevelDisplay(currentLevel: number) {
   document
-    .querySelector('.level')
-    ?.setAttribute('textContent', currentLevel.toString());
+    .querySelector('.level')!
+    .textContent = currentLevel.toString();
 }
 
 // Update score
 // updateScore :: () -> ()
 export function updateScore() {
   document
-    .querySelector('.score')
-    ?.setAttribute('textContent', SCORE.value.toString());
+    .querySelector('.score')!
+    .textContent = SCORE.value.toString();
 }
 
 // Update lives
 // updateLives :: () -> ()
 export function updateLives() {
   document
-    .querySelector('.lives')
-    ?.setAttribute('textContent', `${LIVES.value - 1}`);
+    .querySelector('.lives')!
+    .textContent = `${LIVES.value - 1}`;
+    // ?.setAttribute('textContent', `${LIVES.value - 1}`);
 }
 
 // Line intercept
 // intercept :: (Num, Num), (Num, Num), (Num, Num), (Num, Num), String -> {Num, Num, String}
-export function intercept(
+export function line_intercept(
   x1: number,
   y1: number,
   x2: number,
@@ -67,70 +69,6 @@ export function intercept(
     }
   }
   return null;
-}
-
-// USED TO OVERRIDE collidesWith function for ball sprites
-// ballIntercept {top, bottom, left, right} -> {nx, ny} -> {x,y,d}
-export function ballIntercept(
-  rect: { right: number; top: number; bottom: number; left: number },
-  futurePosition: { nx: number; ny: number },
-): { x: number; y: number; d: string } | null {
-  const nx = futurePosition.nx;
-  const ny = futurePosition.ny;
-  let pt: { x: number; y: number; d: string } | null = null;
-  if (nx < 0) {
-    pt = intercept(
-      this.x,
-      this.y,
-      this.x + nx,
-      this.y + ny,
-      rect.right + this.radius,
-      rect.top - this.radius,
-      rect.right + this.radius,
-      rect.bottom + this.radius,
-      'right',
-    );
-  } else if (nx > 0) {
-    pt = intercept(
-      this.x,
-      this.y,
-      this.x + nx,
-      this.y + ny,
-      rect.left - this.radius,
-      rect.top - this.radius,
-      rect.left - this.radius,
-      rect.bottom + this.radius,
-      'left',
-    );
-  }
-  if (!pt) {
-    if (ny < 0) {
-      pt = intercept(
-        this.x,
-        this.y,
-        this.x + nx,
-        this.y + ny,
-        rect.left - this.radius,
-        rect.bottom + this.radius,
-        rect.right + this.radius,
-        rect.bottom + this.radius,
-        'bottom',
-      );
-    } else if (ny > 0) {
-      pt = intercept(
-        this.x,
-        this.y,
-        this.x + nx,
-        this.y + ny,
-        rect.left - this.radius,
-        rect.top - this.radius,
-        rect.right + this.radius,
-        rect.top - this.radius,
-        'top',
-      );
-    }
-  }
-  return pt;
 }
 
 // magnitute :: Num -> Num -> Num

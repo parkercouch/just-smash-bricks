@@ -11,22 +11,15 @@ import {
 } from './touch';
 import { createGameLoop } from './game_loop';
 import {
-  createPaddle,
   createParticles,
   createWalls,
-  newBall,
   newBallPool,
   newBrickPool,
   newParticlePool,
 } from './init';
-import { debugAutoMove } from './debug';
 import { CURRENT_LEVEL, LIVES, SCORE } from './globals';
-import {
-  launchBall,
-  movePaddleLeft,
-  movePaddleRight,
-  stopPaddle,
-} from './update';
+import { launchBall } from './update';
+import { Paddle } from './paddle';
 
 // startGameLoop :: () -> ()
 export const startGameLoop = function() {
@@ -35,38 +28,23 @@ export const startGameLoop = function() {
   SCORE.value = 0;
   CURRENT_LEVEL.value = 1;
 
-  // PADDLE //
-  const paddle = createPaddle();
-
-  //* AUTO MOVE DEBUG MODE *//
-  paddle.autoMove = debugAutoMove;
-  //* -------------------- *//
+  const paddle = new Paddle();
 
   // BALLS //
-  const ballPool = newBallPool();
-  newBall(ballPool, paddle);
-  // Clamp vector in boundaries
-  (ballPool.getAliveObjects()[0] as Sprite).contain();
+  const ballPool = newBallPool(paddle);
+  ballPool.get();
 
   // TOUCH BUTTONS //
   // Create buttons
-  const leftButton = createLeftButton(paddle);
-  const rightButton = createRightButton(paddle);
+  const leftButton = createLeftButton();
+  const rightButton = createRightButton();
   const middleButton = createMiddleButton(ballPool);
 
   // Functions to add and remove from fullscreen button event listeners
-  const moveLeftFunc = movePaddleLeft(paddle);
-  const moveRightFunc = movePaddleRight(paddle);
-  const stopPaddleFunc = stopPaddle(paddle);
   const shootBallFunc = launchBall(ballPool.getAliveObjects()[0] as Sprite);
 
   // Fullscreen buttons
-  addTouchEventListeners(
-    moveLeftFunc,
-    moveRightFunc,
-    shootBallFunc,
-    stopPaddleFunc,
-  );
+  addTouchEventListeners(shootBallFunc);
 
   // Track pointer on buttons
   track(leftButton);
@@ -92,6 +70,8 @@ export const startGameLoop = function() {
   brickPool.render();
   paddle.update();
   paddle.render();
+  ballPool.update();
+  ballPool.render();
   rightButton.render();
   leftButton.render();
   middleButton.render();
@@ -109,14 +89,7 @@ export const startGameLoop = function() {
     particlePool,
     paddle,
     walls,
-    buttons: {
-      right: rightButton,
-      moveRightFunc,
-      left: leftButton,
-      moveLeftFunc,
-      middle: middleButton,
-      stopPaddleFunc,
-    },
+    middleButton,
   });
 
   // Start the game!

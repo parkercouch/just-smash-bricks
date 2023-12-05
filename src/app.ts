@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { init, initInput, initKeys, initPointer } from 'kontra';
+import { init } from 'kontra';
 import {
   initDebugButton,
   initFullscreenButton,
@@ -10,6 +10,7 @@ import {
 import { resizeCanvasToDisplaySize } from './util';
 import { initializeHighScores } from './score';
 import { gameStates } from './ui_states';
+import { initializeInputs } from './input';
 
 document.addEventListener('DOMContentLoaded', function() {
   initFullscreenButton();
@@ -24,9 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize Kontra
   init(canvasElement);
-  initInput();
-  initKeys();
-  initPointer({ canvas: canvasElement });
+  initializeInputs();
 
   gameStates.startLoading();
 });
