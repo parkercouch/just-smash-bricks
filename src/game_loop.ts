@@ -6,25 +6,18 @@ import { updateLives } from './util';
 import { stopMusic } from './sounds';
 import { removeTouchEventListeners, updateMiddleTouchButton } from './touch';
 import { addMessage, clearMessages } from './messages';
-import { newBall } from './init';
 import { CURRENT_LEVEL, DEBUG_ON, FPS, LIVES } from './globals';
 import { launchBall } from './update';
 import { gameStates } from './ui_states';
+import { Paddle } from './paddle';
 
 export type gameLoopInitOptions = {
   brickPool: Pool;
   ballPool: Pool;
   particlePool: Pool;
-  paddle: Sprite;
+  paddle: Paddle;
   walls: Sprite[];
-  buttons: {
-    left: Sprite;
-    middle: Sprite;
-    right: Sprite;
-    moveLeftFunc: () => void;
-    moveRightFunc: () => void;
-    stopPaddleFunc: () => void;
-  };
+  middleButton: Sprite;
 };
 
 let GAMELOOP: GameLoop;
@@ -35,7 +28,7 @@ export function createGameLoop({
   particlePool,
   paddle,
   walls,
-  buttons,
+  middleButton,
 }: gameLoopInitOptions) {
   GAMELOOP = GameLoop({
     fps: FPS.value,
@@ -51,7 +44,7 @@ export function createGameLoop({
       //DEBUG AUTO MOVE //
       if (DEBUG_ON.value) {
         if ((ballPool.getAliveObjects()[0] as Sprite).attached === null) {
-          paddle.autoMove(ballPool.getAliveObjects()[0]);
+          paddle.autoMove(ballPool.getAliveObjects()[0] as Sprite);
         } else {
           paddle.update();
         }
@@ -62,13 +55,8 @@ export function createGameLoop({
       const bricks = brickPool.getAliveObjects();
 
       // Ready to check for collision!
-
-      // console.log(bricks, walls, paddle)
       ballPool.update(dt, [...bricks, ...walls, paddle]);
-
       particlePool.update();
-
-      // Update bricks after collision detection
       brickPool.update();
 
       // If all bricks are gone then go to next level/win
@@ -79,7 +67,6 @@ export function createGameLoop({
           brickPool,
           CURRENT_LEVEL.value,
         );
-        // Add a life every level
         LIVES.value += 1;
         updateLives();
       }
@@ -91,23 +78,16 @@ export function createGameLoop({
         if (LIVES.value <= 0) {
           this.stop();
           stopMusic();
-          removeTouchEventListeners(
-            buttons.moveLeftFunc,
-            buttons.moveRightFunc,
-            buttons.stopPaddleFunc,
-          );
+          removeTouchEventListeners();
           gameStates.lose();
           return;
         } else {
           updateLives();
-          newBall(ballPool, paddle);
-          // Clamp vector in boundaries
-          (ballPool.getAliveObjects()[0] as Sprite).contain();
+          ballPool.get({attached:paddle});
           // Reset button to launch new ball
-          buttons.middle.onDown = launchBall(
+          middleButton.onDown = launchBall(
             ballPool.getAliveObjects()[0] as Sprite,
           );
-          // Update fs-touch button
           updateMiddleTouchButton(
             launchBall(ballPool.getAliveObjects()[0] as Sprite),
           );
@@ -120,9 +100,7 @@ export function createGameLoop({
       paddle.render();
       ballPool.render();
       brickPool.render();
-      buttons.right.render();
-      buttons.left.render();
-      buttons.middle.render();
+      middleButton.render();
       particlePool.render();
     },
   });

@@ -5,62 +5,6 @@ import { DEBUG_ON, DEFAULT_FPS, FPS, SCORE } from './globals';
 import { isNullOrUndefined, magnitude, move, updateScore } from './util';
 import { playBounceSound } from './sounds';
 
-// Update paddle and keep in bounds
-// paddleUpdate :: () -> ()
-export function paddleUpdate(this: Sprite) {
-  this.top = this.y - this.height / 2 - 1;
-  this.bottom = this.y + this.height / 2 + 1;
-  this.left = this.x - this.width / 2 + 1;
-  this.right = this.x + this.width / 2 - 1;
-
-  this.move();
-}
-
-
-// NEED TO COMBINE WITH TOUCH CONTROLS
-// Move paddle!
-// movePaddle :: Bool -> Bool -> ()
-export function movePaddle(this: Sprite) {
-  this.advance();
-  switch (true) {
-    case keyPressed('arrowleft') || keyPressed('a'):
-      this.dx = -5;
-      break;
-    case keyPressed('arrowright') || keyPressed('d'):
-      this.dx = 5;
-      break;
-    case !this.moving:
-      this.dx = 0;
-  }
-}
-
-// Touch control move paddle
-// movePaddleLeft :: Sprite -> () -> ()
-export function movePaddleLeft(paddle: Sprite) {
-  return () => {
-    paddle.moving = true;
-    paddle.dx = -5;
-  };
-}
-
-// Touch control move paddle
-// movePaddleLeft :: Sprite -> () -> ()
-export function movePaddleRight(paddle: Sprite) {
-  return () => {
-    paddle.moving = true;
-    paddle.dx = 5;
-  };
-}
-
-// Touch control stop movement on release
-// movePaddleLeft :: Sprite -> () -> ()
-export function stopPaddle(paddle: Sprite) {
-  return () => {
-    paddle.moving = false;
-    paddle.dx = 0;
-  };
-}
-
 // MAGIC NUMBERS
 // Touch control launch
 // launchBall :: Sprite -> () -> ()

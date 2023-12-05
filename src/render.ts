@@ -1,14 +1,5 @@
 import { Sprite } from 'kontra';
 
-// Renders ball of this.radius in this.color
-// renderBall :: () -> ()
-export function renderBall(this: Sprite) {
-  this.context.fillStyle = this.color;
-  this.context.beginPath();
-  this.context.arc(0, 0, this.radius - 3, 0, 2 * Math.PI);
-  this.context.fill();
-}
-
 // Transparent render for buttons
 // renderButton :: () -> ()
 export function renderButton(this: Sprite) {

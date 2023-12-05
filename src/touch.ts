@@ -1,17 +1,17 @@
 import { Pool, Sprite } from 'kontra';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './globals';
 import { renderButton } from './render';
+import { disableLaunch, launchBall } from './update';
 import {
-  disableLaunch,
-  launchBall,
-  movePaddleLeft,
-  movePaddleRight,
-  stopPaddle,
-} from './update';
+  input_left_off,
+  input_left_on,
+  input_right_off,
+  input_right_on,
+} from './input';
 
 // Create left button sprite for touch input
 // createLeftButton :: Sprite -> Sprite
-export function createLeftButton(paddle: Sprite): Sprite {
+export function createLeftButton(): Sprite {
   return Sprite({
     type: 'button',
     action: 'left',
@@ -26,15 +26,15 @@ export function createLeftButton(paddle: Sprite): Sprite {
     ttl: Infinity,
     width: CANVAS_WIDTH / 2,
     height: CANVAS_HEIGHT,
-    onDown: movePaddleLeft(paddle),
-    onUp: stopPaddle(paddle),
+    onDown: input_left_on,
+    onUp: input_left_off,
     render: renderButton,
   });
 }
 
 // Create right button sprite for touch input
 // createRightButton :: Sprite -> Sprite
-export function createRightButton(paddle: Sprite): Sprite {
+export function createRightButton(): Sprite {
   return Sprite({
     type: 'button',
     action: 'right',
@@ -50,8 +50,8 @@ export function createRightButton(paddle: Sprite): Sprite {
     width: CANVAS_WIDTH / 2,
     height: CANVAS_HEIGHT,
     fill: true,
-    onDown: movePaddleRight(paddle),
-    onUp: stopPaddle(paddle),
+    onDown: input_right_on,
+    onUp: input_right_off,
     render: renderButton,
   });
 }
@@ -99,17 +99,19 @@ export function hideTouchButtons() {
 }
 
 // Add needed listeners to fullscreen touch buttons
-// addTouchEventListeners :: Function -> Function -> Function -> Function -> ()
-export function addTouchEventListeners(
-  left: () => void,
-  right: () => void,
-  middle: () => void,
-  stop: () => void,
-) {
-  document.querySelector('.left')?.addEventListener('pointerdown', left);
-  document.querySelector('.left')?.addEventListener('pointerup', stop);
-  document.querySelector('.right')?.addEventListener('pointerdown', right);
-  document.querySelector('.right')?.addEventListener('pointerup', stop);
+export function addTouchEventListeners(middle: () => void) {
+  document
+    .querySelector('.left')
+    ?.addEventListener('pointerdown', input_left_on);
+  document
+    .querySelector('.left')
+    ?.addEventListener('pointerup', input_left_off);
+  document
+    .querySelector('.right')
+    ?.addEventListener('pointerdown', input_right_on);
+  document
+    .querySelector('.right')
+    ?.addEventListener('pointerup', input_right_off);
   document
     .querySelector('.middle')
     ?.addEventListener('pointerdown', function handle(e) {
@@ -119,16 +121,19 @@ export function addTouchEventListeners(
 }
 
 // Remove listeners to fullscreen touch buttons
-// removeTouchEventListeners :: Function -> Function -> Function -> ()
-export function removeTouchEventListeners(
-  left: () => void,
-  right: () => void,
-  stop: () => void,
-) {
-  document.querySelector('.left')?.removeEventListener('pointerdown', left);
-  document.querySelector('.left')?.removeEventListener('pointerup', stop);
-  document.querySelector('.right')?.removeEventListener('pointerdown', right);
-  document.querySelector('.right')?.removeEventListener('pointerup', stop);
+export function removeTouchEventListeners() {
+  document
+    .querySelector('.left')
+    ?.removeEventListener('pointerdown', input_left_on);
+  document
+    .querySelector('.left')
+    ?.removeEventListener('pointerup', input_left_off);
+  document
+    .querySelector('.right')
+    ?.removeEventListener('pointerdown', input_right_on);
+  document
+    .querySelector('.right')
+    ?.removeEventListener('pointerup', input_left_off);
 }
 
 // Update which ball is launched when a new ball is created

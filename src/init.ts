@@ -1,100 +1,12 @@
 import { Pool, Sprite } from 'kontra';
 import {
-  BALL_COLOR,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
-  PADDLE_COLOR,
-  PADDLE_HEIGHT,
-  PADDLE_WIDTH,
   PARTICLE_COLOR,
 } from './globals';
-import { particleRender, renderBall } from './render';
-import { ballIntercept } from './util';
-import { paddleBounce } from './animations';
-import {
-  movePaddle,
-  movePaddleLeft,
-  movePaddleRight,
-  movingBall,
-  paddleUpdate,
-  particleGravity,
-  stopPaddle,
-} from './update';
-
-// Create the main paddle
-// createPaddle :: () -> Sprite
-export function createPaddle(): Sprite {
-  const newPaddle = Sprite({
-    type: 'paddle',
-    anchor: {
-      x: 0.5,
-      y: 0.5,
-    },
-    // Place paddle in midde and above the bottom display
-    x: CANVAS_WIDTH / 2,
-    y: CANVAS_HEIGHT - 50,
-    dx: 0,
-    dy: 0,
-    moving: false,
-    ttl: Infinity,
-    width: PADDLE_WIDTH,
-    height: PADDLE_HEIGHT,
-    top: CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2 + 1,
-    bottom: CANVAS_HEIGHT - 50 + PADDLE_HEIGHT / 2 - 1,
-    left: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
-    right: CANVAS_WIDTH / 2 + PADDLE_WIDTH / 2,
-    color: PADDLE_COLOR,
-    // image: kontra.assets.images.paddle,
-    update: paddleUpdate,
-    move: movePaddle,
-    onHit: paddleBounce,
-    moveLeft: movePaddleLeft,
-    moveRight: movePaddleRight,
-    stop: stopPaddle,
-  });
-  // Keep paddle on the screen
-  newPaddle.position.clamp(
-    0 + newPaddle.width / 2,
-    0,
-    CANVAS_WIDTH - newPaddle.width / 2,
-    CANVAS_HEIGHT,
-  );
-  return newPaddle;
-}
-
-// Creates a new ball and attaches to paddle
-// newBall :: Pool -> Sprite -> ()
-export function newBall(pool: Pool, paddle: Sprite) {
-  pool.get({
-    type: 'ball',
-    combo: 0,
-    attached: paddle, // keep track if it is stuck to something
-    mass: 100,
-    anchor: {
-      x: 0.5,
-      y: 0.5,
-    },
-    // Testing start ball location
-    x: paddle.x + paddle.width / 2,
-    y: paddle.y - 8,
-    dx: 0,
-    dy: 0,
-    ttl: Infinity,
-    radius: 11,
-    color: BALL_COLOR,
-    update: movingBall,
-    render: renderBall,
-    collidesWith: ballIntercept,
-    contain: function(this: Sprite) {
-      this.position.clamp(
-        0 + this.radius / 2,
-        0 + this.radius / 2,
-        CANVAS_WIDTH - this.radius / 2,
-        CANVAS_HEIGHT - this.radius / 2,
-      );
-    },
-  });
-}
+import { particleRender } from './render';
+import { particleGravity } from './update';
+import { Ball } from './ball';
 
 // Creates new brick pool
 // newBrickPool :: () -> ()
@@ -107,9 +19,9 @@ export function newBrickPool(): Pool {
 
 // Creates new ball pool
 // newBallPool :: () -> ()
-export function newBallPool(): Pool {
+export function newBallPool(attached: Sprite): Pool {
   return Pool({
-    create: Sprite,
+    create: () => {return new Ball({attached})},
     maxSize: 10,
   });
 }
