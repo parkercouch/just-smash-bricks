@@ -1,22 +1,4 @@
-import { CANVAS_HEIGHT, CANVAS_WIDTH, FPS, LIVES, SCORE } from './globals';
-
-// TODO: is this needed anymore?
-// Keeps canvas size 1x1 pixels so it draws correctly
-// resizeCanvasToDisplaySize :: Element -> Bool
-export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
-  // Look up the size the canvas is being displayed
-  // canvas.clientWidth = CANVAS_WIDTH;
-  // canvas.clientHeight = CANVAS_HEIGHT;
-
-  // If it's resolution does not match change it
-  if (canvas.width !== CANVAS_WIDTH || canvas.height !== CANVAS_HEIGHT) {
-    canvas.width = CANVAS_WIDTH;
-    canvas.height = CANVAS_HEIGHT;
-    return true;
-  }
-
-  return false;
-}
+import { FPS, LIVES, SCORE } from './globals';
 
 // Update level
 // updateLevelDisplay :: Int -> ()
@@ -40,7 +22,6 @@ export function updateLives() {
   document
     .querySelector('.lives')!
     .textContent = `${LIVES.value - 1}`;
-    // ?.setAttribute('textContent', `${LIVES.value - 1}`);
 }
 
 // Line intercept
