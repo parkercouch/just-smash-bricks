@@ -1,15 +1,12 @@
 /* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
 import { on, Sprite, SpriteClass } from 'kontra';
-import {
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-  DEBUG_ON,
-  PADDLE_COLOR,
-  PADDLE_HEIGHT,
-  PADDLE_WIDTH,
-} from './globals';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DEBUG_ON } from './globals';
 import { playPaddleSound } from './sounds';
+
+const PADDLE_WIDTH = 80;
+const PADDLE_HEIGHT = 15;
+const PADDLE_COLOR = '#B993EA';
 
 export class Paddle extends SpriteClass {
   constructor() {
@@ -52,11 +49,11 @@ export class Paddle extends SpriteClass {
     if (DEBUG_ON.value && !!ball && ball.attached === null) {
       this.follow(ball);
       return;
-    } 
+    }
 
     this.update();
   }
-  
+
   update() {
     this.top = this.y - this.height / 2 - 1;
     this.bottom = this.y + this.height / 2 + 1;

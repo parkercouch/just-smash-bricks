@@ -97,8 +97,6 @@ function waitForButton() {
   }, 500);
 }
 
-// Show win message
-// Skips straight to menu
 function winMessage() {
   addMessage(
     `We didn't think this would happen... \r\n Score: ${SCORE.value}`,
@@ -107,29 +105,25 @@ function winMessage() {
   setTimeout(() => {
     gameStates.restart();
   }, 3000);
-}
-
-// Show lose message
-// Skips straight to menu
-function loseMessage() {
-  addMessage(`You fail. \r\n Score: ${SCORE.value}`, 'lose');
-  setTimeout(() => {
-    gameStates.restart();
-  }, 3000);
-  // Don't record high scores in debug mode
   if (!DEBUG_ON.value) {
     updateHighScores(SCORE.value);
   }
 }
 
-// Enter Game
-// gameEnd :: () -> ()
+function loseMessage() {
+  addMessage(`You fail. \r\n Score: ${SCORE.value}`, 'lose');
+  setTimeout(() => {
+    gameStates.restart();
+  }, 3000);
+  if (!DEBUG_ON.value) {
+    updateHighScores(SCORE.value);
+  }
+}
+
 function gameStart() {
   document.addEventListener('keypress', pause);
 }
 
-// Leave Game
-// gameEnd :: () -> ()
 function gameEnd() {
   document.removeEventListener('keypress', pause);
 }

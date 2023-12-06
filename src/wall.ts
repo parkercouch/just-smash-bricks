@@ -1,32 +1,7 @@
-import { Pool, Sprite } from 'kontra';
-import {
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-} from './globals';
-import { Ball } from './ball';
+import { Sprite } from 'kontra';
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from './globals';
 
-// Creates new brick pool
-// newBrickPool :: () -> ()
-export function newBrickPool(): Pool {
-  return Pool({
-    create: Sprite,
-    maxSize: 100,
-  });
-}
-
-// Creates new ball pool
-// newBallPool :: () -> ()
-export function newBallPool(attached: Sprite): Pool {
-  return Pool({
-    create: () => {return new Ball({attached})},
-    maxSize: 10,
-  });
-}
-
-// Creates the boundary walls
-// createWalls :: () -> [Sprite]
 export function createWalls(): Sprite[] {
-  // WALLS //
   return [
     // Left Wall
     Sprite({

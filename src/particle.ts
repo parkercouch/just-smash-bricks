@@ -1,6 +1,8 @@
 /* eslint-disable */
-import { Sprite, SpriteClass } from 'kontra';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, PARTICLE_COLOR } from './globals';
+import { Pool, Sprite, SpriteClass } from 'kontra';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CENTER_POINT } from './globals';
+
+const PARTICLE_COLOR = '#ECFFE0';
 
 export class OrbitingParticle extends SpriteClass {
   constructor({ barycenter }: { barycenter: Sprite }) {
@@ -69,4 +71,39 @@ export class OrbitingParticle extends SpriteClass {
 
     this.advance();
   }
+}
+
+export class ParticleSwarm {
+  private pool: Pool;
+
+  constructor(barycenter = CENTER_POINT) {
+    this.pool = Pool({
+      create: () => new OrbitingParticle({ barycenter }),
+      maxSize: 50,
+    });
+  }
+
+  render() {
+    this.pool.render();
+  }
+
+  update() {
+    this.pool.update();
+  }
+
+  start = (amount = 10, overrides?: object) => {
+    for (let i = 0; i < amount; i++) {
+      this.pool.get(overrides);
+    }
+  };
+
+  follow = (barycenter: Sprite) => {
+    const currentSwarm = this.pool;
+    this.pool = Pool({
+      create: () => new OrbitingParticle({ barycenter }),
+      maxSize: currentSwarm.maxSize,
+    });
+    currentSwarm.clear();
+    this.start();
+  };
 }
