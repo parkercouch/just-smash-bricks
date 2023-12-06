@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { GameObject, keyPressed, on, Sprite, SpriteClass } from 'kontra';
+import { GameObject, on, Sprite, SpriteClass } from 'kontra';
 import {
   BALL_COLOR,
   CANVAS_HEIGHT,
@@ -39,12 +39,25 @@ export class Ball extends SpriteClass {
     });
 
     this.contain();
-    on('input_middle:on', this.launchBall);
   }
 
-  launchBall = (_options: any) => {
-    console.log('launch ball command received');
+  init = (_options: any) => {
+    on('input_middle:on', this.launchBall);
   };
+  
+  launchBall = (_options: any) => {
+    if (!this.attached) {
+      return;
+    }
+    // Shoot left/right randomly
+    if (Math.floor(Math.random() * 100) % 2 === 0) {
+      this.dx = -5;
+    } else {
+      this.dx = 5;
+    }
+    this.dy = -6;
+    this.attached = null;
+  }
 
   render() {
     this.context.fillStyle = this.color;
@@ -133,17 +146,6 @@ export class Ball extends SpriteClass {
     if (this.attached) {
       this.x = this.attached.x;
       this.y = this.attached.y - this.radius + 3 - this.attached.height / 2;
-
-      // WILL NEED TO UPDATE TO WORK WITH DIFFERENT OBJECTS BESIDES PADDLE
-      if (keyPressed('w') || keyPressed('arrowup')) {
-        if (Math.floor(Math.random() * 100) % 2 === 0) {
-          this.dx = -5;
-        } else {
-          this.dx = 5;
-        }
-        this.dy = -6;
-        this.attached = null;
-      }
       this.advance();
       return;
     }
