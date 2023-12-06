@@ -4,9 +4,8 @@ export const MESSAGE = document.getElementById('message');
 export const TITLE = document.getElementById('title');
 export const TOP_DISPLAY = document.getElementById('top-display');
 
-// Intro 'scene'
 // startIntroScene :: () -> [timeout id's]
-export function startIntroScene() {
+export function startIntroScene(): number[] {
   const intro_messages = [
     { delay_ms: 2000, message: `WAKE UP!` },
     { delay_ms: 5000, message: `What? Where am I?` },
@@ -41,8 +40,6 @@ export function startIntroScene() {
   return ids;
 }
 
-// Clear Messages from MESSAGES
-// clearMessage :: () -> ()
 export function clearMessages() {
   MESSAGE?.classList.remove('showMessage');
   MESSAGE?.classList.add('hideMessage');
@@ -51,8 +48,6 @@ export function clearMessages() {
   }
 }
 
-// Add Message to MESSAGES
-// addMessage :: String -> String -> ()
 export function addMessage(message: string, type: string) {
   MESSAGE?.classList.remove('hideMessage');
   MESSAGE?.classList.add('showMessage');
@@ -62,8 +57,6 @@ export function addMessage(message: string, type: string) {
   MESSAGE?.appendChild(newMessage);
 }
 
-// Add title to TITLE
-// addTitle :: String -> String -> ()
 export function addTitle(message: string, type: string) {
   const newMessage = document.createElement('h1');
   newMessage.textContent = message;
@@ -71,16 +64,12 @@ export function addTitle(message: string, type: string) {
   TITLE?.appendChild(newMessage);
 }
 
-// Clear all elements from TITLE
-// clearMessage :: () -> ()
 export function clearTitle() {
   while (TITLE?.firstChild) {
     TITLE.removeChild(TITLE.firstChild);
   }
 }
 
-// Display Lives/Score
-// addMessage :: () -> ()
 export function showTopDisplay() {
   const livesTitle = document.createElement('h5');
   livesTitle.textContent = 'Lives left: ';
@@ -114,8 +103,6 @@ export function showTopDisplay() {
   TOP_DISPLAY?.appendChild(levelTitle);
 }
 
-// Clear bottom display
-// hideTopDisplay :: () -> ()
 export function hideTopDisplay() {
   while (TOP_DISPLAY?.firstChild) {
     TOP_DISPLAY.removeChild(TOP_DISPLAY.firstChild);

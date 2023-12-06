@@ -1,30 +1,23 @@
 import { FPS, LIVES, SCORE } from './globals';
 
-// Update level
-// updateLevelDisplay :: Int -> ()
 export function updateLevelDisplay(currentLevel: number) {
   document
     .querySelector('.level')!
     .textContent = currentLevel.toString();
 }
 
-// Update score
-// updateScore :: () -> ()
 export function updateScore() {
   document
     .querySelector('.score')!
     .textContent = SCORE.value.toString();
 }
 
-// Update lives
-// updateLives :: () -> ()
 export function updateLives() {
   document
     .querySelector('.lives')!
     .textContent = `${LIVES.value - 1}`;
 }
 
-// Line intercept
 // intercept :: (Num, Num), (Num, Num), (Num, Num), (Num, Num), String -> {Num, Num, String}
 export function line_intercept(
   x1: number,
@@ -52,7 +45,6 @@ export function line_intercept(
   return null;
 }
 
-// magnitute :: Num -> Num -> Num
 export function magnitude(x: number, y: number) {
   return Math.sqrt(x * x + y * y);
 }

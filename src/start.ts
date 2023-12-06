@@ -1,5 +1,4 @@
-/* eslint-disable */
-import { Sprite, track } from 'kontra';
+import { track } from 'kontra';
 import { generate_level } from './levels';
 import { showTopDisplay } from './messages';
 import { playDropSound } from './sounds';
@@ -10,29 +9,23 @@ import {
   createRightButton,
 } from './touch';
 import { createGameLoop } from './game_loop';
-import {
-  createWalls,
-  newBallPool,
-  newBrickPool,
-} from './init';
+import { createWalls } from './wall';
 import { CURRENT_LEVEL, LIVES, SCORE } from './globals';
 import { Paddle } from './paddle';
-import { ParticleSwarm } from './particle_swarm';
+import { ParticleSwarm } from './particle';
+import { BrickPool } from './brick';
+import { BallPool } from './ball';
 
-// startGameLoop :: () -> ()
 export const startGameLoop = function() {
-  // Reset lives and score
   LIVES.value = 5;
   SCORE.value = 0;
   CURRENT_LEVEL.value = 1;
 
   const paddle = new Paddle();
 
-  // BALLS //
-  const ballPool = newBallPool(paddle);
-  ballPool.get();
+  const balls = new BallPool({ attached: paddle });
+  balls.get();
 
-  // TOUCH BUTTONS //
   const leftButton = createLeftButton();
   const rightButton = createRightButton();
   const middleButton = createMiddleButton();
@@ -45,29 +38,25 @@ export const startGameLoop = function() {
   leftButton.render();
   middleButton.render();
 
-  // BOUNDARY WALLS //
   const walls = createWalls();
+  const bricks = new BrickPool();
 
-  // BRICKS //
-  const brickPool = newBrickPool();
+  generate_level(bricks, 1);
 
-  // Create Level 1
-  generate_level(brickPool, 1);
-
-  const particleSwarm = new ParticleSwarm(100, ballPool.getAliveObjects()[0] as Sprite);
+  const particleSwarm = new ParticleSwarm(balls.getBall());
   particleSwarm.start(10);
 
   showTopDisplay();
 
   // Drop in first level
   playDropSound(100);
-  brickPool.getAliveObjects().forEach((brick, i) => {
-    (brick as Sprite).onSpawn(100 / (1 + Math.floor(i / 6)));
+  bricks.forEach((brick, i) => {
+    brick.onSpawn(100 / (1 + Math.floor(i / 6)));
   });
 
   const gameLoop = createGameLoop({
-    brickPool,
-    ballPool,
+    bricks,
+    balls,
     particleSwarm,
     paddle,
     walls,

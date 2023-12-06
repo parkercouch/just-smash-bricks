@@ -1,6 +1,5 @@
 import { Sprite } from 'kontra';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './globals';
-import { renderButton } from './render';
 import {
   input_left_off,
   input_left_on,
@@ -10,7 +9,6 @@ import {
   input_right_on,
 } from './input';
 
-// Create left button sprite for touch input
 export function createLeftButton(): Sprite {
   return Sprite({
     type: 'button',
@@ -32,7 +30,6 @@ export function createLeftButton(): Sprite {
   });
 }
 
-// Create right button sprite for touch input
 export function createRightButton(): Sprite {
   return Sprite({
     type: 'button',
@@ -55,7 +52,6 @@ export function createRightButton(): Sprite {
   });
 }
 
-// Create Middle button sprite for touch input
 export function createMiddleButton(): Sprite {
   return Sprite({
     type: 'button',
@@ -78,7 +74,6 @@ export function createMiddleButton(): Sprite {
   });
 }
 
-// Show fullscreen touch buttons when changed to fullscreen
 export function showTouchButtons() {
   const controls = document.querySelector('#controls') as HTMLElement;
   controls?.classList.remove('hide-controls');
@@ -88,13 +83,11 @@ export function showTouchButtons() {
   }
 }
 
-// Hide fullscreen touch buttons when leaving fullscreen
 export function hideTouchButtons() {
   document.querySelector('#controls')?.classList.add('hide-controls');
   document.querySelector('#controls')?.classList.remove('show-controls');
 }
 
-// Add needed listeners to fullscreen touch buttons
 export function addTouchEventListeners() {
   document
     .querySelector('.left')
@@ -116,7 +109,6 @@ export function addTouchEventListeners() {
     ?.addEventListener('pointerup', input_middle_off);
 }
 
-// Remove listeners to fullscreen touch buttons
 export function removeTouchEventListeners() {
   document
     .querySelector('.left')
@@ -136,4 +128,9 @@ export function removeTouchEventListeners() {
   document
     .querySelector('.middle')
     ?.removeEventListener('pointerup', input_middle_off);
+}
+
+// Transparent render for buttons
+function renderButton(this: Sprite) {
+  this.context.fillStyle = 'rgba(0,250,0,1)';
 }

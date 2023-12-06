@@ -1,7 +1,6 @@
 /* eslint-disable */
-import { GameObject, on, Sprite, SpriteClass } from 'kontra';
+import { GameObject, on, PoolClass, Sprite, SpriteClass } from 'kontra';
 import {
-  BALL_COLOR,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
   DEBUG_ON,
@@ -17,6 +16,8 @@ import {
   updateScore,
 } from './util';
 import { playBounceSound } from './sounds';
+
+const BALL_COLOR = 'white';
 
 export class Ball extends SpriteClass {
   constructor({ attached }: { attached: Sprite }) {
@@ -301,5 +302,22 @@ export class Ball extends SpriteClass {
 
     // Run collision recursively if there is time left
     return this.update(dt! - udt, options);
+  }
+}
+
+export class BallPool extends PoolClass {
+  constructor({attached}: {attached: Sprite}) {
+    super({
+      create: () => new Ball({attached}),
+      maxSize: 100,
+    });
+  }
+
+  getBall(): Ball {
+    return this.getAliveObjects()[0] as Ball;
+  }
+  
+  numberAlive(): number {
+    return this.getAliveObjects().length;
   }
 }

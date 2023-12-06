@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import { init } from 'kontra';
 import {
   initDebugButton,
@@ -24,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
 
-  // Initialize Kontra
   init(canvas);
   initializeInputs();
 
