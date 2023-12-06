@@ -4,6 +4,7 @@ import { on, Sprite, SpriteClass } from 'kontra';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
+  DEBUG_ON,
   PADDLE_COLOR,
   PADDLE_HEIGHT,
   PADDLE_WIDTH,
@@ -47,6 +48,15 @@ export class Paddle extends SpriteClass {
     on('input_right:off', this.stopMovement);
   }
 
+  move(ball?: Sprite) {
+    if (DEBUG_ON.value && !!ball && ball.attached === null) {
+      this.follow(ball);
+      return;
+    } 
+
+    this.update();
+  }
+  
   update() {
     this.top = this.y - this.height / 2 - 1;
     this.bottom = this.y + this.height / 2 + 1;
@@ -54,6 +64,14 @@ export class Paddle extends SpriteClass {
     this.right = this.x + this.width / 2 - 1;
 
     this.advance();
+  }
+
+  follow(ball: Sprite) {
+    this.x = ball.x;
+    this.top = this.y - this.height / 2 - 1;
+    this.bottom = this.y + this.height / 2 + 1;
+    this.left = this.x - this.width / 2 + 1;
+    this.right = this.x + this.width / 2 - 1;
   }
 
   startMoveLeft = () => {
@@ -91,13 +109,5 @@ export class Paddle extends SpriteClass {
       })
       .chain(up)
       .start();
-  }
-
-  autoMove(ball: Sprite) {
-    this.x = ball.x;
-    this.top = this.y - this.height / 2 - 1;
-    this.bottom = this.y + this.height / 2 + 1;
-    this.left = this.x - this.width / 2 + 1;
-    this.right = this.x + this.width / 2 - 1;
   }
 }

@@ -2,10 +2,7 @@ import { Pool, Sprite } from 'kontra';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
-  PARTICLE_COLOR,
 } from './globals';
-import { particleRender } from './render';
-import { particleGravity } from './update';
 import { Ball } from './ball';
 
 // Creates new brick pool
@@ -111,56 +108,4 @@ export function createWalls(): Sprite[] {
       right: CANVAS_WIDTH,
     }),
   ];
-}
-
-// PARTICLES //
-
-// Create a pool to pull particles from
-// newParticlePool :: Maybe Int -> Pool
-export function newParticlePool(max = 50): Pool {
-  return Pool({
-    create: Sprite,
-    maxSize: max,
-  });
-}
-
-// Creates a group of particles
-// createParticles :: Pool -> Int -> Sprite -> ()
-export function createParticles(
-  pool: Pool,
-  amount: number,
-  barycenter: Sprite,
-) {
-  for (let i = 0; i < amount; i++) {
-    pool.get({
-      type: 'particle',
-      barycenter: barycenter, // keep track if it is stuck to something
-      anchor: {
-        x: 0.5,
-        y: 0.5,
-      },
-      x: barycenter.x + (2 - Math.random() * 4),
-      y: barycenter.y + (2 - Math.random() * 4),
-      dx: 2 - Math.random() * 4,
-      dy: 2 - Math.random() * 4,
-      maxDx: 10,
-      maxDy: 10,
-      ttl: Infinity,
-      color: PARTICLE_COLOR,
-      width: 3,
-      height: 3,
-      update: particleGravity,
-      render: particleRender,
-    });
-  }
-  // Keep particles contained so they don't fly too far away
-  // This keeps them just off screen so they don't clump up and look weird
-  pool.getAliveObjects().forEach((particle) => {
-    (particle as Sprite).position.clamp(
-      -50,
-      -50,
-      CANVAS_WIDTH + 50,
-      CANVAS_HEIGHT + 50,
-    );
-  });
 }

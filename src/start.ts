@@ -11,15 +11,13 @@ import {
 } from './touch';
 import { createGameLoop } from './game_loop';
 import {
-  createParticles,
   createWalls,
   newBallPool,
   newBrickPool,
-  newParticlePool,
 } from './init';
 import { CURRENT_LEVEL, LIVES, SCORE } from './globals';
-import { launchBall } from './update';
 import { Paddle } from './paddle';
+import { ParticleSwarm } from './particle_swarm';
 
 // startGameLoop :: () -> ()
 export const startGameLoop = function() {
@@ -35,18 +33,11 @@ export const startGameLoop = function() {
   ballPool.get();
 
   // TOUCH BUTTONS //
-  // Create buttons
   const leftButton = createLeftButton();
   const rightButton = createRightButton();
-  const middleButton = createMiddleButton(ballPool);
+  const middleButton = createMiddleButton();
 
-  // Functions to add and remove from fullscreen button event listeners
-  const shootBallFunc = launchBall(ballPool.getAliveObjects()[0] as Sprite);
-
-  // Fullscreen buttons
-  addTouchEventListeners(shootBallFunc);
-
-  // Track pointer on buttons
+  addTouchEventListeners();
   track(leftButton);
   track(rightButton);
   track(middleButton);
@@ -60,9 +51,8 @@ export const startGameLoop = function() {
   // Create Level 1
   generate_level(brickPool, 1);
 
-  // Particles //
-  const particlePool = newParticlePool(100);
-  createParticles(particlePool, 10, ballPool.getAliveObjects()[0] as Sprite);
+  const particleSwarm = new ParticleSwarm(100, ballPool.getAliveObjects()[0] as Sprite);
+  particleSwarm.start(10);
 
   // PRE-RENDER //
 
@@ -72,6 +62,7 @@ export const startGameLoop = function() {
   paddle.render();
   ballPool.update();
   ballPool.render();
+  particleSwarm.render();
   rightButton.render();
   leftButton.render();
   middleButton.render();
@@ -86,10 +77,9 @@ export const startGameLoop = function() {
   const gameLoop = createGameLoop({
     brickPool,
     ballPool,
-    particlePool,
+    particleSwarm,
     paddle,
     walls,
-    middleButton,
   });
 
   // Start the game!

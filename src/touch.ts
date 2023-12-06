@@ -1,16 +1,16 @@
-import { Pool, Sprite } from 'kontra';
+import { Sprite } from 'kontra';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './globals';
 import { renderButton } from './render';
-import { disableLaunch, launchBall } from './update';
 import {
   input_left_off,
   input_left_on,
+  input_middle_off,
+  input_middle_on,
   input_right_off,
   input_right_on,
 } from './input';
 
 // Create left button sprite for touch input
-// createLeftButton :: Sprite -> Sprite
 export function createLeftButton(): Sprite {
   return Sprite({
     type: 'button',
@@ -33,7 +33,6 @@ export function createLeftButton(): Sprite {
 }
 
 // Create right button sprite for touch input
-// createRightButton :: Sprite -> Sprite
 export function createRightButton(): Sprite {
   return Sprite({
     type: 'button',
@@ -57,8 +56,7 @@ export function createRightButton(): Sprite {
 }
 
 // Create Middle button sprite for touch input
-// createMiddleButton :: Pool -> Sprite
-export function createMiddleButton(balls: Pool): Sprite {
+export function createMiddleButton(): Sprite {
   return Sprite({
     type: 'button',
     action: 'launch',
@@ -74,14 +72,13 @@ export function createMiddleButton(balls: Pool): Sprite {
     width: CANVAS_WIDTH / 4,
     height: CANVAS_HEIGHT,
     fill: false,
-    onDown: launchBall(balls.getAliveObjects()[0] as Sprite),
-    onUp: disableLaunch,
+    onDown: input_middle_on,
+    onUp: input_middle_off,
     render: renderButton,
   });
 }
 
 // Show fullscreen touch buttons when changed to fullscreen
-// showTouchButtons () -> ()
 export function showTouchButtons() {
   const controls = document.querySelector('#controls') as HTMLElement;
   controls?.classList.remove('hide-controls');
@@ -92,14 +89,13 @@ export function showTouchButtons() {
 }
 
 // Hide fullscreen touch buttons when leaving fullscreen
-// hideTouchButtons () -> ()
 export function hideTouchButtons() {
   document.querySelector('#controls')?.classList.add('hide-controls');
   document.querySelector('#controls')?.classList.remove('show-controls');
 }
 
 // Add needed listeners to fullscreen touch buttons
-export function addTouchEventListeners(middle: () => void) {
+export function addTouchEventListeners() {
   document
     .querySelector('.left')
     ?.addEventListener('pointerdown', input_left_on);
@@ -114,10 +110,10 @@ export function addTouchEventListeners(middle: () => void) {
     ?.addEventListener('pointerup', input_right_off);
   document
     .querySelector('.middle')
-    ?.addEventListener('pointerdown', function handle(e) {
-      e.target?.removeEventListener('pointerdown', handle);
-      middle();
-    });
+    ?.addEventListener('pointerdown', input_middle_on);
+  document
+    .querySelector('.middle')
+    ?.addEventListener('pointerup', input_middle_off);
 }
 
 // Remove listeners to fullscreen touch buttons
@@ -134,15 +130,10 @@ export function removeTouchEventListeners() {
   document
     .querySelector('.right')
     ?.removeEventListener('pointerup', input_left_off);
-}
-
-// Update which ball is launched when a new ball is created
-// updateMiddleTouchButton :: Function -> ()
-export function updateMiddleTouchButton(newFunction: () => void) {
   document
     .querySelector('.middle')
-    ?.addEventListener('pointerdown', function handle(e) {
-      e.target?.removeEventListener('pointerdown', handle);
-      newFunction();
-    });
+    ?.removeEventListener('pointerdown', input_middle_on);
+  document
+    .querySelector('.middle')
+    ?.removeEventListener('pointerup', input_middle_off);
 }

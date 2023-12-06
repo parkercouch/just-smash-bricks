@@ -1,3 +1,5 @@
+import { Sprite } from "kontra";
+
 export const DEFAULT_FPS = 120;
 export const BRICK_HEIGHT = 15;
 export const BRICK_WIDTH = 50;
@@ -5,6 +7,10 @@ export const PADDLE_WIDTH = 80;
 export const PADDLE_HEIGHT = 15;
 export const CANVAS_WIDTH = 400;
 export const CANVAS_HEIGHT = 600;
+export const CENTER_POINT = Sprite({
+  x: CANVAS_WIDTH / 2,
+  y: CANVAS_HEIGHT / 2,
+});
 
 export const GAME_CONTAINER = document.getElementById('game-container');
 

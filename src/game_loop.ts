@@ -4,20 +4,19 @@ import * as TWEEN from '@tweenjs/tween.js';
 import { advanceLevel } from './levels';
 import { updateLives } from './util';
 import { stopMusic } from './sounds';
-import { removeTouchEventListeners, updateMiddleTouchButton } from './touch';
+import { removeTouchEventListeners } from './touch';
 import { addMessage, clearMessages } from './messages';
 import { CURRENT_LEVEL, DEBUG_ON, FPS, LIVES } from './globals';
-import { launchBall } from './update';
 import { gameStates } from './ui_states';
 import { Paddle } from './paddle';
+import { ParticleSwarm } from './particle_swarm';
 
 export type gameLoopInitOptions = {
   brickPool: Pool;
   ballPool: Pool;
-  particlePool: Pool;
+  particleSwarm: ParticleSwarm;
   paddle: Paddle;
   walls: Sprite[];
-  middleButton: Sprite;
 };
 
 let GAMELOOP: GameLoop;
@@ -25,38 +24,24 @@ let GAMELOOP: GameLoop;
 export function createGameLoop({
   brickPool,
   ballPool,
-  particlePool,
+  particleSwarm,
   paddle,
   walls,
-  middleButton,
 }: gameLoopInitOptions) {
   GAMELOOP = GameLoop({
     fps: FPS.value,
 
     // UPDATE GAME STATE //
     update: function(dt: number) {
-      // Sync tween animations
       TWEEN.update();
 
-      // Update paddle and bricks then add to quadtree
       brickPool.update();
-
-      //DEBUG AUTO MOVE //
-      if (DEBUG_ON.value) {
-        if ((ballPool.getAliveObjects()[0] as Sprite).attached === null) {
-          paddle.autoMove(ballPool.getAliveObjects()[0] as Sprite);
-        } else {
-          paddle.update();
-        }
-      } else {
-        paddle.update(); // Normal paddle update
-      }
-
+      paddle.move(ballPool.getAliveObjects()[0] as Sprite);
       const bricks = brickPool.getAliveObjects();
 
       // Ready to check for collision!
       ballPool.update(dt, [...bricks, ...walls, paddle]);
-      particlePool.update();
+      particleSwarm.update();
       brickPool.update();
 
       // If all bricks are gone then go to next level/win
@@ -69,6 +54,7 @@ export function createGameLoop({
         );
         LIVES.value += 1;
         updateLives();
+        return;
       }
 
       // Check if any balls are left
@@ -81,17 +67,12 @@ export function createGameLoop({
           removeTouchEventListeners();
           gameStates.lose();
           return;
-        } else {
-          updateLives();
-          ballPool.get({attached:paddle});
-          // Reset button to launch new ball
-          middleButton.onDown = launchBall(
-            ballPool.getAliveObjects()[0] as Sprite,
-          );
-          updateMiddleTouchButton(
-            launchBall(ballPool.getAliveObjects()[0] as Sprite),
-          );
         }
+        updateLives();
+        ballPool.clear();
+        ballPool.get();
+        particleSwarm.follow(ballPool.getAliveObjects()[0] as Sprite)
+        return;
       }
     },
 
@@ -100,8 +81,7 @@ export function createGameLoop({
       paddle.render();
       ballPool.render();
       brickPool.render();
-      middleButton.render();
-      particlePool.render();
+      particleSwarm.render();
     },
   });
 
