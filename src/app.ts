@@ -7,10 +7,10 @@ import {
   initMuteButton,
   initSpeedButton,
 } from './dom';
-import { resizeCanvasToDisplaySize } from './util';
 import { initializeHighScores } from './score';
 import { gameStates } from './ui_states';
 import { initializeInputs } from './input';
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from './globals';
 
 document.addEventListener('DOMContentLoaded', function() {
   initFullscreenButton();
@@ -20,11 +20,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   initializeHighScores();
 
-  const canvasElement = document.getElementById('game')! as HTMLCanvasElement;
-  resizeCanvasToDisplaySize(canvasElement);
+  const canvas = document.getElementById('game')! as HTMLCanvasElement;
+  canvas.width = CANVAS_WIDTH;
+  canvas.height = CANVAS_HEIGHT;
 
   // Initialize Kontra
-  init(canvasElement);
+  init(canvas);
   initializeInputs();
 
   gameStates.startLoading();

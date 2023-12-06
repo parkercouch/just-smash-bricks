@@ -41,6 +41,9 @@ export const startGameLoop = function() {
   track(leftButton);
   track(rightButton);
   track(middleButton);
+  rightButton.render();
+  leftButton.render();
+  middleButton.render();
 
   // BOUNDARY WALLS //
   const walls = createWalls();
@@ -54,18 +57,6 @@ export const startGameLoop = function() {
   const particleSwarm = new ParticleSwarm(100, ballPool.getAliveObjects()[0] as Sprite);
   particleSwarm.start(10);
 
-  // PRE-RENDER //
-
-  brickPool.update();
-  brickPool.render();
-  paddle.update();
-  paddle.render();
-  ballPool.update();
-  ballPool.render();
-  particleSwarm.render();
-  rightButton.render();
-  leftButton.render();
-  middleButton.render();
   showTopDisplay();
 
   // Drop in first level
@@ -82,6 +73,5 @@ export const startGameLoop = function() {
     walls,
   });
 
-  // Start the game!
   gameLoop.start();
 };

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { Pool, Sprite } from 'kontra';
 import { OrbitingParticle } from './particle';
 import { CENTER_POINT } from './globals';
@@ -24,7 +23,6 @@ export class ParticleSwarm {
   start = (amount = 10, overrides?: object) => {
     for (let i = 0; i < amount; i++) {
       this.pool.get(overrides);
-      console.log('get');
     }
   };
 
