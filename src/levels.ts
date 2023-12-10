@@ -8,7 +8,7 @@ import {
   startNextSong,
   stopMusic,
 } from './sounds';
-import { updateLevelDisplay } from './util';
+import { updateLevelDisplay } from './dom';
 import { SCORE } from './globals';
 import { gameStates } from './ui_states';
 import { BrickPool } from './brick';

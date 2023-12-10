@@ -1,14 +1,20 @@
 /* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
-import { on, Sprite, SpriteClass } from 'kontra';
+import { GameObject, on, Sprite, SpriteClass, Vector } from 'kontra';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, DEBUG_ON } from './globals';
 import { playPaddleSound } from './sounds';
+import { Collidable } from './collision';
 
 const PADDLE_WIDTH = 80;
 const PADDLE_HEIGHT = 15;
 const PADDLE_COLOR = '#B993EA';
 
-export class Paddle extends SpriteClass {
+export class Paddle extends SpriteClass implements Collidable {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+
   constructor() {
     super({
       type: 'paddle',
@@ -25,10 +31,6 @@ export class Paddle extends SpriteClass {
       ttl: Infinity,
       width: PADDLE_WIDTH,
       height: PADDLE_HEIGHT,
-      top: CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2 + 1,
-      bottom: CANVAS_HEIGHT - 50 + PADDLE_HEIGHT / 2 - 1,
-      left: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
-      right: CANVAS_WIDTH / 2 + PADDLE_WIDTH / 2,
       color: PADDLE_COLOR,
     });
 
@@ -39,12 +41,16 @@ export class Paddle extends SpriteClass {
       CANVAS_HEIGHT,
     );
 
+    this.top= CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2 + 1;
+    this.bottom= CANVAS_HEIGHT - 50 + PADDLE_HEIGHT / 2 - 1;
+    this.left= CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2;
+    this.right= CANVAS_WIDTH / 2 + PADDLE_WIDTH / 2;
+
     on('input_left:on', this.startMoveLeft);
     on('input_right:on', this.startMoveRight);
     on('input_left:off', this.stopMovement);
     on('input_right:off', this.stopMovement);
   }
-
   move(ball?: Sprite) {
     if (DEBUG_ON.value && !!ball && ball.attached === null) {
       this.follow(ball);
@@ -86,7 +92,7 @@ export class Paddle extends SpriteClass {
     this.dx = 0;
   };
 
-  public onHit() {
+  onHit = (collidedWith: GameObject, at: Vector) => {
     playPaddleSound();
     const coords = { y: this.y };
     // Chain up to the end of down

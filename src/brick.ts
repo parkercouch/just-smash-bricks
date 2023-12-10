@@ -1,12 +1,23 @@
 /* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
-import { PoolClass, Sprite, SpriteClass } from 'kontra';
+import { GameObject, PoolClass, SpriteClass, Vector } from 'kontra';
 import { playChirpSound } from './sounds';
+import { Collidable } from './collision';
 
 const BRICK_HEIGHT = 15;
 const BRICK_WIDTH = 50;
 
-export class Brick extends SpriteClass {
+export class Brick extends SpriteClass implements Collidable {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+
+  spawnLocation: {
+    x: number,
+    y: number,
+  };
+
   constructor(hits = 1) {
     super({
       type: 'brick',
@@ -22,6 +33,14 @@ export class Brick extends SpriteClass {
       height: BRICK_HEIGHT,
       color: 'black',
     });
+    this.top = 0;
+    this.bottom = 0;
+    this.left = 0;
+    this.right = 0;
+    this.spawnLocation = {
+      x: 0,
+      y: 0,
+    };
   }
 
   init = (properties: any) => {
@@ -29,8 +48,10 @@ export class Brick extends SpriteClass {
     this.hits = hits;
     this.x = startX + BRICK_WIDTH / 2;
     this.y = startY + BRICK_HEIGHT / 2;
-    this.originalX = startX + BRICK_WIDTH / 2;
-    this.originalY = startY + BRICK_HEIGHT / 2;
+    this.spawnLocation = {
+      x: this.x,
+      y: this.y,
+    };
     this.top = startY - BRICK_HEIGHT - 1;
     this.bottom = startY + BRICK_HEIGHT + 1;
     this.left = startX - BRICK_WIDTH - 1;
@@ -67,14 +88,14 @@ export class Brick extends SpriteClass {
     this.right = this.x + this.width / 2 + 2;
   }
 
-  onHit = (hitLocation: Sprite) => {
+  onHit = (collidedWith: GameObject, at: Vector) => {
     playChirpSound();
     const xOffset = 10 * Math.random() + 10;
     const yOffset = 10 * Math.random() + 10;
-    const xDirection = hitLocation.dx >= 0 ? 1 : -1;
-    const yDirection = hitLocation.dy >= 0 ? 1 : -1;
-    const startX = this.originalX;
-    const startY = this.originalY;
+    const xDirection = collidedWith.dx >= 0 ? 1 : -1;
+    const yDirection = collidedWith.dy >= 0 ? 1 : -1;
+    const startX = this.spawnLocation.x;
+    const startY = this.spawnLocation.y;
     // Movement based on hits left
     const endx = startX + xDirection * xOffset * (1 / this.hits);
     const endy = startY + yDirection * yOffset * (1 / this.hits);
@@ -83,20 +104,6 @@ export class Brick extends SpriteClass {
       x: startX,
       y: startY,
     };
-    const back = new TWEEN.Tween(coords)
-      .to(
-        {
-          x: startX,
-          y: startY,
-        },
-        100,
-      )
-      .easing(TWEEN.Easing.Quadratic.In)
-      .onUpdate(() => {
-        this.x = coords.x;
-        this.y = coords.y;
-        this.render();
-      });
 
     new TWEEN.Tween(coords)
       .to(
@@ -112,7 +119,22 @@ export class Brick extends SpriteClass {
         this.y = coords.y;
         this.render();
       })
-      .chain(back)
+      .chain( // back to start location
+        new TWEEN.Tween(coords)
+          .to(
+            {
+              x: startX,
+              y: startY,
+            },
+            100,
+          )
+          .easing(TWEEN.Easing.Quadratic.In)
+          .onUpdate(() => {
+            this.x = coords.x;
+            this.y = coords.y;
+            this.render();
+          })
+      )
       .start();
   };
 
@@ -123,7 +145,7 @@ export class Brick extends SpriteClass {
       .easing(TWEEN.Easing.Elastic.InOut)
       .onUpdate(() => {
         this.y = coords.y;
-        this.originalY = coords.y;
+        this.spawnLocation.y = coords.y;
         this.render();
       })
       .delay(delay)

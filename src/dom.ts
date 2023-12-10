@@ -1,7 +1,7 @@
 import screenfull from 'screenfull';
 import { hideTouchButtons, showTouchButtons } from './touch';
 import { ac, playMusic, stopMusic } from './sounds';
-import { DEBUG_ON, FPS } from './globals';
+import { DEBUG_ON, FPS, LIVES, SCORE } from './globals';
 
 export function initFullscreenButton() {
   // Add listener to fullscreen button and change/state
@@ -68,3 +68,22 @@ export function initMuteButton() {
     stopMusic();
   });
 }
+
+export function updateLevelDisplay(currentLevel: number) {
+  document
+    .querySelector('.level')!
+    .textContent = currentLevel.toString();
+}
+
+export function updateScore() {
+  document
+    .querySelector('.score')!
+    .textContent = SCORE.value.toString();
+}
+
+export function updateLives() {
+  document
+    .querySelector('.lives')!
+    .textContent = `${LIVES.value - 1}`;
+}
+
