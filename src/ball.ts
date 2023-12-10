@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { GameObject, on, PoolClass, Sprite, SpriteClass } from 'kontra';
+import { on, PoolClass, Sprite, SpriteClass, Vector } from 'kontra';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
@@ -8,18 +8,18 @@ import {
   FPS,
   SCORE,
 } from './globals';
-import {
-  isNullOrUndefined,
-  line_intercept,
-  magnitude,
-  move,
-  updateScore,
-} from './util';
+import { doesCircleCollideWithBox, isNullOrUndefined } from './util';
 import { playBounceSound } from './sounds';
+import { updateScore } from './dom';
+import { Collidable } from './collision';
+import { Brick } from './brick';
 
 const BALL_COLOR = 'white';
 
 export class Ball extends SpriteClass {
+  radius: number;
+  attached: Sprite | null;
+
   constructor({ attached }: { attached: Sprite }) {
     super({
       type: 'ball',
@@ -29,23 +29,23 @@ export class Ball extends SpriteClass {
         x: 0.5,
         y: 0.5,
       },
-      attached,
       x: attached.x + attached.width / 2,
       y: attached.y - 8,
       dx: 0,
       dy: 0,
       ttl: Infinity,
-      radius: 11,
       color: BALL_COLOR,
     });
 
+    this.attached = attached;
+    this.radius = 11;
     this.contain();
   }
 
   init = (_options: any) => {
     on('input_middle:on', this.launchBall);
   };
-  
+
   launchBall = (_options: any) => {
     if (!this.attached) {
       return;
@@ -58,7 +58,7 @@ export class Ball extends SpriteClass {
     }
     this.dy = -6;
     this.attached = null;
-  }
+  };
 
   render() {
     this.context.fillStyle = this.color;
@@ -76,68 +76,16 @@ export class Ball extends SpriteClass {
     );
   }
 
-  collidesWith(
-    rect: { right: number; top: number; bottom: number; left: number },
-    futurePosition: { nx: number; ny: number },
-  ): { x: number; y: number; d: string } | null {
-    const nx = futurePosition.nx;
-    const ny = futurePosition.ny;
-    let pt: { x: number; y: number; d: string } | null = null;
-    if (nx < 0) {
-      pt = line_intercept(
-        this.x,
-        this.y,
-        this.x + nx,
-        this.y + ny,
-        rect.right + this.radius,
-        rect.top - this.radius,
-        rect.right + this.radius,
-        rect.bottom + this.radius,
-        'right',
-      );
-    } else if (nx > 0) {
-      pt = line_intercept(
-        this.x,
-        this.y,
-        this.x + nx,
-        this.y + ny,
-        rect.left - this.radius,
-        rect.top - this.radius,
-        rect.left - this.radius,
-        rect.bottom + this.radius,
-        'left',
-      );
-    }
-    if (!pt) {
-      if (ny < 0) {
-        pt = line_intercept(
-          this.x,
-          this.y,
-          this.x + nx,
-          this.y + ny,
-          rect.left - this.radius,
-          rect.bottom + this.radius,
-          rect.right + this.radius,
-          rect.bottom + this.radius,
-          'bottom',
-        );
-      } else if (ny > 0) {
-        pt = line_intercept(
-          this.x,
-          this.y,
-          this.x + nx,
-          this.y + ny,
-          rect.left - this.radius,
-          rect.top - this.radius,
-          rect.right + this.radius,
-          rect.top - this.radius,
-          'top',
-        );
-      }
-    }
-    return pt;
+  getVectorToNextPosition(dt: number): Vector {
+    // KONTRA USES FIXED GAME LOOP dx is just change in pixel/frame
+    return Vector({
+      x: this.dx * dt * FPS.value,
+      y: this.dy * dt * FPS.value,
+    });
   }
 
+  // TODO: split up collision and movement/update; collision detection can call update? trying to remove patch that adds
+  // options argument
   update(
     dt?: number,
     // collidableObjects: Sprite[],
@@ -151,31 +99,47 @@ export class Ball extends SpriteClass {
       return;
     }
 
-    // Calculate future position of ball
-    const nextPosition = move(this, dt!);
+    const vectorToNextPosition = this.getVectorToNextPosition(dt!);
 
-    const { closest, closestMagnitude } = options?.reduce(
-      (acc, item) => {
-        // @ts-ignore TODO: fix
-        const point: GameObject | null = this.collidesWith(item, nextPosition);
-        if (isNullOrUndefined(point)) {
+    const { closest, closestMagnitude } = (options as Collidable[])?.reduce(
+      (
+        acc: {
+          closestMagnitude: number;
+          closest: {
+            item: Collidable;
+            pointOfCollision: Vector;
+            d: string;
+          } | null;
+        },
+        item: Collidable,
+      ) => {
+        const collision = doesCircleCollideWithBox(
+          this,
+          vectorToNextPosition,
+          item,
+        );
+        if (isNullOrUndefined(collision)) {
           // No collision happened
           return acc;
         }
 
-        const currentMagnitude = magnitude(point.x - this.x, point.y - this.y);
+        const currentMagnitude = collision.pointOfCollision.distance({
+          x: this.x,
+          y: this.y,
+        });
         if (currentMagnitude < acc.closestMagnitude) {
           return {
-            closest: { item, point },
             closestMagnitude: currentMagnitude,
+            closest: {
+              item,
+              pointOfCollision: collision.pointOfCollision,
+              d: collision.d,
+            },
           };
         }
         return acc;
       },
-      { closestMagnitude: Infinity, closest: null } as {
-        closestMagnitude: number;
-        closest: { item: Sprite; point: GameObject } | null;
-      },
+      { closestMagnitude: Infinity, closest: null },
     );
 
     if (isNullOrUndefined(closest)) {
@@ -185,8 +149,7 @@ export class Ball extends SpriteClass {
     // ----- A collision happend so deal with it ------- //
 
     // How much time did it take to get to first collision?
-    const udt =
-      dt! * (closestMagnitude / magnitude(nextPosition.nx, nextPosition.ny));
+    const udt = dt! * (closestMagnitude / vectorToNextPosition.length());
     // Update the ball to point of collision
     this.advance(udt);
 
@@ -198,10 +161,10 @@ export class Ball extends SpriteClass {
         this.combo = 0;
 
         // Animate/sounds
-        closest.item.onHit();
+        closest.item.onHit(this, closest.pointOfCollision);
 
         // Reflect ball
-        switch (closest.point.d) {
+        switch (closest.d) {
           case 'left':
           case 'right':
             this.dx *= -1;
@@ -212,12 +175,15 @@ export class Ball extends SpriteClass {
           case 'top':
           case 'bottom':
             // If right 1/4 then bounce back right
-            if (closest.point.x > closest.item.x + closest.item.width / 4) {
+            if (
+              closest.pointOfCollision.x >
+              closest.item.x + closest.item.width / 4
+            ) {
               this.dx = Math.abs(this.dx);
               this.dy *= -1;
               // If in the middle 1/2 then reflect
             } else if (
-              closest.point.x >=
+              closest.pointOfCollision.x >=
               closest.item.x - closest.item.width / 4
             ) {
               this.dy *= -1;
@@ -239,8 +205,8 @@ export class Ball extends SpriteClass {
         // Animate all bricks
         options
           .filter((n) => n.type === 'brick')
-          .forEach((brick) => {
-            brick.onHit(this);
+          .forEach((brick: Brick) => {
+            brick.onHit(this, closest.pointOfCollision);
           });
 
         // No points in debug mode
@@ -258,7 +224,7 @@ export class Ball extends SpriteClass {
           closest.item.ttl = 0;
         }
 
-        switch (closest.point.d) {
+        switch (closest.d) {
           // Reflect x if right/left hit
           case 'left':
           case 'right':
@@ -277,7 +243,7 @@ export class Ball extends SpriteClass {
         // IF A WALL OR BRICK IS HIT //
         // Need to move this into a onHit Function
         playBounceSound();
-        switch (closest.point.d) {
+        switch (closest.d) {
           // Reflect x if right/left hit
           case 'left':
           case 'right':
@@ -306,9 +272,9 @@ export class Ball extends SpriteClass {
 }
 
 export class BallPool extends PoolClass {
-  constructor({attached}: {attached: Sprite}) {
+  constructor({ attached }: { attached: Sprite }) {
     super({
-      create: () => new Ball({attached}),
+      create: () => new Ball({ attached }),
       maxSize: 100,
     });
   }
@@ -316,7 +282,7 @@ export class BallPool extends PoolClass {
   getBall(): Ball {
     return this.getAliveObjects()[0] as Ball;
   }
-  
+
   numberAlive(): number {
     return this.getAliveObjects().length;
   }

@@ -2,7 +2,7 @@
 import { GameLoop, Sprite } from 'kontra';
 import * as TWEEN from '@tweenjs/tween.js';
 import { advanceLevel } from './levels';
-import { updateLives } from './util';
+import { updateLives } from './dom';
 import { stopMusic } from './sounds';
 import { removeTouchEventListeners } from './touch';
 import { addMessage, clearMessages } from './messages';

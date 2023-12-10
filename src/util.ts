@@ -1,21 +1,8 @@
-import { FPS, LIVES, SCORE } from './globals';
+/* eslint-disable */
+import { Vector } from 'kontra';
 
-export function updateLevelDisplay(currentLevel: number) {
-  document
-    .querySelector('.level')!
-    .textContent = currentLevel.toString();
-}
-
-export function updateScore() {
-  document
-    .querySelector('.score')!
-    .textContent = SCORE.value.toString();
-}
-
-export function updateLives() {
-  document
-    .querySelector('.lives')!
-    .textContent = `${LIVES.value - 1}`;
+export function isNullOrUndefined(obj: unknown): obj is null | undefined {
+  return obj === null || obj === undefined;
 }
 
 // intercept :: (Num, Num), (Num, Num), (Num, Num), (Num, Num), String -> {Num, Num, String}
@@ -38,7 +25,7 @@ export function line_intercept(
       if (ub >= 0 && ub <= 1) {
         const x = x1 + ua * (x2 - x1);
         const y = y1 + ua * (y2 - y1);
-        return { x: x, y: y, d: d };
+        return { pointOfCollision: Vector({ x, y }), d };
       }
     }
   }
@@ -49,19 +36,66 @@ export function magnitude(x: number, y: number) {
   return Math.sqrt(x * x + y * y);
 }
 
-// Calculated position after move
-// move :: {dx,dy}, dt -> {nx,ny}
-export function move(
-  object: { dx: number; dy: number },
-  dt: number,
-): { nx: number; ny: number } {
-  // KONTRA USES FIXED GAME LOOP dx is just change in pixel/frame
-  return {
-    nx: object.dx * dt * FPS.value,
-    ny: object.dy * dt * FPS.value,
-  };
-}
+export function doesCircleCollideWithBox(
+  circle: { x: number; y: number; radius: number },
+  circleVelocity: Vector,
+  box: { right: number; top: number; bottom: number; left: number },
+): { pointOfCollision: Vector; d: string } | null {
+  let collision: { pointOfCollision: Vector; d: string } | null = null;
+  if (circleVelocity.x < 0) {
+    collision = line_intercept(
+      circle.x,
+      circle.y,
+      circle.x + circleVelocity.x,
+      circle.y + circleVelocity.y,
+      box.right + circle.radius,
+      box.top - circle.radius,
+      box.right + circle.radius,
+      box.bottom + circle.radius,
+      'right',
+    );
+  } else if (circleVelocity.x > 0) {
+    collision = line_intercept(
+      circle.x,
+      circle.y,
+      circle.x + circleVelocity.x,
+      circle.y + circleVelocity.y,
+      box.left - circle.radius,
+      box.top - circle.radius,
+      box.left - circle.radius,
+      box.bottom + circle.radius,
+      'left',
+    );
+  }
 
-export function isNullOrUndefined(obj: unknown): obj is null | undefined {
-  return obj === null || obj === undefined;
+  if(!isNullOrUndefined(collision)) {
+    return collision;
+  }
+
+  if (circleVelocity.y < 0) {
+    collision = line_intercept(
+      circle.x,
+      circle.y,
+      circle.x + circleVelocity.x,
+      circle.y + circleVelocity.y,
+      box.left - circle.radius,
+      box.bottom + circle.radius,
+      box.right + circle.radius,
+      box.bottom + circle.radius,
+      'bottom',
+    );
+  } else if (circleVelocity.y > 0) {
+    collision = line_intercept(
+      circle.x,
+      circle.y,
+      circle.x + circleVelocity.x,
+      circle.y + circleVelocity.y,
+      box.left - circle.radius,
+      box.top - circle.radius,
+      box.right + circle.radius,
+      box.top - circle.radius,
+      'top',
+    );
+  }
+  return collision;
 }
