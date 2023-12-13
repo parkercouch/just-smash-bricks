@@ -19,24 +19,23 @@ const BALL_COLOR = 'white';
 export class Ball extends SpriteClass {
   radius: number;
   attached: Sprite | null;
+  mass: number;
+  combo: number;
 
   constructor({ attached }: { attached: Sprite }) {
     super({
       type: 'ball',
-      combo: 0,
-      mass: 100,
       anchor: {
         x: 0.5,
         y: 0.5,
       },
       x: attached.x + attached.width / 2,
       y: attached.y - 8,
-      dx: 0,
-      dy: 0,
-      ttl: Infinity,
       color: BALL_COLOR,
     });
 
+    this.combo = 0;
+    this.mass = 100;
     this.attached = attached;
     this.radius = 11;
     this.contain();
@@ -60,10 +59,10 @@ export class Ball extends SpriteClass {
     this.attached = null;
   };
 
-  render() {
+  draw() {
     this.context.fillStyle = this.color;
     this.context.beginPath();
-    this.context.arc(this.x, this.y, this.radius - 3, 0, 2 * Math.PI);
+    this.context.arc(0, 0, this.radius - 3, 0, 2 * Math.PI);
     this.context.fill();
   }
 
@@ -116,7 +115,7 @@ export class Ball extends SpriteClass {
         const collision = doesCircleCollideWithBox(
           this,
           vectorToNextPosition,
-          item,
+          item.hitbox,
         );
         if (isNullOrUndefined(collision)) {
           // No collision happened

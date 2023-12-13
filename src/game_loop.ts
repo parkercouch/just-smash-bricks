@@ -27,7 +27,7 @@ export function createGameLoop(options: {
   GAMELOOP = GameLoop({
     fps: FPS.value,
 
-    update: function(dt: number) {
+    update: function (dt: number) {
       TWEEN.update();
 
       bricks.update();
@@ -65,7 +65,7 @@ export function createGameLoop(options: {
       }
     },
 
-    render: function() {
+    render: function () {
       paddle.render();
       balls.render();
       bricks.render();

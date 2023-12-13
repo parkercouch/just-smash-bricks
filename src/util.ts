@@ -68,7 +68,7 @@ export function doesCircleCollideWithBox(
     );
   }
 
-  if(!isNullOrUndefined(collision)) {
+  if (!isNullOrUndefined(collision)) {
     return collision;
   }
 
