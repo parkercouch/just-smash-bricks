@@ -2,41 +2,37 @@
 import * as TWEEN from '@tweenjs/tween.js';
 import { GameObject, PoolClass, SpriteClass, Vector } from 'kontra';
 import { playChirpSound } from './sounds';
-import { Collidable } from './collision';
+import { Collidable, HitBox, updateHitbox } from './collision';
 
 const BRICK_HEIGHT = 15;
 const BRICK_WIDTH = 50;
 
 export class Brick extends SpriteClass implements Collidable {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-
+  hitbox: HitBox;
+  hits: number;
   spawnLocation: {
-    x: number,
-    y: number,
+    x: number;
+    y: number;
   };
 
   constructor(hits = 1) {
     super({
       type: 'brick',
-      hits,
       anchor: {
         x: 0.5,
         y: 0.5,
       },
-      dx: 0,
-      dy: 0,
-      ttl: Infinity,
       width: BRICK_WIDTH,
       height: BRICK_HEIGHT,
       color: 'black',
     });
-    this.top = 0;
-    this.bottom = 0;
-    this.left = 0;
-    this.right = 0;
+    this.hitbox = {
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+    };
+    this.hits = hits;
     this.spawnLocation = {
       x: 0,
       y: 0,
@@ -52,10 +48,7 @@ export class Brick extends SpriteClass implements Collidable {
       x: this.x,
       y: this.y,
     };
-    this.top = startY - BRICK_HEIGHT - 1;
-    this.bottom = startY + BRICK_HEIGHT + 1;
-    this.left = startX - BRICK_WIDTH - 1;
-    this.right = startX + BRICK_WIDTH + 1;
+    this.hitbox = updateHitbox(this, 2);
   };
 
   update(dt?: number) {
@@ -82,10 +75,7 @@ export class Brick extends SpriteClass implements Collidable {
         break;
     }
 
-    this.top = this.y - this.height / 2 - 2;
-    this.bottom = this.y + this.height / 2 + 2;
-    this.left = this.x - this.width / 2 - 2;
-    this.right = this.x + this.width / 2 + 2;
+    this.hitbox = updateHitbox(this, 2);
   }
 
   onHit = (collidedWith: GameObject, at: Vector) => {
@@ -119,7 +109,8 @@ export class Brick extends SpriteClass implements Collidable {
         this.y = coords.y;
         this.render();
       })
-      .chain( // back to start location
+      .chain(
+        // back to start location
         new TWEEN.Tween(coords)
           .to(
             {
@@ -133,7 +124,7 @@ export class Brick extends SpriteClass implements Collidable {
             this.x = coords.x;
             this.y = coords.y;
             this.render();
-          })
+          }),
       )
       .start();
   };

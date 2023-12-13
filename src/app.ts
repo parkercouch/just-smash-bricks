@@ -10,7 +10,7 @@ import { gameStates } from './ui_states';
 import { initializeInputs } from './input';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './globals';
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   initFullscreenButton();
   initSpeedButton();
   initDebugButton();

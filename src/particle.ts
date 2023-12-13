@@ -28,9 +28,9 @@ export class OrbitingParticle extends SpriteClass {
     this.contain();
   }
 
-  render() {
+  draw() {
     this.context.fillStyle = this.color;
-    this.context.fillRect(this.x, this.y, this.height, this.width);
+    this.context.fillRect(0, 0, this.height, this.width);
   }
 
   init = (_properties: any) => {};
