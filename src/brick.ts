@@ -2,13 +2,14 @@
 import * as TWEEN from '@tweenjs/tween.js';
 import { GameObject, PoolClass, SpriteClass, Vector } from 'kontra';
 import { playChirpSound } from './sounds';
-import { Collidable, HitBox, updateHitbox } from './collision';
+import { Collidable } from './collision';
 
 const BRICK_HEIGHT = 15;
 const BRICK_WIDTH = 50;
 
 export class Brick extends SpriteClass implements Collidable {
-  hitbox: HitBox;
+  type = 'brick';
+  hitbox_padding = 2;
   hits: number;
   spawnLocation: {
     x: number;
@@ -17,17 +18,10 @@ export class Brick extends SpriteClass implements Collidable {
 
   constructor(hits = 1) {
     super({
-      type: 'brick',
       width: BRICK_WIDTH,
       height: BRICK_HEIGHT,
       color: 'black',
     });
-    this.hitbox = {
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-    };
     this.hits = hits;
     this.spawnLocation = {
       x: 0,
@@ -44,7 +38,6 @@ export class Brick extends SpriteClass implements Collidable {
       x: this.x,
       y: this.y,
     };
-    this.hitbox = updateHitbox(this, 2);
   };
 
   update(dt?: number) {
@@ -70,8 +63,6 @@ export class Brick extends SpriteClass implements Collidable {
         this.color = '#E77474';
         break;
     }
-
-    this.hitbox = updateHitbox(this, 2);
   }
 
   onHit = (collidedWith: GameObject, at: Vector) => {
