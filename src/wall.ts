@@ -10,12 +10,7 @@ export function createWalls(): Sprite[] {
       y: 0,
       width: 1,
       height: CANVAS_HEIGHT,
-      hitbox: {
-        top: 0,
-        bottom: CANVAS_HEIGHT,
-        left: -0.5,
-        right: 0,
-      },
+      hitbox_padding: 0,
     }),
 
     // Right Wall
@@ -25,12 +20,7 @@ export function createWalls(): Sprite[] {
       y: 0,
       width: 1,
       height: CANVAS_HEIGHT,
-      hitbox: {
-        top: 0,
-        bottom: CANVAS_HEIGHT,
-        left: CANVAS_WIDTH - 0.5,
-        right: CANVAS_WIDTH + 0.5,
-      },
+      hitbox_padding: 0,
     }),
 
     // Top Wall
@@ -40,12 +30,7 @@ export function createWalls(): Sprite[] {
       y: -0.5,
       width: CANVAS_WIDTH,
       height: 1,
-      hitbox: {
-        top: -0.5,
-        bottom: 0.5,
-        left: 0,
-        right: CANVAS_WIDTH,
-      },
+      hitbox_padding: 0,
     }),
 
     // Bottom Wall
@@ -55,12 +40,7 @@ export function createWalls(): Sprite[] {
       y: CANVAS_HEIGHT - 0.5,
       width: CANVAS_WIDTH,
       height: 1,
-      hitbox: {
-        top: CANVAS_HEIGHT - 0.5,
-        bottom: CANVAS_HEIGHT + 0.5,
-        left: 0,
-        right: CANVAS_WIDTH,
-      },
+      hitbox_padding: 0,
     }),
   ];
 }

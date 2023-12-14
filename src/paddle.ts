@@ -3,19 +3,19 @@ import * as TWEEN from '@tweenjs/tween.js';
 import { GameObject, on, Sprite, SpriteClass, Vector } from 'kontra';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, DEBUG_ON } from './globals';
 import { playPaddleSound } from './sounds';
-import { Collidable, HitBox, updateHitbox } from './collision';
+import { Collidable, HitBox } from './collision';
 
 const PADDLE_WIDTH = 80;
 const PADDLE_HEIGHT = 15;
 const PADDLE_COLOR = '#B993EA';
 
 export class Paddle extends SpriteClass implements Collidable {
-  hitbox: HitBox;
-  moving: boolean;
+  type = 'paddle';
+  hitbox_padding = -1;
+  moving = false;
 
   constructor() {
     super({
-      type: 'paddle',
       x: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
       y: CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2,
       width: PADDLE_WIDTH,
@@ -23,9 +23,7 @@ export class Paddle extends SpriteClass implements Collidable {
       color: PADDLE_COLOR,
     });
 
-    this.hitbox = updateHitbox(this, -1);
     this.position.clamp(0, 0, CANVAS_WIDTH - this.width, CANVAS_HEIGHT);
-    this.moving = false;
 
     on('input_left:on', this.startMoveLeft);
     on('input_right:on', this.startMoveRight);
@@ -35,15 +33,9 @@ export class Paddle extends SpriteClass implements Collidable {
 
   move(ball?: Sprite) {
     if (DEBUG_ON.value && !!ball && ball.attached === null) {
-      this.x = ball.x;
+      this.x = ball.x - (this.width / 2 - ball.radius / 2);
     }
-
     this.update();
-  }
-
-  update() {
-    this.hitbox = updateHitbox(this, -1);
-    this.advance();
   }
 
   startMoveLeft = () => {

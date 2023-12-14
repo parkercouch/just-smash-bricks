@@ -8,7 +8,8 @@ import {
   FPS,
   SCORE,
 } from './globals';
-import { doesCircleCollideWithBox, isNullOrUndefined } from './util';
+import { isNullOrUndefined } from './util';
+import { doesCircleCollideWithObject } from './collision';
 import { playBounceSound } from './sounds';
 import { updateScore } from './dom';
 import { Collidable } from './collision';
@@ -108,13 +109,12 @@ export class Ball extends SpriteClass {
         },
         item: Collidable,
       ) => {
-        const collision = doesCircleCollideWithBox(
+        const collision = doesCircleCollideWithObject(
           this,
           vectorToNextPosition,
-          item.hitbox,
+          item,
         );
         if (isNullOrUndefined(collision)) {
-          // No collision happened
           return acc;
         }
 
