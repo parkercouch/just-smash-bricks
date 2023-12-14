@@ -1,5 +1,4 @@
-import { Sprite } from 'kontra';
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from './globals';
+import { Sprite, getCanvas } from 'kontra';
 import {
   input_left_off,
   input_left_on,
@@ -10,13 +9,14 @@ import {
 } from './input';
 
 export function createLeftButton(): Sprite {
+  const canvas = getCanvas();
   return Sprite({
     type: 'button',
     action: 'left',
     x: 0,
     y: 0,
-    width: CANVAS_WIDTH / 2,
-    height: CANVAS_HEIGHT,
+    width: canvas.width / 2,
+    height: canvas.height,
     onDown: input_left_on,
     onUp: input_left_off,
     render: renderButton,
@@ -24,13 +24,14 @@ export function createLeftButton(): Sprite {
 }
 
 export function createRightButton(): Sprite {
+  const canvas = getCanvas();
   return Sprite({
     type: 'button',
     action: 'right',
-    x: CANVAS_WIDTH / 2,
+    x: canvas.width / 2,
     y: 0,
-    width: CANVAS_WIDTH / 2,
-    height: CANVAS_HEIGHT,
+    width: canvas.width / 2,
+    height: canvas.height,
     fill: true,
     onDown: input_right_on,
     onUp: input_right_off,
@@ -39,13 +40,14 @@ export function createRightButton(): Sprite {
 }
 
 export function createMiddleButton(): Sprite {
+  const canvas = getCanvas();
   return Sprite({
     type: 'button',
     action: 'launch',
-    x: CANVAS_WIDTH / 2 - CANVAS_WIDTH / 4,
+    x: canvas.width / 2 - canvas.width / 4,
     y: 0,
-    width: CANVAS_WIDTH / 4,
-    height: CANVAS_HEIGHT,
+    width: canvas.width / 4,
+    height: canvas.height,
     fill: false,
     onDown: input_middle_on,
     onUp: input_middle_off,
@@ -54,11 +56,12 @@ export function createMiddleButton(): Sprite {
 }
 
 export function showTouchButtons() {
+  const canvas = getCanvas();
   const controls = document.querySelector('#controls') as HTMLElement;
   controls?.classList.remove('hide-controls');
   controls?.classList.add('show-controls');
   if (window.screen.height < 850) {
-    controls.style.height = `${window.screen.height - 26 - CANVAS_HEIGHT}px`;
+    controls.style.height = `${window.screen.height - 26 - canvas.height}px`;
   }
 }
 

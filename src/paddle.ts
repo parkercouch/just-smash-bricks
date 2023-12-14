@@ -1,7 +1,7 @@
 /* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
-import { GameObject, on, Sprite, SpriteClass, Vector } from 'kontra';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DEBUG_ON } from './globals';
+import { GameObject, getCanvas, on, Sprite, SpriteClass, Vector } from 'kontra';
+import { DEBUG_ON } from './globals';
 import { playPaddleSound } from './sounds';
 import { Collidable, HitBox } from './collision';
 
@@ -15,15 +15,16 @@ export class Paddle extends SpriteClass implements Collidable {
   moving = false;
 
   constructor() {
+    const canvas = getCanvas();
     super({
-      x: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
-      y: CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2,
+      x: canvas.width / 2 - PADDLE_WIDTH / 2,
+      y: canvas.height - 50 - PADDLE_HEIGHT / 2,
       width: PADDLE_WIDTH,
       height: PADDLE_HEIGHT,
       color: PADDLE_COLOR,
     });
 
-    this.position.clamp(0, 0, CANVAS_WIDTH - this.width, CANVAS_HEIGHT);
+    this.position.clamp(0, 0, canvas.width - this.width, canvas.height);
 
     on('input_left:on', this.startMoveLeft);
     on('input_right:on', this.startMoveRight);

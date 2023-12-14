@@ -1,14 +1,15 @@
 /* eslint-disable */
-import { Pool, Sprite, SpriteClass } from 'kontra';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, CENTER_POINT } from './globals';
+import { Pool, Sprite, SpriteClass, getCanvas } from 'kontra';
 
 const PARTICLE_COLOR = '#ECFFE0';
 
 export class OrbitingParticle extends SpriteClass {
+  type = 'particle';
+  barycenter: Sprite;
+
   constructor({ barycenter }: { barycenter: Sprite }) {
+    const canvas = getCanvas();
     super({
-      type: 'particle',
-      barycenter,
       anchor: {
         x: 0.5,
         y: 0.5,
@@ -19,13 +20,13 @@ export class OrbitingParticle extends SpriteClass {
       dy: 2 - Math.random() * 4,
       maxDx: 10,
       maxDy: 10,
-      ttl: Infinity,
       color: PARTICLE_COLOR,
       width: 3,
       height: 3,
     });
+    this.barycenter = barycenter;
 
-    this.contain();
+    this.position.clamp(-50, -50, canvas.width + 50, canvas.height + 50);
   }
 
   draw() {
@@ -33,16 +34,12 @@ export class OrbitingParticle extends SpriteClass {
     this.context.fillRect(0, 0, this.height, this.width);
   }
 
-  init = (_properties: any) => {};
+  init = (_properties: any) => { };
 
   follow = (barycenter: Sprite) => {
     this.barycenter = barycenter;
     this.update();
   };
-
-  contain() {
-    this.position.clamp(-50, -50, CANVAS_WIDTH + 50, CANVAS_HEIGHT + 50);
-  }
 
   update() {
     const vectorX = this.barycenter.x - this.x;
@@ -76,7 +73,12 @@ export class OrbitingParticle extends SpriteClass {
 export class ParticleSwarm {
   private pool: Pool;
 
-  constructor(barycenter = CENTER_POINT) {
+  constructor(
+    barycenter = Sprite({
+      x: getCanvas().width / 2,
+      y: getCanvas().height / 2,
+    }),
+  ) {
     this.pool = Pool({
       create: () => new OrbitingParticle({ barycenter }),
       maxSize: 50,
