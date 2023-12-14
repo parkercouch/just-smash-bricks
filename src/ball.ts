@@ -25,12 +25,8 @@ export class Ball extends SpriteClass {
   constructor({ attached }: { attached: Sprite }) {
     super({
       type: 'ball',
-      anchor: {
-        x: 0.5,
-        y: 0.5,
-      },
-      x: attached.x + attached.width / 2,
-      y: attached.y - 8,
+      x: attached.x + attached.width,
+      y: attached.y - 11,
       color: BALL_COLOR,
     });
 
@@ -68,10 +64,10 @@ export class Ball extends SpriteClass {
 
   contain() {
     this.position.clamp(
-      0 + this.radius / 2,
-      0 + this.radius / 2,
-      CANVAS_WIDTH - this.radius / 2,
-      CANVAS_HEIGHT - this.radius / 2,
+      0,
+      0,
+      CANVAS_WIDTH - this.radius,
+      CANVAS_HEIGHT - this.radius,
     );
   }
 
@@ -92,8 +88,8 @@ export class Ball extends SpriteClass {
   ) {
     // If attached to something then wait for keypress
     if (this.attached) {
-      this.x = this.attached.x;
-      this.y = this.attached.y - this.radius + 3 - this.attached.height / 2;
+      this.x = this.attached.x + this.attached.width / 2;
+      this.y = this.attached.y - this.radius;
       this.advance();
       return;
     }

@@ -6,15 +6,8 @@ export function createWalls(): Sprite[] {
     // Left Wall
     Sprite({
       type: 'wall',
-      anchor: {
-        x: 1,
-        y: 0,
-      },
-      x: 0.5,
+      x: -0.5,
       y: 0,
-      dx: 0,
-      dy: 0,
-      ttl: Infinity,
       width: 1,
       height: CANVAS_HEIGHT,
       hitbox: {
@@ -28,15 +21,8 @@ export function createWalls(): Sprite[] {
     // Right Wall
     Sprite({
       type: 'wall',
-      anchor: {
-        x: 0,
-        y: 0,
-      },
       x: CANVAS_WIDTH - 0.5,
       y: 0,
-      dx: 0,
-      dy: 0,
-      ttl: Infinity,
       width: 1,
       height: CANVAS_HEIGHT,
       hitbox: {
@@ -50,15 +36,8 @@ export function createWalls(): Sprite[] {
     // Top Wall
     Sprite({
       type: 'wall',
-      anchor: {
-        x: 0,
-        y: 1,
-      },
       x: 0,
-      y: 0.5,
-      dx: 0,
-      dy: 0,
-      ttl: Infinity,
+      y: -0.5,
       width: CANVAS_WIDTH,
       height: 1,
       hitbox: {
@@ -72,15 +51,8 @@ export function createWalls(): Sprite[] {
     // Bottom Wall
     Sprite({
       type: 'blackhole',
-      anchor: {
-        x: 0,
-        y: 0,
-      },
       x: 0,
       y: CANVAS_HEIGHT - 0.5,
-      dx: 0,
-      dy: 0,
-      ttl: Infinity,
       width: CANVAS_WIDTH,
       height: 1,
       hitbox: {

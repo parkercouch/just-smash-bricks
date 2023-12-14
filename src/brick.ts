@@ -18,10 +18,6 @@ export class Brick extends SpriteClass implements Collidable {
   constructor(hits = 1) {
     super({
       type: 'brick',
-      anchor: {
-        x: 0.5,
-        y: 0.5,
-      },
       width: BRICK_WIDTH,
       height: BRICK_HEIGHT,
       color: 'black',
@@ -42,8 +38,8 @@ export class Brick extends SpriteClass implements Collidable {
   init = (properties: any) => {
     const { startX, startY, hits } = properties;
     this.hits = hits;
-    this.x = startX + BRICK_WIDTH / 2;
-    this.y = startY + BRICK_HEIGHT / 2;
+    this.x = startX;
+    this.y = startY;
     this.spawnLocation = {
       x: this.x,
       y: this.y,
