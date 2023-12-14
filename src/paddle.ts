@@ -16,25 +16,15 @@ export class Paddle extends SpriteClass implements Collidable {
   constructor() {
     super({
       type: 'paddle',
-      // TODO: update anchor to default
-      anchor: {
-        x: 0.5,
-        y: 0.5,
-      },
-      x: CANVAS_WIDTH / 2,
-      y: CANVAS_HEIGHT - 50,
+      x: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
+      y: CANVAS_HEIGHT - 50 - PADDLE_HEIGHT / 2,
       width: PADDLE_WIDTH,
       height: PADDLE_HEIGHT,
       color: PADDLE_COLOR,
     });
 
     this.hitbox = updateHitbox(this, -1);
-    this.position.clamp(
-      0 + this.width / 2,
-      0,
-      CANVAS_WIDTH - this.width / 2,
-      CANVAS_HEIGHT,
-    );
+    this.position.clamp(0, 0, CANVAS_WIDTH - this.width, CANVAS_HEIGHT);
     this.moving = false;
 
     on('input_left:on', this.startMoveLeft);
