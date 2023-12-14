@@ -1,13 +1,6 @@
 /* eslint-disable */
-import { on, PoolClass, Sprite, SpriteClass, Vector } from 'kontra';
-import {
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-  DEBUG_ON,
-  DEFAULT_FPS,
-  FPS,
-  SCORE,
-} from './globals';
+import { getCanvas, on, PoolClass, Sprite, SpriteClass, Vector } from 'kontra';
+import { DEBUG_ON, DEFAULT_FPS, FPS, SCORE } from './globals';
 import { isNullOrUndefined } from './util';
 import { doesCircleCollideWithObject } from './collision';
 import { playBounceSound } from './sounds';
@@ -24,6 +17,7 @@ export class Ball extends SpriteClass {
   combo: number;
 
   constructor({ attached }: { attached: Sprite }) {
+    const canvas = getCanvas();
     super({
       type: 'ball',
       x: attached.x + attached.width,
@@ -35,7 +29,12 @@ export class Ball extends SpriteClass {
     this.mass = 100;
     this.attached = attached;
     this.radius = 11;
-    this.contain();
+    this.position.clamp(
+      0,
+      0,
+      canvas.width - this.radius,
+      canvas.height - this.radius,
+    );
   }
 
   init = (_options: any) => {
@@ -61,15 +60,6 @@ export class Ball extends SpriteClass {
     this.context.beginPath();
     this.context.arc(0, 0, this.radius - 3, 0, 2 * Math.PI);
     this.context.fill();
-  }
-
-  contain() {
-    this.position.clamp(
-      0,
-      0,
-      CANVAS_WIDTH - this.radius,
-      CANVAS_HEIGHT - this.radius,
-    );
   }
 
   getVectorToNextPosition(dt: number): Vector {

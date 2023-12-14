@@ -1,7 +1,7 @@
-import { Sprite } from 'kontra';
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from './globals';
+import { Sprite, getCanvas } from 'kontra';
 
 export function createWalls(): Sprite[] {
+  const canvas = getCanvas();
   return [
     // Left Wall
     Sprite({
@@ -9,17 +9,17 @@ export function createWalls(): Sprite[] {
       x: -0.5,
       y: 0,
       width: 1,
-      height: CANVAS_HEIGHT,
+      height: canvas.height,
       hitbox_padding: 0,
     }),
 
     // Right Wall
     Sprite({
       type: 'wall',
-      x: CANVAS_WIDTH - 0.5,
+      x: canvas.width - 0.5,
       y: 0,
       width: 1,
-      height: CANVAS_HEIGHT,
+      height: canvas.height,
       hitbox_padding: 0,
     }),
 
@@ -28,7 +28,7 @@ export function createWalls(): Sprite[] {
       type: 'wall',
       x: 0,
       y: -0.5,
-      width: CANVAS_WIDTH,
+      width: canvas.width,
       height: 1,
       hitbox_padding: 0,
     }),
@@ -37,8 +37,8 @@ export function createWalls(): Sprite[] {
     Sprite({
       type: 'blackhole',
       x: 0,
-      y: CANVAS_HEIGHT - 0.5,
-      width: CANVAS_WIDTH,
+      y: canvas.height - 0.5,
+      width: canvas.width,
       height: 1,
       hitbox_padding: 0,
     }),
