@@ -10,7 +10,7 @@ import {
 import { DEBUG_ON, GAME_CONTAINER, SCORE } from './globals';
 import { ac, playMusic } from './sounds';
 import { getCanvas, getContext } from 'kontra';
-import { updateHighScores } from './score';
+import { displayHighScore, updateHighScores } from './score';
 import { pause } from './game_loop';
 import { startGameLoop } from './start';
 
@@ -107,6 +107,7 @@ function winMessage() {
   }, 3000);
   if (!DEBUG_ON.value) {
     updateHighScores(SCORE.value);
+    displayHighScore();
   }
 }
 
@@ -117,6 +118,7 @@ function loseMessage() {
   }, 3000);
   if (!DEBUG_ON.value) {
     updateHighScores(SCORE.value);
+    displayHighScore();
   }
 }
 
