@@ -1,8 +1,8 @@
 import { CURRENT_LEVEL, LIVES, SCORE } from './globals';
 
-export const MESSAGE = document.getElementById('message');
-export const TITLE = document.getElementById('title');
-export const TOP_DISPLAY = document.getElementById('top-display');
+export const MESSAGE = document.getElementById('message')!;
+export const TITLE = document.getElementById('title')!;
+export const TOP_DISPLAY = document.getElementById('top-display')!;
 
 // startIntroScene :: () -> [timeout id's]
 export function startIntroScene(): number[] {
@@ -41,31 +41,31 @@ export function startIntroScene(): number[] {
 }
 
 export function clearMessages() {
-  MESSAGE?.classList.remove('showMessage');
-  MESSAGE?.classList.add('hideMessage');
-  while (MESSAGE?.firstChild) {
+  MESSAGE.classList.remove('showMessage');
+  MESSAGE.classList.add('hideMessage');
+  while (MESSAGE.firstChild) {
     MESSAGE.removeChild(MESSAGE.firstChild);
   }
 }
 
 export function addMessage(message: string, type: string) {
-  MESSAGE?.classList.remove('hideMessage');
-  MESSAGE?.classList.add('showMessage');
+  MESSAGE.classList.remove('hideMessage');
+  MESSAGE.classList.add('showMessage');
   const newMessage = document.createElement('h2');
   newMessage.textContent = message;
   newMessage.classList.add(type);
-  MESSAGE?.appendChild(newMessage);
+  MESSAGE.appendChild(newMessage);
 }
 
 export function addTitle(message: string, type: string) {
   const newMessage = document.createElement('h1');
   newMessage.textContent = message;
   newMessage.classList.add(type);
-  TITLE?.appendChild(newMessage);
+  TITLE.appendChild(newMessage);
 }
 
 export function clearTitle() {
-  while (TITLE?.firstChild) {
+  while (TITLE.firstChild) {
     TITLE.removeChild(TITLE.firstChild);
   }
 }
@@ -98,13 +98,13 @@ export function showTopDisplay() {
   level.classList.add('level');
   levelTitle.appendChild(level);
 
-  TOP_DISPLAY?.appendChild(livesTitle);
-  TOP_DISPLAY?.appendChild(scoreTitle);
-  TOP_DISPLAY?.appendChild(levelTitle);
+  TOP_DISPLAY.appendChild(livesTitle);
+  TOP_DISPLAY.appendChild(scoreTitle);
+  TOP_DISPLAY.appendChild(levelTitle);
 }
 
 export function hideTopDisplay() {
-  while (TOP_DISPLAY?.firstChild) {
+  while (TOP_DISPLAY.firstChild) {
     TOP_DISPLAY.removeChild(TOP_DISPLAY.firstChild);
   }
 }
