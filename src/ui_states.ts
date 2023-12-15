@@ -43,7 +43,7 @@ function loadAssets() {
   const introIntervals = startIntroScene();
 
   const nextStep = function() {
-    GAME_CONTAINER?.removeEventListener('click', nextStep);
+    GAME_CONTAINER.removeEventListener('click', nextStep);
     document.removeEventListener('keypress', nextStep);
     clearMessages();
     clearTitle();
@@ -60,7 +60,7 @@ function loadAssets() {
   };
 
   // Make click/keypress skip intro
-  GAME_CONTAINER?.addEventListener('click', nextStep);
+  GAME_CONTAINER.addEventListener('click', nextStep);
   document.addEventListener('keypress', nextStep);
 }
 
@@ -76,14 +76,14 @@ function displayMenu() {
   // Display Menu
   addTitle('JUST SMASH BRICKS!', 'title');
   addMessage('Click, tap, press, or whatever to start smashing.', 'menu');
-  GAME_CONTAINER?.addEventListener('click', waitForButton);
+  GAME_CONTAINER.addEventListener('click', waitForButton);
   document.addEventListener('keypress', waitForButton);
 }
 
 // Start click event listener
 // waitForButton :: Event -> ()
 function waitForButton() {
-  GAME_CONTAINER?.removeEventListener('click', waitForButton);
+  GAME_CONTAINER.removeEventListener('click', waitForButton);
   document.removeEventListener('keypress', waitForButton);
   // Resume AudioContext and start playing music after interaction
   void ac.resume().then(() => {
