@@ -1,8 +1,13 @@
 /* eslint-disable */
 
 import { getStoreItem, setStoreItem } from "kontra";
+import { DEBUG_ON } from "./globals";
 
 export function updateHighScores(score: number) {
+  if (DEBUG_ON.value) {
+    return;
+  }
+
   const currentHighScores: number[] = getStoreItem('highScores') ?? [];
 
   currentHighScores.push(score);
@@ -13,6 +18,7 @@ export function updateHighScores(score: number) {
   }
 
   setStoreItem('highScores', currentHighScores);
+  displayHighScore();
 }
 
 export function displayHighScore() {
