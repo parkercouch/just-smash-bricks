@@ -1,3 +1,4 @@
+/* eslint-disable */
 import StateMachine from 'javascript-state-machine';
 import {
   addMessage,
@@ -7,10 +8,10 @@ import {
   hideTopDisplay,
   startIntroScene,
 } from './messages';
-import { DEBUG_ON, GAME_CONTAINER, SCORE } from './globals';
+import { GAME_CONTAINER, SCORE } from './globals';
 import { ac, playMusic } from './sounds';
 import { getCanvas, getContext } from 'kontra';
-import { displayHighScore, updateHighScores } from './score';
+import { updateHighScores } from './score';
 import { pause } from './game_loop';
 import { startGameLoop } from './start';
 
@@ -42,7 +43,7 @@ function loadAssets() {
 
   const introIntervals = startIntroScene();
 
-  const nextStep = function() {
+  const nextStep = function () {
     GAME_CONTAINER.removeEventListener('click', nextStep);
     document.removeEventListener('keypress', nextStep);
     clearMessages();
@@ -105,10 +106,7 @@ function winMessage() {
   setTimeout(() => {
     gameStates.restart();
   }, 3000);
-  if (!DEBUG_ON.value) {
-    updateHighScores(SCORE.value);
-    displayHighScore();
-  }
+  updateHighScores(SCORE.value);
 }
 
 function loseMessage() {
@@ -116,10 +114,7 @@ function loseMessage() {
   setTimeout(() => {
     gameStates.restart();
   }, 3000);
-  if (!DEBUG_ON.value) {
-    updateHighScores(SCORE.value);
-    displayHighScore();
-  }
+  updateHighScores(SCORE.value);
 }
 
 function gameStart() {
