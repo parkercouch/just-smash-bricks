@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  kontra@9.0.0:
-    hash: fjcbobckgemcsp7yitawdxke34
-    path: patches/kontra@9.0.0.patch
-
 dependencies:
   '@tweenjs/tween.js':
     specifier: ^21.0.0
@@ -18,7 +13,7 @@ dependencies:
     version: 3.1.0
   kontra:
     specifier: ^9.0.0
-    version: 9.0.0(patch_hash=fjcbobckgemcsp7yitawdxke34)
+    version: 9.0.0
   screenfull:
     specifier: ^6.0.2
     version: 6.0.2
@@ -958,11 +953,10 @@ packages:
       json-buffer: 3.0.1
     dev: true
 
-  /kontra@9.0.0(patch_hash=fjcbobckgemcsp7yitawdxke34):
+  /kontra@9.0.0:
     resolution: {integrity: sha512-/8A3vsLP4OuSHlNTaF4f9tq7+AG0F2OqtlUcfQwwlRVtmrIpm1jVeKORu5EpKRxciLVG/9RkOAOgCwPwN0fVhw==}
     engines: {node: '>=14.0.0'}
     dev: false
-    patched: true
 
   /levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
