@@ -1,11 +1,12 @@
 /* eslint-disable */
-import { getCanvas, on, PoolClass, Sprite, SpriteClass, Vector } from 'kontra';
+import { getCanvas, PoolClass, Sprite, SpriteClass, Vector } from 'kontra';
 import { FPS } from './globals';
 import { isNullOrUndefined } from './util';
 import { doesCircleCollideWithObject, Collision } from './collision';
 import { updateScore } from './dom';
 import { Collidable } from './collision';
 import { Paddle } from './paddle';
+import { isMiddlePressed } from './input';
 
 const BALL_COLOR = 'white';
 
@@ -36,23 +37,7 @@ export class Ball extends SpriteClass {
     );
   }
 
-  init = (_options: any) => {
-    on('input_middle:on', this.launchBall);
-  };
-
-  launchBall = (_options: any) => {
-    if (!this.attached) {
-      return;
-    }
-    // Shoot left/right randomly
-    if (Math.floor(Math.random() * 100) % 2 === 0) {
-      this.dx = -5;
-    } else {
-      this.dx = 5;
-    }
-    this.dy = -6;
-    this.attached = null;
-  };
+  init = () => {};
 
   draw() {
     this.context.fillStyle = this.color;
@@ -67,8 +52,10 @@ export class Ball extends SpriteClass {
     if (this.attached) {
       this.x = this.attached.x + this.attached.width / 2;
       this.y = this.attached.y - this.radius;
-      this.advance();
-      return;
+      if (isMiddlePressed()) {
+        this.launchBall();
+      }
+      return this.advance();
     }
 
     // keep checking collision until out of time
@@ -83,6 +70,17 @@ export class Ball extends SpriteClass {
       this.onHit(collision);
       collision.collidedWith.onHit({ ...collision, collidedWith: this });
     }
+  }
+
+  launchBall() {
+    // Shoot left/right randomly
+    if (Math.floor(Math.random() * 100) % 2 === 0) {
+      this.dx = -5;
+    } else {
+      this.dx = 5;
+    }
+    this.dy = -6;
+    this.attached = null;
   }
 
   checkCollision(
