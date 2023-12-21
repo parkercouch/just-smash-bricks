@@ -71,24 +71,15 @@ export class Ball extends SpriteClass {
       return;
     }
 
-    let collision_dt = dt;
     // keep checking collision until out of time
-    while (collision_dt >= 0) {
-      const nextPosition = Vector({
-        x: this.dx * collision_dt * FPS.value,
-        y: this.dy * collision_dt * FPS.value,
-      });
-      const { collision, udt } = this.checkCollision(
-        collision_dt,
-        collidable_objects,
-      );
-
-      if (isNullOrUndefined(collision)) {
-        this.advance(collision_dt * FPS.value);
-        return;
+    while (dt >= 0) {
+      const maybeCollision = this.checkCollision(dt, collidable_objects);
+      if (isNullOrUndefined(maybeCollision)) {
+        return this.advance(dt * FPS.value);
       }
-      collision_dt -= udt;
-      this.advance(collision_dt);
+      const { collision, udt } = maybeCollision;
+      dt -= udt;
+      this.advance(dt);
       this.onHit(collision);
       collision.collidedWith.onHit({ ...collision, collidedWith: this });
     }
@@ -97,7 +88,7 @@ export class Ball extends SpriteClass {
   checkCollision(
     dt: number,
     objects: Collidable[],
-  ): { closestMagnitude: number; collision: Collision | null; udt: number } {
+  ): { closestMagnitude: number; collision: Collision; udt: number } | null {
     const nextPosition = Vector({
       x: this.dx * dt * FPS.value,
       y: this.dy * dt * FPS.value,
@@ -106,9 +97,9 @@ export class Ball extends SpriteClass {
       (
         acc: {
           closestMagnitude: number;
-          collision: Collision | null;
+          collision: Collision;
           udt: number;
-        },
+        } | null,
         item: Collidable,
       ) => {
         const collision = doesCircleCollideWithObject(this, nextPosition, item);
@@ -120,7 +111,7 @@ export class Ball extends SpriteClass {
           x: this.x,
           y: this.y,
         });
-        if (currentMagnitude < acc.closestMagnitude) {
+        if (currentMagnitude < (acc?.closestMagnitude ?? Infinity)) {
           return {
             closestMagnitude: currentMagnitude,
             collision,
@@ -129,7 +120,7 @@ export class Ball extends SpriteClass {
         }
         return acc;
       },
-      { closestMagnitude: Infinity, collision: null, udt: 0 },
+      null,
     );
   }
 
