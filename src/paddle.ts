@@ -1,9 +1,10 @@
 /* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
-import { getCanvas, on, Sprite, SpriteClass } from 'kontra';
+import { getCanvas, Sprite, SpriteClass } from 'kontra';
 import { DEBUG_ON } from './globals';
 import { playPaddleSound } from './sounds';
 import { Collidable, Collision } from './collision';
+import { isLeftPressed, isRightPressed } from './input';
 
 const PADDLE_WIDTH = 80;
 const PADDLE_HEIGHT = 15;
@@ -12,7 +13,6 @@ const PADDLE_COLOR = '#B993EA';
 export class Paddle extends SpriteClass implements Collidable {
   type = 'paddle';
   hitbox_padding = -1;
-  moving = false;
 
   constructor() {
     const canvas = getCanvas();
@@ -25,11 +25,6 @@ export class Paddle extends SpriteClass implements Collidable {
     });
 
     this.position.clamp(0, 0, canvas.width - this.width, canvas.height);
-
-    on('input_left:on', this.startMoveLeft);
-    on('input_right:on', this.startMoveRight);
-    on('input_left:off', this.stopMovement);
-    on('input_right:off', this.stopMovement);
   }
 
   move(ball?: Sprite) {
@@ -39,20 +34,17 @@ export class Paddle extends SpriteClass implements Collidable {
     this.update();
   }
 
-  startMoveLeft = () => {
-    this.moving = true;
-    this.dx = -5;
-  };
+  update() {
+    if (isLeftPressed() && !isRightPressed()) {
+      this.dx = -5;
+    } else if (isRightPressed() && !isLeftPressed()) {
+      this.dx = 5;
+    } else {
+      this.dx = 0;
+    }
 
-  startMoveRight = () => {
-    this.moving = true;
-    this.dx = 5;
-  };
-
-  stopMovement = () => {
-    this.moving = false;
-    this.dx = 0;
-  };
+    this.advance();
+  }
 
   onHit = (collision: Collision) => {
     playPaddleSound();
