@@ -1,7 +1,7 @@
 import screenfull from 'screenfull';
 import { hideTouchButtons, showTouchButtons } from './touch';
 import { ac, playMusic, stopMusic } from './sounds';
-import { DEBUG_ON, FPS, LIVES, SCORE } from './globals';
+import { DEBUG_ON, DEFAULT_FPS, FPS, LIVES, SCORE } from './globals';
 
 export function initFullscreenButton() {
   // Add listener to fullscreen button and change/state
@@ -75,7 +75,14 @@ export function updateLevelDisplay(currentLevel: number) {
     .textContent = currentLevel.toString();
 }
 
-export function updateScore() {
+export function updateScore(combo: number) {
+  if (DEBUG_ON.value) {
+    return;
+  }
+  const fpsMultiplier = FPS.value === DEFAULT_FPS ? 5 : 1;
+
+  SCORE.value += combo * 50 * fpsMultiplier;
+
   document
     .querySelector('.score')!
     .textContent = SCORE.value.toString();

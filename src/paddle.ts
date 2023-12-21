@@ -1,9 +1,9 @@
 /* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
-import { GameObject, getCanvas, on, Sprite, SpriteClass, Vector } from 'kontra';
+import { getCanvas, on, Sprite, SpriteClass } from 'kontra';
 import { DEBUG_ON } from './globals';
 import { playPaddleSound } from './sounds';
-import { Collidable, HitBox } from './collision';
+import { Collidable, Collision } from './collision';
 
 const PADDLE_WIDTH = 80;
 const PADDLE_HEIGHT = 15;
@@ -54,7 +54,7 @@ export class Paddle extends SpriteClass implements Collidable {
     this.dx = 0;
   };
 
-  onHit = (collidedWith: GameObject, at: Vector) => {
+  onHit = (collision: Collision) => {
     playPaddleSound();
     const coords = { y: this.y };
     // Chain up to the end of down

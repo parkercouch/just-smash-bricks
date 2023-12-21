@@ -1,4 +1,4 @@
-import { GameObject, Sprite, Vector, getWorldRect } from 'kontra';
+import { Sprite, Vector, getWorldRect } from 'kontra';
 import { isNullOrUndefined } from './util';
 
 export const DEFAULT_HITBOX_PADDING = 2;
@@ -9,7 +9,20 @@ export interface Collidable extends Sprite {
   dy: number;
   x: number;
   y: number;
-  onHit: (collidedWith: GameObject, at: Vector) => void;
+  onHit: (collision: Collision) => void;
+}
+
+export type Collision = {
+  collidedWith: Collidable;
+  at: Vector;
+  side: Side;
+};
+
+export enum Side {
+  TOP = 'top',
+  BOTTOM = 'bottom',
+  LEFT = 'left',
+  RIGHT = 'right',
 }
 
 export type HitBox = {
@@ -21,6 +34,7 @@ export type HitBox = {
 
 /**
  * @param {Collidable} obj - Collidable object to extract hitbox from
+ * @returns {HitBox} obj - hitbox edges
  */
 export function extractHitbox(obj: Collidable): HitBox {
   const worldRect = getWorldRect(obj);
@@ -33,7 +47,6 @@ export function extractHitbox(obj: Collidable): HitBox {
   };
 }
 
-// intercept :: (Num, Num), (Num, Num), (Num, Num), (Num, Num), String -> {Num, Num, String}
 export function line_intercept(
   x1: number,
   y1: number,
@@ -43,8 +56,7 @@ export function line_intercept(
   y3: number,
   x4: number,
   y4: number,
-  d: string,
-) {
+): Vector | null {
   const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
   if (denom != 0) {
     const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
@@ -53,7 +65,7 @@ export function line_intercept(
       if (ub >= 0 && ub <= 1) {
         const x = x1 + ua * (x2 - x1);
         const y = y1 + ua * (y2 - y1);
-        return { pointOfCollision: Vector({ x, y }), d };
+        return Vector({ x, y });
       }
     }
   }
@@ -64,11 +76,11 @@ export function doesCircleCollideWithObject(
   circle: { x: number; y: number; radius: number },
   circleVelocity: Vector,
   collidable_object: Collidable,
-): { pointOfCollision: Vector; d: string } | null {
+): Collision | null {
   const hitbox = extractHitbox(collidable_object);
-  let collision: { pointOfCollision: Vector; d: string } | null = null;
+  let collision: Collision | null = null;
   if (circleVelocity.x < 0) {
-    collision = line_intercept(
+    const intercept = line_intercept(
       circle.x,
       circle.y,
       circle.x + circleVelocity.x,
@@ -77,10 +89,17 @@ export function doesCircleCollideWithObject(
       hitbox.top - circle.radius,
       hitbox.right + circle.radius,
       hitbox.bottom + circle.radius,
-      'right',
     );
+
+    if (intercept) {
+      collision = {
+        at: intercept,
+        collidedWith: collidable_object,
+        side: Side.RIGHT,
+      };
+    }
   } else if (circleVelocity.x > 0) {
-    collision = line_intercept(
+    const intercept = line_intercept(
       circle.x,
       circle.y,
       circle.x + circleVelocity.x,
@@ -89,8 +108,14 @@ export function doesCircleCollideWithObject(
       hitbox.top - circle.radius,
       hitbox.left - circle.radius,
       hitbox.bottom + circle.radius,
-      'left',
     );
+    if (intercept) {
+      collision = {
+        at: intercept,
+        collidedWith: collidable_object,
+        side: Side.LEFT,
+      };
+    }
   }
 
   if (!isNullOrUndefined(collision)) {
@@ -98,7 +123,7 @@ export function doesCircleCollideWithObject(
   }
 
   if (circleVelocity.y < 0) {
-    collision = line_intercept(
+    const intercept = line_intercept(
       circle.x,
       circle.y,
       circle.x + circleVelocity.x,
@@ -107,10 +132,16 @@ export function doesCircleCollideWithObject(
       hitbox.bottom + circle.radius,
       hitbox.right + circle.radius,
       hitbox.bottom + circle.radius,
-      'bottom',
     );
+    if (intercept) {
+      collision = {
+        at: intercept,
+        collidedWith: collidable_object,
+        side: Side.BOTTOM,
+      };
+    }
   } else if (circleVelocity.y > 0) {
-    collision = line_intercept(
+    const intercept = line_intercept(
       circle.x,
       circle.y,
       circle.x + circleVelocity.x,
@@ -119,8 +150,14 @@ export function doesCircleCollideWithObject(
       hitbox.top - circle.radius,
       hitbox.right + circle.radius,
       hitbox.top - circle.radius,
-      'top',
     );
+    if (intercept) {
+      collision = {
+        at: intercept,
+        collidedWith: collidable_object,
+        side: Side.TOP,
+      };
+    }
   }
   return collision;
 }

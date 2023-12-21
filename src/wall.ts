@@ -1,4 +1,5 @@
 import { Sprite, getCanvas } from 'kontra';
+import { playBounceSound } from './sounds';
 
 export function createWalls(): Sprite[] {
   const canvas = getCanvas();
@@ -11,6 +12,9 @@ export function createWalls(): Sprite[] {
       width: 1,
       height: canvas.height,
       hitbox_padding: 0,
+      onHit: () => {
+        playBounceSound();
+      },
     }),
 
     // Right Wall
@@ -21,6 +25,9 @@ export function createWalls(): Sprite[] {
       width: 1,
       height: canvas.height,
       hitbox_padding: 0,
+      onHit: () => {
+        playBounceSound();
+      },
     }),
 
     // Top Wall
@@ -31,6 +38,9 @@ export function createWalls(): Sprite[] {
       width: canvas.width,
       height: 1,
       hitbox_padding: 0,
+      onHit: () => {
+        playBounceSound();
+      },
     }),
 
     // Bottom Wall
@@ -41,6 +51,7 @@ export function createWalls(): Sprite[] {
       width: canvas.width,
       height: 1,
       hitbox_padding: 0,
+      onHit: () => {},
     }),
   ];
 }
