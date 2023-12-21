@@ -34,7 +34,7 @@ export function createGameLoop(options: {
       bricks.update();
       paddle.move(balls.getBall());
 
-      balls.update(dt, [...bricks.getAll(), ...walls, paddle] as Collidable[]);
+      balls.updateWithCollision(dt, [...bricks.getAll(), ...walls, paddle] as Collidable[]);
 
       particleSwarm.update();
       bricks.update();

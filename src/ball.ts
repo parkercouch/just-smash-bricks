@@ -220,10 +220,10 @@ export class BallPool extends PoolClass {
     return this.getAliveObjects().length;
   }
 
-  update(dt: number, collidable_objects: Collidable[]) {
+  updateWithCollision(dt: number, collidable_objects: Collidable[]) {
     (this.getAliveObjects() as Ball[]).forEach((ball) => {
       ball.advanceWithCollision(dt, collidable_objects);
     });
-    super.update();
+    this.update();
   }
 }
