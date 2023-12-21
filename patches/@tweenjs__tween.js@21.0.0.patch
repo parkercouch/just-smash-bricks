@@ -1,0 +1,16 @@
+diff --git a/package.json b/package.json
+index 692ef6379cb78788d6e4a0ef16cd7894ebc7d25d..ee34f2f95285f95826e5fd4f90dab309187bd747 100644
+--- a/package.json
++++ b/package.json
+@@ -8,7 +8,10 @@
+ 	"module": "dist/tween.esm.js",
+ 	"exports": {
+ 		".": {
+-			"import": "./dist/tween.esm.js",
++			"import": {
++                                "default": "./dist/tween.esm.js",
++                                "types": "./dist/tween.d.ts"
++                        },
+ 			"require": "./dist/tween.cjs.js"
+ 		}
+ 	},
