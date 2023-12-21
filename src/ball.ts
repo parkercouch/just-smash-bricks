@@ -1,12 +1,11 @@
 /* eslint-disable */
 import { getCanvas, on, PoolClass, Sprite, SpriteClass, Vector } from 'kontra';
-import { DEBUG_ON, DEFAULT_FPS, FPS, SCORE } from './globals';
+import { FPS } from './globals';
 import { isNullOrUndefined } from './util';
-import { doesCircleCollideWithObject } from './collision';
-import { playBounceSound } from './sounds';
+import { doesCircleCollideWithObject, Collision } from './collision';
 import { updateScore } from './dom';
 import { Collidable } from './collision';
-import { Brick } from './brick';
+import { Paddle } from './paddle';
 
 const BALL_COLOR = 'white';
 
@@ -62,22 +61,9 @@ export class Ball extends SpriteClass {
     this.context.fill();
   }
 
-  getVectorToNextPosition(dt: number): Vector {
-    // KONTRA USES FIXED GAME LOOP dx is just change in pixel/frame
-    return Vector({
-      x: this.dx * dt * FPS.value,
-      y: this.dy * dt * FPS.value,
-    });
-  }
+  update() {}
 
-  // TODO: split up collision and movement/update; collision detection can call update? trying to remove patch that adds
-  // options argument
-  update(
-    dt?: number,
-    // collidableObjects: Sprite[],
-    options?: any,
-  ) {
-    // If attached to something then wait for keypress
+  advanceWithCollision(dt: number, collidable_objects: Collidable[]) {
     if (this.attached) {
       this.x = this.attached.x + this.attached.width / 2;
       this.y = this.attached.y - this.radius;
@@ -85,71 +71,77 @@ export class Ball extends SpriteClass {
       return;
     }
 
-    const vectorToNextPosition = this.getVectorToNextPosition(dt!);
+    let collision_dt = dt;
+    // keep checking collision until out of time
+    while (collision_dt >= 0) {
+      const nextPosition = Vector({
+        x: this.dx * collision_dt * FPS.value,
+        y: this.dy * collision_dt * FPS.value,
+      });
+      const { collision, udt } = this.checkCollision(
+        collision_dt,
+        collidable_objects,
+      );
 
-    const { closest, closestMagnitude } = (options as Collidable[])?.reduce(
+      if (isNullOrUndefined(collision)) {
+        this.advance(collision_dt * FPS.value);
+        return;
+      }
+      collision_dt -= udt;
+      this.advance(collision_dt);
+      this.onHit(collision);
+      collision.collidedWith.onHit({ ...collision, collidedWith: this });
+    }
+  }
+
+  checkCollision(
+    dt: number,
+    objects: Collidable[],
+  ): { closestMagnitude: number; collision: Collision | null; udt: number } {
+    const nextPosition = Vector({
+      x: this.dx * dt * FPS.value,
+      y: this.dy * dt * FPS.value,
+    });
+    return objects.reduce(
       (
         acc: {
           closestMagnitude: number;
-          closest: {
-            item: Collidable;
-            pointOfCollision: Vector;
-            d: string;
-          } | null;
+          collision: Collision | null;
+          udt: number;
         },
         item: Collidable,
       ) => {
-        const collision = doesCircleCollideWithObject(
-          this,
-          vectorToNextPosition,
-          item,
-        );
+        const collision = doesCircleCollideWithObject(this, nextPosition, item);
         if (isNullOrUndefined(collision)) {
           return acc;
         }
 
-        const currentMagnitude = collision.pointOfCollision.distance({
+        const currentMagnitude = collision.at.distance({
           x: this.x,
           y: this.y,
         });
         if (currentMagnitude < acc.closestMagnitude) {
           return {
             closestMagnitude: currentMagnitude,
-            closest: {
-              item,
-              pointOfCollision: collision.pointOfCollision,
-              d: collision.d,
-            },
+            collision,
+            udt: dt * (currentMagnitude / nextPosition.length()),
           };
         }
         return acc;
       },
-      { closestMagnitude: Infinity, closest: null },
+      { closestMagnitude: Infinity, collision: null, udt: 0 },
     );
+  }
 
-    if (isNullOrUndefined(closest)) {
-      return this.advance(dt! * FPS.value);
-    }
-
-    // ----- A collision happend so deal with it ------- //
-
-    // How much time did it take to get to first collision?
-    const udt = dt! * (closestMagnitude / vectorToNextPosition.length());
-    // Update the ball to point of collision
-    this.advance(udt);
-
-    // Check what object was hit
-    switch (closest.item.type) {
+  onHit(collision: Collision) {
+    const { collidedWith, at, side } = collision;
+    switch (collidedWith.type) {
       case 'paddle':
-        // IF THE PADDLE IS HIT //
-        // Reset combo when paddle is hit
+        const paddle = collidedWith as Paddle;
         this.combo = 0;
 
-        // Animate/sounds
-        closest.item.onHit(this, closest.pointOfCollision);
-
         // Reflect ball
-        switch (closest.d) {
+        switch (side) {
           case 'left':
           case 'right':
             this.dx *= -1;
@@ -160,17 +152,11 @@ export class Ball extends SpriteClass {
           case 'top':
           case 'bottom':
             // If right 1/4 then bounce back right
-            if (
-              closest.pointOfCollision.x >
-              closest.item.x + closest.item.width / 4
-            ) {
+            if (at.x > paddle.x + paddle.width / 4) {
               this.dx = Math.abs(this.dx);
               this.dy *= -1;
               // If in the middle 1/2 then reflect
-            } else if (
-              closest.pointOfCollision.x >=
-              closest.item.x - closest.item.width / 4
-            ) {
+            } else if (at.x >= paddle.x - paddle.width / 4) {
               this.dy *= -1;
               // If left 1/4 then bounce back left
             } else {
@@ -182,41 +168,15 @@ export class Ball extends SpriteClass {
         break;
 
       case 'brick':
-        // IF A BRICK IS HIT //
-        // Reduce its hitcount and add to combo
-        closest.item.hits -= 1;
         this.combo += 1;
+        updateScore(this.combo);
 
-        // Animate all bricks
-        options
-          .filter((n) => n.type === 'brick')
-          .forEach((brick: Brick) => {
-            brick.onHit(this, closest.pointOfCollision);
-          });
-
-        // No points in debug mode
-        if (!DEBUG_ON.value) {
-          if (FPS.value === DEFAULT_FPS) {
-            SCORE.value += this.combo * 50 * 5;
-          } else {
-            SCORE.value += this.combo * 50;
-          }
-        }
-        updateScore();
-
-        // If the brick has no hits left then destroy it
-        if (closest.item.hits <= 0) {
-          closest.item.ttl = 0;
-        }
-
-        switch (closest.d) {
-          // Reflect x if right/left hit
+        switch (side) {
           case 'left':
           case 'right':
             this.dx *= -1;
             break;
 
-          // Reflect y if top/bottom hit
           case 'top':
           case 'bottom':
             this.dy *= -1;
@@ -225,17 +185,11 @@ export class Ball extends SpriteClass {
         break;
 
       case 'wall':
-        // IF A WALL OR BRICK IS HIT //
-        // Need to move this into a onHit Function
-        playBounceSound();
-        switch (closest.d) {
-          // Reflect x if right/left hit
+        switch (side) {
           case 'left':
           case 'right':
             this.dx *= -1;
             break;
-
-          // Reflect y if top/bottom hit
           case 'top':
           case 'bottom':
             this.dy *= -1;
@@ -244,15 +198,9 @@ export class Ball extends SpriteClass {
         break;
 
       case 'blackhole':
-        // IF THE BOTTOM IS HIT //
-        // Lose a ball
         this.ttl = 0;
         return;
     }
-    // ----------------------------------------- //
-
-    // Run collision recursively if there is time left
-    return this.update(dt! - udt, options);
   }
 }
 
@@ -270,5 +218,12 @@ export class BallPool extends PoolClass {
 
   numberAlive(): number {
     return this.getAliveObjects().length;
+  }
+
+  update(dt: number, collidable_objects: Collidable[]) {
+    (this.getAliveObjects() as Ball[]).forEach((ball) => {
+      ball.advanceWithCollision(dt, collidable_objects);
+    });
+    super.update();
   }
 }

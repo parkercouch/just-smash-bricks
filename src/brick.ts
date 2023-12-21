@@ -1,8 +1,8 @@
 /* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
-import { GameObject, PoolClass, SpriteClass, Vector } from 'kontra';
+import { PoolClass, SpriteClass, emit, on } from 'kontra';
 import { playChirpSound } from './sounds';
-import { Collidable } from './collision';
+import { Collidable, Collision } from './collision';
 
 const BRICK_HEIGHT = 15;
 const BRICK_WIDTH = 50;
@@ -38,6 +38,7 @@ export class Brick extends SpriteClass implements Collidable {
       x: this.x,
       y: this.y,
     };
+    on('brick:hit', this.onHitAnimation);
   };
 
   update(dt?: number) {
@@ -65,7 +66,8 @@ export class Brick extends SpriteClass implements Collidable {
     }
   }
 
-  onHit = (collidedWith: GameObject, at: Vector) => {
+  onHitAnimation = (collision: Collision) => {
+    const { collidedWith, at, side } = collision;
     playChirpSound();
     const xOffset = 10 * Math.random() + 10;
     const yOffset = 10 * Math.random() + 10;
@@ -116,6 +118,14 @@ export class Brick extends SpriteClass implements Collidable {
       .start();
   };
 
+  onHit(collision: Collision) {
+    this.hits -= 1;
+    if (this.hits <= 0) {
+      this.ttl = 0;
+    }
+    emit('brick:hit', collision);
+  }
+
   onSpawn = (delay: number) => {
     const coords = { y: this.y };
     new TWEEN.Tween(coords)
@@ -141,5 +151,9 @@ export class BrickPool extends PoolClass {
 
   forEach(fn: (brick: Brick, i: number, array: Brick[]) => void) {
     (this.getAliveObjects() as Brick[]).forEach(fn);
+  }
+
+  getAll(): Brick[] {
+    return this.getAliveObjects() as Brick[];
   }
 }

@@ -12,6 +12,7 @@ import { Paddle } from './paddle';
 import { ParticleSwarm } from './particle';
 import { BrickPool } from './brick';
 import { BallPool } from './ball';
+import { Collidable } from './collision';
 
 let GAMELOOP: GameLoop;
 
@@ -33,8 +34,8 @@ export function createGameLoop(options: {
       bricks.update();
       paddle.move(balls.getBall());
 
-      // Ready to check for collision!
-      balls.update(dt, [...bricks.getAliveObjects(), ...walls, paddle]);
+      balls.update(dt, [...bricks.getAll(), ...walls, paddle] as Collidable[]);
+
       particleSwarm.update();
       bricks.update();
 
