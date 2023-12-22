@@ -1,9 +1,8 @@
-/* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
 import { getCanvas, Sprite, SpriteClass } from 'kontra';
 import { DEBUG_ON } from './globals';
 import { playPaddleSound } from './sounds';
-import { Collidable, Collision } from './collision';
+import { Collidable } from './collision';
 import { isLeftPressed, isRightPressed } from './input';
 
 const PADDLE_WIDTH = 80;
@@ -46,7 +45,7 @@ export class Paddle extends SpriteClass implements Collidable {
     this.advance();
   }
 
-  onHit = (collision: Collision) => {
+  onHit = () => {
     playPaddleSound();
     const coords = { y: this.y };
     // Chain up to the end of down

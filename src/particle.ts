@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { Pool, Sprite, SpriteClass, getCanvas } from 'kontra';
 
 const PARTICLE_COLOR = '#ECFFE0';
@@ -6,6 +5,8 @@ const PARTICLE_COLOR = '#ECFFE0';
 export class OrbitingParticle extends SpriteClass {
   type = 'particle';
   barycenter: Sprite;
+  maxDx = 10;
+  maxDy = 10;
 
   constructor({ barycenter }: { barycenter: Sprite }) {
     const canvas = getCanvas();
@@ -18,8 +19,6 @@ export class OrbitingParticle extends SpriteClass {
       y: barycenter.y + (2 - Math.random() * 4),
       dx: 2 - Math.random() * 4,
       dy: 2 - Math.random() * 4,
-      maxDx: 10,
-      maxDy: 10,
       color: PARTICLE_COLOR,
       width: 3,
       height: 3,
@@ -34,7 +33,7 @@ export class OrbitingParticle extends SpriteClass {
     this.context.fillRect(0, 0, this.height, this.width);
   }
 
-  init = (_properties: any) => { };
+  init = () => {};
 
   follow = (barycenter: Sprite) => {
     this.barycenter = barycenter;

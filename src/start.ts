@@ -16,7 +16,7 @@ import { ParticleSwarm } from './particle';
 import { BrickPool } from './brick';
 import { BallPool } from './ball';
 
-export const startGameLoop = function() {
+export const startGameLoop = () => {
   LIVES.value = 5;
   SCORE.value = 0;
   CURRENT_LEVEL.value = 1;

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import StateMachine from 'javascript-state-machine';
 import {
   addMessage,

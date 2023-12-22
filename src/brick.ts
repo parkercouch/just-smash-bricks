@@ -1,4 +1,3 @@
-/* eslint-disable */
 import * as TWEEN from '@tweenjs/tween.js';
 import { PoolClass, SpriteClass, emit, on } from 'kontra';
 import { playChirpSound } from './sounds';
@@ -29,8 +28,13 @@ export class Brick extends SpriteClass implements Collidable {
     };
   }
 
-  init = (properties: any) => {
-    const { startX, startY, hits } = properties;
+  init = (properties?: unknown) => {
+    const { startX, startY, hits } = properties as {
+      startX: number;
+      startY: number;
+      hits: number;
+    };
+
     this.hits = hits;
     this.x = startX;
     this.y = startY;
@@ -67,7 +71,7 @@ export class Brick extends SpriteClass implements Collidable {
   }
 
   onHitAnimation = (collision: Collision) => {
-    const { collidedWith, at, side } = collision;
+    const { collidedWith } = collision;
     playChirpSound();
     const xOffset = 10 * Math.random() + 10;
     const yOffset = 10 * Math.random() + 10;
