@@ -1,8 +1,7 @@
-/* eslint-disable */
 import { getCanvas, PoolClass, Sprite, SpriteClass, Vector } from 'kontra';
 import { FPS } from './globals';
 import { isNullOrUndefined } from './util';
-import { doesCircleCollideWithObject, Collision } from './collision';
+import { doesCircleCollideWithObject, Collision, Side } from './collision';
 import { updateScore } from './dom';
 import { Collidable } from './collision';
 import { Paddle } from './paddle';
@@ -37,7 +36,7 @@ export class Ball extends SpriteClass {
     );
   }
 
-  init = () => {};
+  init = () => { };
 
   draw() {
     this.context.fillStyle = this.color;
@@ -46,7 +45,7 @@ export class Ball extends SpriteClass {
     this.context.fill();
   }
 
-  update() {}
+  update() { }
 
   advanceWithCollision(dt: number, collidable_objects: Collidable[]) {
     if (this.attached) {
@@ -124,71 +123,38 @@ export class Ball extends SpriteClass {
 
   onHit(collision: Collision) {
     const { collidedWith, at, side } = collision;
+    if (collidedWith.type === 'blackhole') {
+      return (this.ttl = 0);
+    }
+    switch (side) {
+      case Side.LEFT:
+      case Side.RIGHT:
+        this.dx *= -1;
+        break;
+      case Side.TOP:
+      case Side.BOTTOM:
+        this.dy *= -1;
+        break;
+    }
     switch (collidedWith.type) {
       case 'paddle':
-        const paddle = collidedWith as Paddle;
-        this.combo = 0;
-
-        // Reflect ball
-        switch (side) {
-          case 'left':
-          case 'right':
-            this.dx *= -1;
-            break;
-
-          // ** ROOM FOR IMPROVEMENT **
-          // Edges of paddle bounce ball back instead of reflecting exact angles
-          case 'top':
-          case 'bottom':
-            // If right 1/4 then bounce back right
-            if (at.x > paddle.x + paddle.width / 4) {
-              this.dx = Math.abs(this.dx);
-              this.dy *= -1;
-              // If in the middle 1/2 then reflect
-            } else if (at.x >= paddle.x - paddle.width / 4) {
-              this.dy *= -1;
-              // If left 1/4 then bounce back left
-            } else {
+        {
+          const paddle = collidedWith as Paddle;
+          this.combo = 0;
+          if (side === Side.TOP || side === Side.BOTTOM) {
+            if (at.x <= paddle.x + paddle.width / 4) {
               this.dx = -1 * Math.abs(this.dx);
-              this.dy *= -1;
+            } else if (at.x >= paddle.x + paddle.width * (3 / 4)) {
+              this.dx = Math.abs(this.dx);
             }
-            break;
+          }
         }
         break;
-
       case 'brick':
         this.combo += 1;
         updateScore(this.combo);
-
-        switch (side) {
-          case 'left':
-          case 'right':
-            this.dx *= -1;
-            break;
-
-          case 'top':
-          case 'bottom':
-            this.dy *= -1;
-            break;
-        }
         break;
-
-      case 'wall':
-        switch (side) {
-          case 'left':
-          case 'right':
-            this.dx *= -1;
-            break;
-          case 'top':
-          case 'bottom':
-            this.dy *= -1;
-            break;
-        }
-        break;
-
-      case 'blackhole':
-        this.ttl = 0;
-        return;
+      case 'default':
     }
   }
 }
