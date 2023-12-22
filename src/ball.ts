@@ -1,7 +1,12 @@
 import { getCanvas, PoolClass, Sprite, SpriteClass, Vector } from 'kontra';
 import { FPS } from './globals';
 import { isNullOrUndefined } from './util';
-import { doesCircleCollideWithObject, Collision, Side } from './collision';
+import {
+  doesCircleCollideWithObject,
+  Collision,
+  Side,
+  CollidableQuadTree,
+} from './collision';
 import { updateScore } from './dom';
 import { Collidable } from './collision';
 import { Paddle } from './paddle';
@@ -175,9 +180,9 @@ export class BallPool extends PoolClass {
     return this.getAliveObjects().length;
   }
 
-  updateWithCollision(dt: number, collidable_objects: Collidable[]) {
+  updateWithCollision(dt: number, quadtree: CollidableQuadTree) {
     (this.getAliveObjects() as Ball[]).forEach((ball) => {
-      ball.advanceWithCollision(dt, collidable_objects);
+      ball.advanceWithCollision(dt, quadtree.getNearbyObjects(ball));
     });
     this.update();
   }

@@ -1,4 +1,4 @@
-import { GameLoop, Sprite } from 'kontra';
+import { GameLoop } from 'kontra';
 import * as TWEEN from '@tweenjs/tween.js';
 import { advanceLevel } from './levels';
 import { updateLives } from './dom';
@@ -11,7 +11,8 @@ import { Paddle } from './paddle';
 import { ParticleSwarm } from './particle';
 import { BrickPool } from './brick';
 import { BallPool } from './ball';
-import { Collidable } from './collision';
+import { CollidableQuadTree } from './collision';
+import { Boundary } from './boundary';
 
 let GAMELOOP: GameLoop;
 
@@ -20,27 +21,22 @@ export function createGameLoop(options: {
   balls: BallPool;
   particleSwarm: ParticleSwarm;
   paddle: Paddle;
-  walls: Sprite[];
+  boundaries: Boundary[];
+  quadtree: CollidableQuadTree;
 }) {
-  const { bricks, balls, particleSwarm, paddle, walls } = options;
+  const { bricks, balls, particleSwarm, paddle, boundaries, quadtree } =
+    options;
 
   GAMELOOP = GameLoop({
     fps: FPS.value,
 
     update: function (dt: number) {
       TWEEN.update();
-
-      bricks.update();
-      paddle.move(balls.getBall());
-
-      balls.updateWithCollision(dt, [
-        ...bricks.getAll(),
-        ...walls,
-        paddle,
-      ] as Collidable[]);
-
+      quadtree.update([...bricks.getAll(), ...boundaries, paddle]);
+      balls.updateWithCollision(dt, quadtree);
       particleSwarm.update();
       bricks.update();
+      paddle.move(balls.getBall());
 
       // If all bricks are gone then go to next level/win
       if (bricks.getAliveObjects().length <= 0) {
