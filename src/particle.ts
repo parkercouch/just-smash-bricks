@@ -11,10 +11,6 @@ export class OrbitingParticle extends SpriteClass {
   constructor({ barycenter }: { barycenter: Sprite }) {
     const canvas = getCanvas();
     super({
-      anchor: {
-        x: 0.5,
-        y: 0.5,
-      },
       x: barycenter.x + (2 - Math.random() * 4),
       y: barycenter.y + (2 - Math.random() * 4),
       dx: 2 - Math.random() * 4,
