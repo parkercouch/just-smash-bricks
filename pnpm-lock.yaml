@@ -13,9 +13,6 @@ dependencies:
   '@tweenjs/tween.js':
     specifier: ^21.0.0
     version: 21.0.0(patch_hash=vyvnbyeuetkmsewgvwzgs2wy3a)
-  javascript-state-machine:
-    specifier: ^3.1.0
-    version: 3.1.0
   kontra:
     specifier: ^9.0.0
     version: 9.0.0
@@ -929,10 +926,6 @@ packages:
   /isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
     dev: true
-
-  /javascript-state-machine@3.1.0:
-    resolution: {integrity: sha512-BwhYxQ1OPenBPXC735RgfB+ZUG8H3kjsx8hrYTgWnoy6TPipEy4fiicyhT2lxRKAXq9pG7CfFT8a2HLr6Hmwxg==}
-    dev: false
 
   /js-yaml@4.1.0:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}

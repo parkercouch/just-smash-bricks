@@ -10,7 +10,7 @@ import {
 } from './sounds';
 import { updateLevelDisplay } from './dom';
 import { CURRENT_LEVEL, SCORE } from './globals';
-import { gameStates } from './ui_states';
+import { GameState } from './state';
 import { BrickPool } from './brick';
 
 export function advanceLevel(loop: GameLoop, bricks: BrickPool) {
@@ -44,7 +44,7 @@ export function advanceLevel(loop: GameLoop, bricks: BrickPool) {
       // Big score boost for win
       SCORE.value += 100000;
       loop.stop();
-      gameStates.win();
+      GameState.Instance.win();
       return;
   }
 
