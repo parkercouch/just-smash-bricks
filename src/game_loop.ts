@@ -5,7 +5,7 @@ import { updateLives } from './dom';
 import { stopMusic } from './sounds';
 import { removeTouchEventListeners } from './touch';
 import { addMessage, clearMessages } from './messages';
-import { CURRENT_LEVEL, FPS, LIVES } from './globals';
+import { FPS, LIVES } from './globals';
 import { gameStates } from './ui_states';
 import { Paddle } from './paddle';
 import { ParticleSwarm } from './particle';
@@ -45,11 +45,7 @@ export function createGameLoop(options: {
       // If all bricks are gone then go to next level/win
       if (bricks.getAliveObjects().length <= 0) {
         bricks.clear();
-        CURRENT_LEVEL.value = advanceLevel(
-          GAMELOOP,
-          bricks,
-          CURRENT_LEVEL.value,
-        );
+        advanceLevel(GAMELOOP, bricks);
         LIVES.value += 1;
         updateLives();
         return;
