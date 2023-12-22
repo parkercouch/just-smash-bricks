@@ -36,7 +36,7 @@ export class Ball extends SpriteClass {
     );
   }
 
-  init = () => { };
+  init = () => {};
 
   draw() {
     this.context.fillStyle = this.color;
@@ -45,7 +45,7 @@ export class Ball extends SpriteClass {
     this.context.fill();
   }
 
-  update() { }
+  update() {}
 
   advanceWithCollision(dt: number, collidable_objects: Collidable[]) {
     if (this.attached) {

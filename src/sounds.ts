@@ -1,4 +1,3 @@
-/* eslint-disable */
 import TinyMusic from 'tinymusic';
 
 // TODO: figure out way to remove this
@@ -30,11 +29,11 @@ const s1 = [
 // Lead
 // prettier-ignore
 const s2 = [
-  'C4   e', 'C4   e', 'C4   e', 'C4   e', 'C#4  e', 'C#4  e', 'C#4  e', 'C#4  e',
-  'C#4  e', 'E5   e', 'E5   e', 'E5   e', 'E5   e', 'E5   e', 'E5   e', '-    e',
+  'C4   e', 'C4   e', 'C4   e' , 'C4   e', 'C#4  e', 'C#4  e', 'C#4  e' , 'C#4  e',
+  'C#4  e', 'E5   e', 'E5   e' , 'E5   e', 'E5   e', 'E5   e', 'E5   e' , '-    e',
   '-    e', '-    e', 'F#6  es', 'F#6  s', '-    e', 'C#6  s', '-    es', '-    e',
-  '-    e', '-    e', 'C#5  s', 'C#3  s', '-    q', '-    e', '-    e', '-    e',
-  '-    e', '-    e', 'C#4  s', 'C#2  s', 'C#1  q', '-    e', '-    e', '-    e',
+  '-    e', '-    e', 'C#5  s' , 'C#3  s', '-    q', '-    e', '-    e' , '-    e',
+  '-    e', '-    e', 'C#4  s' , 'C#2  s', 'C#1  q', '-    e', '-    e' , '-    e',
 ];
 
 // Dissonant harmony

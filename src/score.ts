@@ -1,14 +1,12 @@
-/* eslint-disable */
-
-import { getStoreItem, setStoreItem } from "kontra";
-import { DEBUG_ON } from "./globals";
+import { getStoreItem, setStoreItem } from 'kontra';
+import { DEBUG_ON } from './globals';
 
 export function updateHighScores(score: number) {
   if (DEBUG_ON.value) {
     return;
   }
 
-  const currentHighScores: number[] = getStoreItem('highScores') ?? [];
+  const currentHighScores = (getStoreItem('highScores') as number[]) ?? [];
 
   currentHighScores.push(score);
   currentHighScores.sort((a: number, b: number) => b - a);
@@ -22,7 +20,7 @@ export function updateHighScores(score: number) {
 }
 
 export function displayHighScore() {
-  const highScores: number[] = getStoreItem('highScores') ?? [];
+  const highScores = (getStoreItem('highScores') as number[]) ?? [];
 
   const scoreList = document.getElementById('highscore-list');
 

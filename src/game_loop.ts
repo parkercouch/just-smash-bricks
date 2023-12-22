@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { GameLoop, Sprite } from 'kontra';
 import * as TWEEN from '@tweenjs/tween.js';
 import { advanceLevel } from './levels';
@@ -34,7 +33,11 @@ export function createGameLoop(options: {
       bricks.update();
       paddle.move(balls.getBall());
 
-      balls.updateWithCollision(dt, [...bricks.getAll(), ...walls, paddle] as Collidable[]);
+      balls.updateWithCollision(dt, [
+        ...bricks.getAll(),
+        ...walls,
+        paddle,
+      ] as Collidable[]);
 
       particleSwarm.update();
       bricks.update();
@@ -42,7 +45,11 @@ export function createGameLoop(options: {
       // If all bricks are gone then go to next level/win
       if (bricks.getAliveObjects().length <= 0) {
         bricks.clear();
-        CURRENT_LEVEL.value = advanceLevel(this, bricks, CURRENT_LEVEL.value);
+        CURRENT_LEVEL.value = advanceLevel(
+          GAMELOOP,
+          bricks,
+          CURRENT_LEVEL.value,
+        );
         LIVES.value += 1;
         updateLives();
         return;
@@ -52,7 +59,7 @@ export function createGameLoop(options: {
         LIVES.value -= 1;
         // You Lose!
         if (LIVES.value <= 0) {
-          this.stop();
+          GAMELOOP.stop();
           stopMusic();
           removeTouchEventListeners();
           gameStates.lose();
@@ -77,7 +84,7 @@ export function createGameLoop(options: {
   return GAMELOOP;
 }
 
-export function pause(e: any) {
+export function pause(e: { keyCode: number }) {
   if (e.keyCode === 112) {
     if (GAMELOOP.isStopped) {
       clearMessages();
