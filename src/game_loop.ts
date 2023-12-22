@@ -6,7 +6,7 @@ import { stopMusic } from './sounds';
 import { removeTouchEventListeners } from './touch';
 import { addMessage, clearMessages } from './messages';
 import { FPS, LIVES } from './globals';
-import { gameStates } from './ui_states';
+import { GameState } from './state';
 import { Paddle } from './paddle';
 import { ParticleSwarm } from './particle';
 import { BrickPool } from './brick';
@@ -54,7 +54,7 @@ export function createGameLoop(options: {
           GAMELOOP.stop();
           stopMusic();
           removeTouchEventListeners();
-          gameStates.lose();
+          GameState.Instance.lose();
           return;
         }
         updateLives();
