@@ -9,12 +9,13 @@ import {
   createRightButton,
 } from './touch';
 import { createGameLoop } from './game_loop';
-import { createWalls } from './wall';
+import { createBoundaries } from './boundary';
 import { CURRENT_LEVEL, LIVES, SCORE } from './globals';
 import { Paddle } from './paddle';
 import { ParticleSwarm } from './particle';
 import { BrickPool } from './brick';
 import { BallPool } from './ball';
+import { CollidableQuadTree } from './collision';
 
 export const startGameLoop = () => {
   LIVES.value = 5;
@@ -38,7 +39,6 @@ export const startGameLoop = () => {
   leftButton.render();
   middleButton.render();
 
-  const walls = createWalls();
   const bricks = new BrickPool();
 
   generate_level(bricks, 1);
@@ -59,7 +59,8 @@ export const startGameLoop = () => {
     balls,
     particleSwarm,
     paddle,
-    walls,
+    boundaries: createBoundaries(),
+    quadtree: new CollidableQuadTree(),
   });
 
   gameLoop.start();
