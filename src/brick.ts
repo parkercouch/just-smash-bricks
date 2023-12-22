@@ -8,7 +8,7 @@ const BRICK_WIDTH = 50;
 
 export class Brick extends SpriteClass implements Collidable {
   type = 'brick';
-  hitbox_padding = 2;
+  hitbox_padding = -1;
   hits: number;
   spawnLocation: {
     x: number;

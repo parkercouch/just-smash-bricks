@@ -22,7 +22,7 @@ export class Boundary extends GameObjectClass implements Collidable {
     this.width = width;
     this.height = height;
     this.type = type;
-    this.hitbox_padding = 0;
+    this.hitbox_padding = -3;
   }
 
   onHit() {
@@ -35,31 +35,31 @@ export function createBoundaries(): Boundary[] {
   return [
     new Boundary({
       type: 'left_wall',
-      x: -0.5,
+      x: 0,
       y: 0,
-      width: 1,
+      width: 2,
       height: canvas.height,
     }),
     new Boundary({
       type: 'right_wall',
-      x: canvas.width - 0.5,
+      x: canvas.width,
       y: 0,
-      width: 1,
+      width: 2,
       height: canvas.height,
     }),
     new Boundary({
       type: 'ceiling',
       x: 0,
-      y: -0.5,
+      y: 0,
       width: canvas.width,
-      height: 1,
+      height: 2,
     }),
     new Boundary({
       type: 'blackhole',
       x: 0,
-      y: canvas.height - 0.5,
+      y: canvas.height,
       width: canvas.width,
-      height: 1,
+      height: 2,
     }),
   ];
 }
