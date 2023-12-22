@@ -9,20 +9,15 @@ import {
   stopMusic,
 } from './sounds';
 import { updateLevelDisplay } from './dom';
-import { SCORE } from './globals';
+import { CURRENT_LEVEL, SCORE } from './globals';
 import { gameStates } from './ui_states';
 import { BrickPool } from './brick';
 
-export function advanceLevel(
-  loop: GameLoop,
-  bricks: BrickPool,
-  currentLevel: number,
-): number {
-  const level = currentLevel + 1;
-  // score boost for every level
-  SCORE.value += level * 1000;
+export function advanceLevel(loop: GameLoop, bricks: BrickPool) {
+  CURRENT_LEVEL.value += 1;
+  SCORE.value += CURRENT_LEVEL.value * 1000;
 
-  switch (level) {
+  switch (CURRENT_LEVEL.value) {
     case 2:
       startNextSong(level2);
       generate_level(bricks, 2);
@@ -50,29 +45,32 @@ export function advanceLevel(
       SCORE.value += 100000;
       loop.stop();
       gameStates.win();
-      return 0;
+      return;
   }
 
   bricks.forEach((brick, i) => {
     brick.onSpawn(500 / (1 + Math.floor(i / 6)));
   });
 
-  updateLevelDisplay(level);
+  updateLevelDisplay(CURRENT_LEVEL.value);
   playDropSound(300);
-  return level;
 }
 
 export function generate_level(pool: BrickPool, hits: number) {
-  for (let i = 1; i <= 5; i++) {
-    for (let j = 1; j <= 6; j++) {
-      const startX = 30 + j * 5 + (j - 1) * 50;
-      const startY = 30 + i * 5 + (i - 1) * 15 - 500;
-
-      pool.get({
-        startX,
-        startY,
-        hits,
-      });
-    }
-  }
+  //prettier-ignore
+  const levelCoords =
+    [
+      [35, 35], [90, 35], [145, 35], [200, 35], [255, 35], [310, 35],
+      [35, 55], [90, 55], [145, 55], [200, 55], [255, 55], [310, 55],
+      [35, 75], [90, 75], [145, 75], [200, 75], [255, 75], [310, 75],
+      [35, 95], [90, 95], [145, 95], [200, 95], [255, 95], [310, 95],
+      [35, 115], [90, 115], [145, 115], [200, 115], [255, 115], [310, 115],
+    ];
+  levelCoords.map(([x, y]) =>
+    pool.get({
+      startX: x,
+      startY: y - 500,
+      hits,
+    }),
+  );
 }
