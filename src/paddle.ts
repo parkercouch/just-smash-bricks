@@ -5,24 +5,18 @@ import { playPaddleSound } from './sounds';
 import { Collidable } from './collision';
 import { isLeftPressed, isRightPressed } from './input';
 
-const PADDLE_WIDTH = 80;
-const PADDLE_HEIGHT = 15;
-const PADDLE_COLOR = '#B993EA';
-
 export class Paddle extends SpriteClass implements Collidable {
   type = 'paddle';
   hitbox_padding = -1;
+  width= 80;
+  height= 15;
+  color= '#B993EA';
 
   constructor() {
     const canvas = getCanvas();
-    super({
-      x: canvas.width / 2 - PADDLE_WIDTH / 2,
-      y: canvas.height - 50 - PADDLE_HEIGHT / 2,
-      width: PADDLE_WIDTH,
-      height: PADDLE_HEIGHT,
-      color: PADDLE_COLOR,
-    });
-
+    super();
+    this.x = canvas.width / 2 - this.width / 2;
+    this.y = canvas.height - 50 - this.height / 2;
     this.position.clamp(0, 0, canvas.width - this.width, canvas.height);
   }
 

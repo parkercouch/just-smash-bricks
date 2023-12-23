@@ -1,10 +1,9 @@
 import { CURRENT_LEVEL, LIVES, SCORE } from './globals';
 
-export const MESSAGE = document.getElementById('message')!;
-export const TITLE = document.getElementById('title')!;
-export const TOP_DISPLAY = document.getElementById('top-display')!;
+const MESSAGE = document.getElementById('message')!;
+const TITLE = document.getElementById('title')!;
+const TOP_DISPLAY = document.getElementById('top-display')!;
 
-// startIntroScene :: () -> [timeout id's]
 export function startIntroScene(): number[] {
   const intro_messages = [
     { delay_ms: 2000, message: `WAKE UP!` },

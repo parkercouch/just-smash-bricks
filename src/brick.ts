@@ -3,29 +3,20 @@ import { PoolClass, SpriteClass, emit, on } from 'kontra';
 import { playChirpSound } from './sounds';
 import { Collidable, Collision } from './collision';
 
-const BRICK_HEIGHT = 15;
-const BRICK_WIDTH = 50;
-
 export class Brick extends SpriteClass implements Collidable {
   type = 'brick';
+  color = 'black';
+  width = 50;
+  height = 15;
   hitbox_padding = -1;
-  hits: number;
-  spawnLocation: {
-    x: number;
-    y: number;
+  hits = 1;
+  spawnLocation = {
+    x: 0,
+    y: 0,
   };
 
-  constructor(hits = 1) {
-    super({
-      width: BRICK_WIDTH,
-      height: BRICK_HEIGHT,
-      color: 'black',
-    });
-    this.hits = hits;
-    this.spawnLocation = {
-      x: 0,
-      y: 0,
-    };
+  constructor() {
+    super();
   }
 
   init = (properties?: unknown) => {

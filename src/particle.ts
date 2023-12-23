@@ -1,25 +1,22 @@
 import { Pool, Sprite, SpriteClass, getCanvas } from 'kontra';
 
-const PARTICLE_COLOR = '#ECFFE0';
-
 export class OrbitingParticle extends SpriteClass {
   type = 'particle';
+  color = '#ECFFE0';
+  width = 3;
+  height = 3;
   barycenter: Sprite;
   maxDx = 10;
   maxDy = 10;
 
   constructor({ barycenter }: { barycenter: Sprite }) {
     const canvas = getCanvas();
-    super({
-      x: barycenter.x + (2 - Math.random() * 4),
-      y: barycenter.y + (2 - Math.random() * 4),
-      dx: 2 - Math.random() * 4,
-      dy: 2 - Math.random() * 4,
-      color: PARTICLE_COLOR,
-      width: 3,
-      height: 3,
-    });
+    super();
     this.barycenter = barycenter;
+    this.x = barycenter.x + (2 - Math.random() * 4);
+    this.y = barycenter.y + (2 - Math.random() * 4);
+    this.dx = 2 - Math.random() * 4;
+    this.dy = 2 - Math.random() * 4;
 
     this.position.clamp(-50, -50, canvas.width + 50, canvas.height + 50);
   }
