@@ -3,6 +3,7 @@ import { playBounceSound } from './sounds';
 import { Collidable } from './collision';
 
 export class Boundary extends GameObjectClass implements Collidable {
+  hitbox_padding = -3;
   constructor({
     x,
     y,
@@ -22,7 +23,6 @@ export class Boundary extends GameObjectClass implements Collidable {
     this.width = width;
     this.height = height;
     this.type = type;
-    this.hitbox_padding = -3;
   }
 
   onHit() {

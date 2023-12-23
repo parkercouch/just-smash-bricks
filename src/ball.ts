@@ -1,6 +1,5 @@
 import { getCanvas, PoolClass, Sprite, SpriteClass, Vector } from 'kontra';
 import { FPS } from './globals';
-import { isNullOrUndefined } from './util';
 import {
   doesCircleCollideWithObject,
   Collision,
@@ -12,27 +11,20 @@ import { Collidable } from './collision';
 import { Paddle } from './paddle';
 import { isMiddlePressed } from './input';
 
-const BALL_COLOR = 'white';
-
 export class Ball extends SpriteClass {
-  radius: number;
+  type = 'ball';
+  color = 'white';
+  radius = 11;
   attached: Sprite | null;
-  mass: number;
-  combo: number;
+  mass = 100;
+  combo = 0;
 
   constructor({ attached }: { attached: Sprite }) {
     const canvas = getCanvas();
-    super({
-      type: 'ball',
-      x: attached.x + attached.width,
-      y: attached.y - 11,
-      color: BALL_COLOR,
-    });
-
-    this.combo = 0;
-    this.mass = 100;
+    super();
     this.attached = attached;
-    this.radius = 11;
+    this.x = attached.x + attached.width;
+    this.y = attached.y - this.radius;
     this.position.clamp(
       0,
       0,
@@ -65,7 +57,7 @@ export class Ball extends SpriteClass {
     // keep checking collision until out of time
     while (dt >= 0) {
       const maybeCollision = this.checkCollision(dt, collidable_objects);
-      if (isNullOrUndefined(maybeCollision)) {
+      if (!maybeCollision) {
         return this.advance(dt * FPS.value);
       }
       const { collision, udt } = maybeCollision;
@@ -105,7 +97,7 @@ export class Ball extends SpriteClass {
         item: Collidable,
       ) => {
         const collision = doesCircleCollideWithObject(this, nextPosition, item);
-        if (isNullOrUndefined(collision)) {
+        if (!collision) {
           return acc;
         }
 

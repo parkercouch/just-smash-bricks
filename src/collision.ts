@@ -1,5 +1,4 @@
 import { GameObject, Quadtree, Vector, getWorldRect } from 'kontra';
-import { isNullOrUndefined } from './util';
 
 export const DEFAULT_HITBOX_PADDING = 2;
 
@@ -104,7 +103,7 @@ export function doesCircleCollideWithObject(
     }
   }
 
-  if (!isNullOrUndefined(collision)) {
+  if (collision) {
     return collision;
   }
 
